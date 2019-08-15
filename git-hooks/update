@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+set -euo pipefail
+set -x
+
+BRANCH_NAME=$1
+shift
+FROM_REV=$1
+shift
+TO_REV=$1
+shift
+
+if [ "$BRANCH_NAME" != "refs/heads/master" ] ; then
+    exit 0
+fi
+
+if [ $(git rev-list "$TO_REV".."$FROM_REV" | head -c1 | wc -c) -ne 0 ] ; then
+    2>&1 echo "Cannot update $BRANCH_NAME from $FROM_REV to $TO_REV; not a fast-forward"
+    exit 1
+fi
+
+CLEAN=$(mktemp -d 2>/dev/null || mktemp -d -t 'clean') # This crazy workaround ensures that it will work on both Mac OS and Linux; see https://unix.stackexchange.com/questions/30091/fix-or-alternative-for-mktemp-in-os-x
+trap "rm -rf \"$CLEAN\"" EXIT
+
+# git archive "$TO_REV" | tar -C "$CLEAN" x
+
+# git clone -n "$GIT_DIR" "$CLEAN"
+# env -u GIT_DIR git -C "$CLEAN" checkout "$TO_REV"
+# env -u GIT_DIR git -C "$CLEAN" submodule update --init --recursive
+
+# Without pruning, old deleted ones seem to cause problems sometimes
+git worktree prune
+# This is much faster than cloning
+git worktree add "$CLEAN/src" "$TO_REV"
+#TODO: Technically, we should use TRAP again here to remove the work tree, but I don't know how to stack/nest traps properly
+
+env -u GIT_DIR git -C "$CLEAN/src" submodule update --init --recursive
+
+#TODO: Here we are hardcoding nixpkgs; do we really want to force that to be set up exactly that way?
+# We unset NIX_PATH so that it doesn't surprise us by falling back to something unexpected if one of these paths is wrong
+( cd "$CLEAN" && env -u NIX_PATH nixos-rebuild build -I "nixos-config=$CLEAN/src" -I "nixpkgs=$CLEAN/src/nixpkgs" --show-trace )
+
+mkdir -p "$GIT_DIR/builds"
+nix-store -r --add-root "$GIT_DIR/builds/$TO_REV" --indirect "$(readlink "$CLEAN/result")"
+
+# Needs -f because it may contain checked-out submodules
+git worktree remove -f "$CLEAN/src"
+
+#TODO: Need a way to kick off this process without pushing a fresh reference

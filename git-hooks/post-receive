@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REV_TO_ACTIVATE=
+
+while read FROM_REV TO_REV REFNAME ; do
+    if [ "$REFNAME" = "refs/heads/master" ] ; then
+        REV_TO_ACTIVATE="$TO_REV"
+    fi
+done
+
+if [ "$REV_TO_ACTIVATE" != "" ] ; then
+    PATH_TO_ACTIVATE="$(readlink "$GIT_DIR/builds/$REV_TO_ACTIVATE")"
+    #TODO: We need locking or something to ensure that activation occurs in the right order, at most one at a time
+    nix-env -p "/nix/var/nix/profiles/system" --set "$PATH_TO_ACTIVATE"
+    "$PATH_TO_ACTIVATE/bin/switch-to-configuration" switch
+
+    # Once we've switched to it and put it in the profile, we don't need to retain it anymore
+    rm "$GIT_DIR/builds/$REV_TO_ACTIVATE"
+fi
