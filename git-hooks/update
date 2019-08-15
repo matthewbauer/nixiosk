@@ -21,12 +21,6 @@ fi
 CLEAN=$(mktemp -d 2>/dev/null || mktemp -d -t 'clean') # This crazy workaround ensures that it will work on both Mac OS and Linux; see https://unix.stackexchange.com/questions/30091/fix-or-alternative-for-mktemp-in-os-x
 trap "rm -rf \"$CLEAN\"" EXIT
 
-# git archive "$TO_REV" | tar -C "$CLEAN" x
-
-# git clone -n "$GIT_DIR" "$CLEAN"
-# env -u GIT_DIR git -C "$CLEAN" checkout "$TO_REV"
-# env -u GIT_DIR git -C "$CLEAN" submodule update --init --recursive
-
 # Without pruning, old deleted ones seem to cause problems sometimes
 git worktree prune
 # This is much faster than cloning
