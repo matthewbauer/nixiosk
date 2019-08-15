@@ -6,6 +6,22 @@ One big reason to do this is that, even though NixOS makes rolling back to a par
 
 ## How To
 
+### Set up Basalt
+
+As root:
+
+```bash
+cd /etc/nixos
+git init --bare configuration
+cd configuration
+ln -s /path/to/basalt/git-hooks hooks
+```
+
+* Your configuration.nix becomes default.nix in the configuration repo
+* You *must* have `nixpkgs` as a submodule at /nixpkgs in your configuration repo
+
+TODO: Better way of managing Basalt itself
+
 ### Update your configuration
 
 ```bash
@@ -17,10 +33,12 @@ cd configuration
 git config remote.origin.receivepack 'sudo git-receive-pack'
 ```
 
-Now you have a local copy of the system config that you can update with your editor(s) of choice.  When you're done, do:
+Now you have a local copy of the system config that you can update with your editor(s) of choice.  When you're done, push to the master branch:
 
 ```bash
 git push
 ```
+
+Note that, in order to be built/deployed, the target branch must be called `master`.
 
 You will need to authenticate however you usually do when you run commands with sudo.
