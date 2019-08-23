@@ -14,6 +14,7 @@ As root:
 cd /etc/nixos
 git init --bare configuration
 cd configuration
+rm -r hooks
 ln -s /path/to/basalt/git-hooks hooks
 ```
 
