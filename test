@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+env -u NIX_PATH nixos-rebuild build -I "nixos-config=$PWD" -I "nixpkgs=$PWD/nixpkgs" --keep-going --show-trace || env -u NIX_PATH nixos-rebuild build -I "nixos-config=$PWD" -I "nixpkgs=$PWD/nixpkgs" -j 1
