@@ -1,3 +1,7 @@
+## IMPORTANT
+
+This software is not yet stable; please do not use it on important systems yet.
+
 ## Introduction
 
 Basalt is a tool for using git to manage your nixos configuration.  Rather than using nixos-rebuild switch, we push to a branch.
@@ -25,12 +29,14 @@ TODO: Better way of managing Basalt itself
 
 ### Update your configuration
 
+Note: This also works for reconfiguring a system that you have mounted, e.g. when booted from a NixOS installation disk.  It will automatically use chroot appropriately.
+
 ```bash
 # Create a checkout of your system config, owned by your user
 git clone /etc/nixos/configuration
 cd configuration
 
-# Allow `git push` to update the system config, with proper authorization
+# If you aren't root, do this to allow `git push` to update the system config, with proper authorization
 git config remote.origin.receivepack 'sudo git-receive-pack'
 ```
 
