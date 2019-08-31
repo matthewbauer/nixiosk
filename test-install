@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+set -euo pipefail
+set -x
+
+#TODO: Purify this
+#TODO: Make it run in a temp directory
+
+#TODO: Lock down nixpkgs
+INSTALLER_ISO="$(echo "$(nix-build --no-out-link -E '(import <nixpkgs/nixos> { system = "x86_64-linux"; configuration = { config, ... }: { imports = [ (<nixpkgs> + /nixos/modules/installer/cd-dvd/installation-cd-minimal.nix) ]; boot.kernelParams = [ "console=ttyS0" ]; }; }).config.system.build.isoImage')"/iso/*.iso)"
+
+OVMF_FD="$(nix-build '<nixpkgs>' -A OVMF.fd --no-out-link)"
+cp "$OVMF_FD/FV/OVMF.fd" .
+
+qemu-img create -f qcow2 root.qcow2 10G
+
+expect <<EOF
+set timeout 100
+
+# Boot the machine
+spawn qemu-kvm -nographic -pflash OVMF.fd -m 2G -cdrom "$INSTALLER_ISO" root.qcow2
+# Don't wait for boot loader countdown
+expect "automatically"
+send -- "\r"
+expect "nixos@nixos"
+
+send -- "sudo bash\r"
+expect "root@nixos"
+
+send -- "nix-env -iA nixos.git\r"
+expect "root@nixos"
+
+send -- "nix-env -iA nixos.gitAndTools.git-subrepo\r"
+expect "root@nixos"
+
+# Partition the target disk
+send -- "gdisk /dev/sda\r"
+expect "Command"
+# Create the boot partition
+send -- "n\r\r\r+2G\rEF00\r"
+expect "Command"
+# Create the root partition
+send -- "n\r\r\r\r\r"
+expect "Command"
+# Write the partition table
+send -- "w\ry\r"
+expect "root@nixos"
+
+send -- "mkfs.fat -F 32 -n boot /dev/sda1\r"
+expect "root@nixos"
+
+send -- "mkfs.ext4 /dev/sda2\r"
+expect "root@nixos"
+
+send -- "mount /dev/sda2 /mnt\r"
+expect "root@nixos"
+
+send -- "mkdir /mnt/boot\r"
+expect "root@nixos"
+
+send -- "mount /dev/sda1 /mnt/boot\r"
+expect "root@nixos"
+
+send -- "mkdir -m 0755 -p /mnt/etc/nixos\r"
+expect "root@nixos"
+
+# Mark the location as a nixos installation
+send -- "touch /mnt/etc/NIXOS\r"
+expect "root@nixos"
+
+send -- "git clone https://gitlab.com/obsidian.systems/basalt /mnt/etc/nixos/basalt\r"
+expect "root@nixos"
+
+send -- "git init --bare /mnt/etc/nixos/configuration\r"
+expect "root@nixos"
+
+send -- "rm -rf /mnt/etc/nixos/configuration/hooks\r"
+expect "root@nixos"
+
+send -- "ln -s ../basalt/git-hooks /mnt/etc/nixos/configuration/hooks\r"
+expect "root@nixos"
+
+send -- "ls /mnt/etc/nixos/configuration/hooks/\r"
+expect "root@nixos"
+
+send -- "git clone /mnt/etc/nixos/configuration\r"
+expect "root@nixos"
+
+# Can't do boot.loader.efi.canTouchEfiVariables = true; see https://github.com/NixOS/nixpkgs/issues/62585
+#send -- "echo '{...}: { boot.loader.grub = { enable = true; device = \"/dev/sda\"; efiSupport = true; efiInstallAsRemovable = true; }; boot.kernelParams = \[ \"console=ttyS0\" \]; fileSystems.\"/\" = { device = \"/dev/sda2\"; fsType = \"ext4\"; }; fileSystems.\"/boot\" = { device = \"/dev/sda1\"; fsType = \"vfat\"; }; }' >configuration/default.nix\r"
+send -- "echo '{...}: { boot.loader.systemd-boot.enable = true; boot.loader.efi.canTouchEfiVariables = true; boot.kernelParams = \[ \"console=ttyS0\" \]; fileSystems.\"/\" = { device = \"/dev/sda2\"; fsType = \"ext4\"; }; fileSystems.\"/boot\" = { device = \"/dev/sda1\"; fsType = \"vfat\"; }; }' >configuration/default.nix\r"
+expect "root@nixos"
+
+send -- "git config --global user.email test@example.com\r"
+expect "root@nixos"
+
+send -- "git config --global user.name 'Test User'\r"
+expect "root@nixos"
+
+send -- "git -C configuration add default.nix\r"
+expect "root@nixos"
+
+send -- "git -C configuration commit -m 'Initial commit'\r"
+expect "root@nixos"
+
+set timeout -1
+send -- "git -C configuration subrepo clone -v --branch nixos-19.03-small https://github.com/NixOS/nixpkgs-channels nixpkgs\r"
+expect "root@nixos"
+
+send -- "git -C configuration push -u origin HEAD\r"
+expect "root@nixos"
+
+send -- "shutdown -r now\r"
+expect "Boot in"
+send -- "\r"
+
+expect "nixos login:"
+EOF
