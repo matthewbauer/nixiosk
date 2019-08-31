@@ -2,12 +2,15 @@
 set -euo pipefail
 set -x
 
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
 #TODO: Purify this
 #TODO: Make it run in a temp directory
 
 #TODO: Lock down nixpkgs
-INSTALLER_ISO="$(echo "$(nix-build --no-out-link -E '(import <nixpkgs/nixos> { system = "x86_64-linux"; configuration = { config, ... }: { imports = [ (<nixpkgs> + /nixos/modules/installer/cd-dvd/installation-cd-minimal.nix) ]; boot.kernelParams = [ "console=ttyS0" ]; }; }).config.system.build.isoImage')"/iso/*.iso)"
+INSTALLER_ISO="$(echo "$(nix-build --no-out-link "$DIR/testInstaller.nix")"/iso/*.iso)"
 
+# Necessary for UEFI
 OVMF_FD="$(nix-build '<nixpkgs>' -A OVMF.fd --no-out-link)"
 cp "$OVMF_FD/FV/OVMF.fd" .
 
@@ -67,27 +70,26 @@ expect "root@nixos"
 send -- "touch /mnt/etc/NIXOS\r"
 expect "root@nixos"
 
-send -- "git clone https://gitlab.com/obsidian.systems/basalt /mnt/etc/nixos/basalt\r"
+#send -- "git clone https://gitlab.com/obsidian.systems/basalt /mnt/etc/nixos/basalt\r"
+#expect "root@nixos"
+
+send -- "git init --bare /mnt/etc/nixos/configuration.git\r"
 expect "root@nixos"
 
-send -- "git init --bare /mnt/etc/nixos/configuration\r"
+send -- "rm -rf /mnt/etc/nixos/configuration.git/hooks\r"
 expect "root@nixos"
 
-send -- "rm -rf /mnt/etc/nixos/configuration/hooks\r"
+#send -- "ln -s ../basalt/git-hooks /mnt/etc/nixos/configuration.git/hooks\r"
+send -- "ln -s \"\\\$BASALT_GIT_HOOKS\" /mnt/etc/nixos/configuration.git/hooks\r"
 expect "root@nixos"
 
-send -- "ln -s ../basalt/git-hooks /mnt/etc/nixos/configuration/hooks\r"
+send -- "ls /mnt/etc/nixos/configuration.git/hooks/\r"
 expect "root@nixos"
 
-send -- "ls /mnt/etc/nixos/configuration/hooks/\r"
+send -- "git clone /mnt/etc/nixos/configuration.git\r"
 expect "root@nixos"
 
-send -- "git clone /mnt/etc/nixos/configuration\r"
-expect "root@nixos"
-
-# Can't do boot.loader.efi.canTouchEfiVariables = true; see https://github.com/NixOS/nixpkgs/issues/62585
-#send -- "echo '{...}: { boot.loader.grub = { enable = true; device = \"/dev/sda\"; efiSupport = true; efiInstallAsRemovable = true; }; boot.kernelParams = \[ \"console=ttyS0\" \]; fileSystems.\"/\" = { device = \"/dev/sda2\"; fsType = \"ext4\"; }; fileSystems.\"/boot\" = { device = \"/dev/sda1\"; fsType = \"vfat\"; }; }' >configuration/default.nix\r"
-send -- "echo '{...}: { boot.loader.systemd-boot.enable = true; boot.loader.efi.canTouchEfiVariables = true; boot.kernelParams = \[ \"console=ttyS0\" \]; fileSystems.\"/\" = { device = \"/dev/sda2\"; fsType = \"ext4\"; }; fileSystems.\"/boot\" = { device = \"/dev/sda1\"; fsType = \"vfat\"; }; }' >configuration/default.nix\r"
+send -- "echo '{...}: { boot.loader.systemd-boot.enable = true; boot.loader.efi.canTouchEfiVariables = true; boot.kernelParams = \[ \"console=ttyS0\" \]; fileSystems.\"/\" = { device = \"/dev/sda2\"; fsType = \"ext4\"; }; fileSystems.\"/boot\" = { device = \"/dev/sda1\"; fsType = \"vfat\"; }; }' >configuration/configuration.nix\r"
 expect "root@nixos"
 
 send -- "git config --global user.email test@example.com\r"
@@ -96,7 +98,7 @@ expect "root@nixos"
 send -- "git config --global user.name 'Test User'\r"
 expect "root@nixos"
 
-send -- "git -C configuration add default.nix\r"
+send -- "git -C configuration add configuration.nix\r"
 expect "root@nixos"
 
 send -- "git -C configuration commit -m 'Initial commit'\r"

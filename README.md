@@ -16,14 +16,14 @@ As root:
 
 ```bash
 cd /etc/nixos
-git init --bare configuration
-cd configuration
+git init --bare configuration.git
+cd configuration.git
 rm -r hooks
 ln -s /path/to/basalt/git-hooks hooks
 ```
 
-* Your configuration.nix becomes default.nix in the configuration repo
-* You *must* have `nixpkgs` as a submodule at /nixpkgs in your configuration repo
+* Everything that used to be in /etc/nixos moves to the configuration repo
+* You *must* have `nixpkgs` as a git subtree or [subrepo](https://github.com/ingydotnet/git-subrepo) at /nixpkgs in your configuration repo.  Note that a submodule won't work, because we want to ensure that we have the full configuration source.  (Note: we could support submodules if we had a way of ensuring that their sources don't become unavailable, for example by sandboxing the build process; however, this work has not been done yet.)
 
 TODO: Better way of managing Basalt itself
 
@@ -33,7 +33,7 @@ Note: This also works for reconfiguring a system that you have mounted, e.g. whe
 
 ```bash
 # Create a checkout of your system config, owned by your user
-git clone /etc/nixos/configuration
+git clone /etc/nixos/configuration.git
 cd configuration
 
 # If you aren't root, do this to allow `git push` to update the system config, with proper authorization
@@ -49,3 +49,8 @@ git push
 Note that, in order to be built/deployed, the target branch must be called `master`.
 
 You will need to authenticate however you usually do when you run commands with sudo.
+
+## Design Goals
+
+1. Ensure that, prior to switching to any configuration, the full source is committed to git.  This ensures that a single git hash is sufficient to completely reconstruct your configuration as it was at any point in history.
+1. Ensure that it's always possible to rollback or reconfigure without network access.  In particular, we want to be able to recover from a scenario where a configuration change makes the internet unreachable.

@@ -30,7 +30,7 @@ git worktree add "$CLEAN/src" "$TO_REV"
 #TODO: Here we are hardcoding nixpkgs; do we really want to force that to be set up exactly that way?
 # We unset NIX_PATH so that it doesn't surprise us by falling back to something unexpected if one of these paths is wrong
 ROOT="$(realpath "$GIT_DIR/../../..")"
-( cd "$CLEAN" && env -u NIX_PATH nix-build --store "$ROOT" -I "nixos-config=$CLEAN/src" -I "nixpkgs=$CLEAN/src/nixpkgs" '<nixpkgs/nixos>' -A system --show-trace )
+( cd "$CLEAN" && env -u NIX_PATH nix-build --store "$ROOT" -I "nixos-config=$CLEAN/src/configuration.nix" -I "nixpkgs=$CLEAN/src/nixpkgs" '<nixpkgs/nixos>' -A system --show-trace )
 
 mkdir -p "$GIT_DIR/builds"
 #TODO: Is there a race condition here, where the result of nixos-rebuild could get removed before we add it as a GC root here?
