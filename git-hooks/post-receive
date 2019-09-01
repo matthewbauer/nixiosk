@@ -11,16 +11,13 @@ while read FROM_REV TO_REV REFNAME ; do
 done
 
 if [ "$REV_TO_ACTIVATE" != "" ] ; then
-    PATH_TO_ACTIVATE="$(readlink "$GIT_DIR/builds/$REV_TO_ACTIVATE")"
-    ROOT="$(realpath "$GIT_DIR/../../..")"
-    #TODO: We need locking or something to ensure that activation occurs in the right order, at most one at a time
-    nix-env --store "$ROOT" -p "$ROOT/nix/var/nix/profiles/system" --set "$PATH_TO_ACTIVATE"
-    if [ "$ROOT" = / ] ; then
-        "$PATH_TO_ACTIVATE/bin/switch-to-configuration" switch
-    else
-        NIXOS_INSTALL_BOOTLOADER=1 nixos-enter --root "$ROOT" -- "$PATH_TO_ACTIVATE/bin/switch-to-configuration" boot
-    fi
+    CLEAN=$(mktemp -d 2>/dev/null || mktemp -d -t 'clean') # This crazy workaround ensures that it will work on both Mac OS and Linux; see https://unix.stackexchange.com/questions/30091/fix-or-alternative-for-mktemp-in-os-x
+    trap "rm -rf \"$CLEAN\"" EXIT
 
-    # Once we've switched to it and put it in the profile, we don't need to retain it anymore
-    rm "$GIT_DIR/builds/$REV_TO_ACTIVATE"
+    mkdir "$CLEAN/src"
+    git archive --format=tar "$TO_REV" basalt/git-hook-impls | tar x -C "$CLEAN/src"
+
+    #NOTE: We can't exec here, because that will defeat our EXIT trap for cleaning up the temporary directory
+    # See https://stackoverflow.com/questions/24111981/how-can-i-achieve-bash-exit-trap-when-exec-ing-another-binary
+    "$CLEAN/src/basalt/git-hook-impls/post-receive" "$REV_TO_ACTIVATE" "$@"
 fi
