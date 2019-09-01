@@ -16,7 +16,7 @@ if [ "$REV_TO_ACTIVATE" != "" ] ; then
     #TODO: We need locking or something to ensure that activation occurs in the right order, at most one at a time
     nix-env --store "$ROOT" -p "$ROOT/nix/var/nix/profiles/system" --set "$PATH_TO_ACTIVATE"
     if [ "$ROOT" = / ] ; then
-	"$PATH_TO_ACTIVATE/bin/switch-to-configuration" switch
+        "$PATH_TO_ACTIVATE/bin/switch-to-configuration" switch
     else
         NIXOS_INSTALL_BOOTLOADER=1 nixos-enter --root "$ROOT" -- "$PATH_TO_ACTIVATE/bin/switch-to-configuration" boot
     fi
