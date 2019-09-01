@@ -23,7 +23,7 @@ ln -s /path/to/basalt/git-hooks hooks
 ```
 
 * Everything that used to be in /etc/nixos moves to the configuration repo
-* You *must* have both `nixpkgs` and `basalt` as a git subtree or [subrepo](https://github.com/ingydotnet/git-subrepo) at /nixpkgs in your configuration repo.  Note that a submodule won't work, because we want to ensure that we have the full configuration source.  (Note: we could support submodules if we had a way of ensuring that their sources don't become unavailable, for example by sandboxing the build process; however, this work has not been done yet.)
+* You *must* have both `nixpkgs` and `basalt` as git subtrees or [subrepos](https://github.com/ingydotnet/git-subrepo) at /nixpkgs and /basalt  in your configuration repo.  Note that submodules won't work, because we want to ensure that we have the full configuration source.  (Note: we could support submodules if we had a way of ensuring that their sources don't become unavailable, for example by sandboxing the build process; however, this work has not been done yet.)
 
 ### Update your configuration
 
