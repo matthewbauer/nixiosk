@@ -73,7 +73,7 @@ expect "root@nixos"
 send -- "git clone /mnt/etc/nixos/configuration.git\r"
 expect "root@nixos"
 
-send -- "echo '{...}: { boot.loader.systemd-boot.enable = true; boot.loader.efi.canTouchEfiVariables = true; boot.kernelParams = \[ \"console=ttyS0\" \]; fileSystems.\"/\" = { device = \"/dev/sda2\"; fsType = \"ext4\"; }; fileSystems.\"/boot\" = { device = \"/dev/sda1\"; fsType = \"vfat\"; }; users.users.root.hashedPassword = \"\\\$6\\\$fpizjqA4j\\\$xYuPmLI1c6Z7DcDIyDaPAW4nGL8KN2HhuuAB8avyd5D2FvuCbZG9zldi4OZwogMiOReZNWq1FkO3l3i1kYinF/\"; }' >configuration/configuration.nix\r"
+send -- "echo '{...}: { boot.loader.systemd-boot.enable = true; boot.loader.efi.canTouchEfiVariables = true; boot.kernelParams = \[ \"console=ttyS0\" \]; fileSystems.\"/\" = { device = \"/dev/sda2\"; fsType = \"ext4\"; }; fileSystems.\"/boot\" = { device = \"/dev/sda1\"; fsType = \"vfat\"; }; users.users.root.initialHashedPassword = \"\\\$6\\\$fpizjqA4j\\\$xYuPmLI1c6Z7DcDIyDaPAW4nGL8KN2HhuuAB8avyd5D2FvuCbZG9zldi4OZwogMiOReZNWq1FkO3l3i1kYinF/\"; }' >configuration/configuration.nix\r"
 expect "root@nixos"
 
 send -- "git config --global user.email test@example.com\r"
@@ -100,8 +100,17 @@ expect "root@nixos"
 
 send -- "for n in {1..50} ; do echo ; done ; echo done\r"
 expect "done"
+expect "root@nixos"
+
+send -- "cat /mnt/etc/shadow | grep root\r"
+expect "root@nixos"
 
 send -- "shutdown -r now\r"
 expect "Boot in"
 send -- "\r"
 expect "nixos login:"
+
+send -- "root\r"
+expect "Password"
+send -- "password\r"
+expect "root@nixos"
