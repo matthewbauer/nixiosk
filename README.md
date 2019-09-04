@@ -10,16 +10,23 @@ One big reason to do this is that, even though NixOS makes rolling back to a par
 
 ## How To
 
+### Install prerequisites
+
+```bash
+nix-env -iA nixpkgs.gitAndTools.git-subrepo
+```
+
 ### Set up Basalt
 
 As root:
 
 ```bash
 cd /etc/nixos
+git clone https://gitlab.com/obsidian.systems/basalt
 git init --bare configuration.git
 cd configuration.git
 rm -r hooks
-ln -s /path/to/basalt/git-hooks hooks
+ln -s ../basalt/git-hooks hooks
 ```
 
 * Everything that used to be in /etc/nixos moves to the configuration repo
