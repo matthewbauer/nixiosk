@@ -36,6 +36,6 @@ fi
 
 OUT_LINK="$(realpath "$GIT_DIR/builds/$TO_REV")"
 
-( cd "$CLEAN/src" ; env -u NIX_PATH nix-build "${STORE_ARGS[@]}" -E '(import ./nixpkgs/nixos { configuration = import ./configuration.nix; }).system' --no-out-link --out-link "$OUT_LINK" --show-trace )
+( cd "$CLEAN/src" ; env -u NIX_PATH nix-build "${STORE_ARGS[@]}" -E '(import ./nixpkgs/nixos { configuration = import ./configuration.nix; }).system' --out-link "$OUT_LINK" --show-trace )
 
 #TODO: Need a way to kick off this process without pushing a fresh reference
