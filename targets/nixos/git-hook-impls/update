@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+set -euo pipefail
+set -x
+
+BRANCH_NAME=$1
+shift
+FROM_REV=$1
+shift
+TO_REV=$1
+shift
+
+if [ "$BRANCH_NAME" != "refs/heads/master" ] ; then
+    exit 0
+fi
+
+if [ $(git rev-list "$TO_REV".."$FROM_REV" | head -c1 | wc -c) -ne 0 ] ; then
+    2>&1 echo "Cannot update $BRANCH_NAME from $FROM_REV to $TO_REV; not a fast-forward"
+    exit 1
+fi
+
+CLEAN=$(mktemp -d 2>/dev/null || mktemp -d -t 'clean') # This crazy workaround ensures that it will work on both Mac OS and Linux; see https://unix.stackexchange.com/questions/30091/fix-or-alternative-for-mktemp-in-os-x
+trap "rm -rf \"$CLEAN\"" EXIT
+
+mkdir "$CLEAN/src"
+git archive --format=tar "$TO_REV" | tar x -C "$CLEAN/src"
+
+#TODO: Here we are hardcoding nixpkgs; do we really want to force that to be set up exactly that way?
+# We unset NIX_PATH so that it doesn't surprise us by falling back to something unexpected if one of these paths is wrong
+ROOT="$(realpath "$GIT_DIR/../../..")"
+mkdir -p "$GIT_DIR/builds"
+
+declare -a STORE_ARGS=()
+if [ "$ROOT" != / ] ; then
+    STORE_ARGS=(--store "$ROOT")
+fi
+
+OUT_LINK="$(realpath "$GIT_DIR/builds/$TO_REV")"
+
+( cd "$CLEAN/src" ; env -u NIX_PATH nix-build "${STORE_ARGS[@]}" -E '(import ./nixpkgs/nixos { configuration = import ./configuration.nix; }).system' --out-link "$OUT_LINK" --show-trace )
+
+#TODO: Need a way to kick off this process without pushing a fresh reference
