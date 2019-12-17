@@ -2,24 +2,11 @@
 
 # Initial setup script.
 
+set -euo pipefail
+
 unset TARGET
 
-case "$TARGET" in
-    "nixos" )
-        echo "not implemented"
-        ;;
-
-    "home-manager" )
-        echo "not implemented"
-        ;;
-
-    * )
-        echo "unknown target type"
-        exit 1;
-        ;;
-esac
-
-unset SOURCE_REPO
+#unset SOURCE_REPO
 
 unset DESTINATION_REPO
 
@@ -34,5 +21,20 @@ setup_home-manager ()
 {
     echo "will setup for home-manager configuration"
     cp -r ./targets/home-manager/git-hooks "$DESTINATION_REPO"/.git/
-    cp -r ./targets/nixos/git-hook-implds "$DESTINATION_REPO"
+    cp -r ./targets/home-manager/git-hook-impls "$DESTINATION_REPO"
 }
+
+case "$TARGET" in
+    "nixos" )
+        echo "not implemented"
+        ;;
+
+    "home-manager" )
+        echo "not implemented"
+        ;;
+
+    * )
+        echo "unknown target type" >&2
+        exit 1;
+        ;;
+esac
