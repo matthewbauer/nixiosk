@@ -2,6 +2,20 @@
 set -euo pipefail
 set -x
 
+# Function to clean up temporary files and directories.
+cleanup ()
+{
+    rm -rf "$CLEAN"
+}
+
+# Ensure that cleanup always runs even if something goes wrong.
+trap cleanup EXIT
+
+# Important vars.
+BASALT_SRC_DIR="basalt"
+TARGET_SRC_SUBDIR="targets/home-manager"
+
+# Process stdin.
 REV_TO_ACTIVATE=
 
 while read FROM_REV TO_REV REFNAME ; do
@@ -10,14 +24,17 @@ while read FROM_REV TO_REV REFNAME ; do
     fi
 done
 
+# Run newly pushed self-updater.
 if [ "$REV_TO_ACTIVATE" != "" ] ; then
-    CLEAN=$(mktemp -d 2>/dev/null || mktemp -d -t 'clean') # This crazy workaround ensures that it will work on both Mac OS and Linux; see https://unix.stackexchange.com/questions/30091/fix-or-alternative-for-mktemp-in-os-x
-    trap "rm -rf \"$CLEAN\"" EXIT
+    # This crazy workaround ensures that it will work on both Mac OS and Linux:
+    # https://unix.stackexchange.com/questions/30091/fix-or-alternative-for-mktemp-in-os-x
+    CLEAN=$(mktemp -d 2>/dev/null || mktemp -d -t 'clean')
 
     mkdir "$CLEAN/src"
-    git archive --format=tar "$REV_TO_ACTIVATE" basalt/git-hook-impls | tar x -C "$CLEAN/src"
+    git archive --format=tar "$REV_TO_ACTIVATE" "$BASALT_SRC_DIR/$TARGET_SRC_SUBDIR/self-update" | tar x -C "$CLEAN/src"
 
-    #NOTE: We can't exec here, because that will defeat our EXIT trap for cleaning up the temporary directory
-    # See https://stackoverflow.com/questions/24111981/how-can-i-achieve-bash-exit-trap-when-exec-ing-another-binary
-    "$CLEAN/src/basalt/git-hook-impls/post-receive" "$REV_TO_ACTIVATE" "$@"
+    # NOTE: We can't exec here, because that will defeat our EXIT trap for
+    # cleaning up the temporary directory:
+    # https://stackoverflow.com/questions/24111981/how-can-i-achieve-bash-exit-trap-when-exec-ing-another-binary
+    "$CLEAN/src/$BASALT_SRC_DIR/$TARGET_SRC_SUBDIR/self-update/post-receive" "$REV_TO_ACTIVATE" "$@"
 fi
