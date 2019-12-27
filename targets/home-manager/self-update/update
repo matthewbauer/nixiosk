@@ -46,9 +46,9 @@ build_home_env ()
     (
         cd "$CLEAN/src"
         unset NIX_PATH
-        NIX_BUILD_RESULT="$(home-manager build -f "$HOME_MANAGER_CONFIG_SRC_PATH" \
-                -I "$HOME_MANAGER_CHANNEL_SRC_PATH" \
-                -I "$NIXPKGS_CHANNEL_SRC_PATH" --show-trace)"
+        NIX_BUILD_RESULT="$(home-manager -I "home-manager=$CLEAN/src/$HOME_MANAGER_CHANNEL_SRC_PATH" \
+                            -I "nixpkgs=$CLEAN/src/$NIXPKGS_CHANNEL_SRC_PATH" \
+                            build -f "$CLEAN/src/$HOME_MANAGER_CONFIG_SRC_PATH" --show-trace)"
         ln -s "$NIX_BUILD_RESULT" "$GIT_DIR/builds/$TO_REV"
     )
 }
