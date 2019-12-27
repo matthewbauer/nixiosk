@@ -43,40 +43,19 @@ unpack_source ()
     git archive --format=tar "$TO_REV" | tar x -C "$CLEAN/src"
 }
 
-build_nixos ()
-{
-    # TODO: Here we are hardcoding nixpkgs; do we really want to force that to
-    # be set up exactly that way?  We unset NIX_PATH so that it doesn't surprise
-    # us by falling back to something unexpected if one of these paths is wrong.
-    ROOT="$(realpath "$GIT_DIR/../../..")"
-    mkdir -p "$GIT_DIR/builds"
-
-    declare -a STORE_ARGS=()
-    if [ "$ROOT" != / ] ; then
-        STORE_ARGS=(--store "$ROOT")
-    fi
-
-    OUT_LINK="$(realpath "$GIT_DIR/builds/$TO_REV")"
-
-    ( cd "$CLEAN/src" ; env -u NIX_PATH nix-build "${STORE_ARGS[@]}" -E '(import ./nixpkgs/nixos { configuration = import ./configuration.nix; }).system' --out-link "$OUT_LINK" --show-trace )
-
-    #TODO: Need a way to kick off this process without pushing a fresh reference
-}
-
 build_home_env ()
 {
     # Enter subshell.
     (
-        # git rev-parse --show-toplevel
+        cd "$CLEAN/src"
         unset NIX_PATH
-        home-manager build -f "$HOME_MANAGER_CONFIG_SRC_PATH" \
-                     -I "$HOME_MANAGER_CHANNEL_SRC_PATH" \
-                     -I "$NIXPKGS_CHANNEL_SRC_PATH" --show-trace
-        # Where is the result output?
+        NIX_BUILD_RESULT="$(home-manager build -f "$HOME_MANAGER_CONFIG_SRC_PATH" \
+                -I "$HOME_MANAGER_CHANNEL_SRC_PATH" \
+                -I "$NIXPKGS_CHANNEL_SRC_PATH" --show-trace)"
+        ln -s "$NIX_BUILD_RESULT" "$GIT_DIR/builds/$TO_REV"
     )
 }
 
 #TODO: Need a way to kick off this process without pushing a fresh reference
 unpack_source
-#build_nixos
 build_home_env

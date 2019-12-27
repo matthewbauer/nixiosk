@@ -2,27 +2,24 @@
 set -euo pipefail
 set -x
 
-REV_TO_ACTIVATE="$1"
-PATH_TO_ACTIVATE="$(readlink "$GIT_DIR/builds/$REV_TO_ACTIVATE")"
-
-switch_nixos ()
+# Function to clean up temporary files and directories.
+cleanup ()
 {
-    ROOT="$(realpath "$GIT_DIR/../../..")"
-    #TODO: We need locking or something to ensure that activation occurs in the right order, at most one at a time
-    nix-env --store "$ROOT" -p "$ROOT/nix/var/nix/profiles/system" --set "$PATH_TO_ACTIVATE"
-    if [ "$ROOT" = / ] ; then
-        "$PATH_TO_ACTIVATE/bin/switch-to-configuration" switch
-    else
-        NIXOS_INSTALL_BOOTLOADER=1 nixos-enter --root "$ROOT" -- "$PATH_TO_ACTIVATE/bin/switch-to-configuration" boot
-    fi
+    # Once we've switched to it and put it in the profile, we don't need to retain
+    # the result link anymore.
+    rm "$GIT_DIR/builds/$REV_TO_ACTIVATE"
 }
+
+# Ensure that cleanup always runs even if something goes wrong.
+trap cleanup EXIT
+
+REV_TO_ACTIVATE="$1"
+PATH_TO_ACTIVATE="$(realpath "$GIT_DIR/builds/$REV_TO_ACTIVATE")"
 
 switch_home_env ()
 {
-    # What is the equivalent of NixOS' switch-to-configuration?
+    "$PATH_TO_ACTIVATE/activate"
 }
 
 # switch_nixos
-
-# Once we've switched to it and put it in the profile, we don't need to retain it anymore
-rm "$GIT_DIR/builds/$REV_TO_ACTIVATE"
+switch_home_env
