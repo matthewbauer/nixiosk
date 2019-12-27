@@ -40,6 +40,12 @@ unpack_source ()
     git archive --format=tar "$TO_REV" | tar x -C "$CLEAN/src"
 }
 
+make_set_local_build_dir ()
+{
+    mkdir -p "$GIT_DIR/builds"
+    LOCAL_BUILD_DIR=$(realpath "$GIT_DIR/builds")
+}
+
 build_home_env ()
 {
     # Enter subshell.
@@ -49,11 +55,11 @@ build_home_env ()
         NIX_BUILD_RESULT="$(home-manager -I "home-manager=$CLEAN/src/$HOME_MANAGER_CHANNEL_SRC_PATH" \
                             -I "nixpkgs=$CLEAN/src/$NIXPKGS_CHANNEL_SRC_PATH" \
                             build -f "$CLEAN/src/$HOME_MANAGER_CONFIG_SRC_PATH" --show-trace)"
-        mkdir -p "$GIT_DIR/builds"
-        ln -s "$NIX_BUILD_RESULT" "$GIT_DIR/builds/$TO_REV"
+        ln -s "$NIX_BUILD_RESULT" "$LOCAL_BUILD_DIR/$TO_REV"
     )
 }
 
 #TODO: Need a way to kick off this process without pushing a fresh reference
+make_set_local_build_dir
 unpack_source
 build_home_env
