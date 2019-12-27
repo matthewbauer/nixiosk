@@ -13,11 +13,8 @@ trap cleanup EXIT
 
 # Store script arguments given by Git.
 BRANCH_NAME=$1
-shift
-FROM_REV=$1
-shift
-TO_REV=$1
-shift
+FROM_REV=$2
+TO_REV=$3
 
 # Important vars.
 BASALT_SRC_DIR="basalt"
