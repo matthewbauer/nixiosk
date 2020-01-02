@@ -124,5 +124,10 @@ You will need to authenticate however you usually do when you run commands with 
 
 ## Design Goals
 
-1. Ensure that, prior to switching to any configuration, the full source is committed to git.  This ensures that a single git hash is sufficient to completely reconstruct your configuration as it was at any point in history.
-1. Ensure that it's always possible to rollback or reconfigure without network access.  In particular, we want to be able to recover from a scenario where a configuration change makes the internet unreachable.
+1. Ensure that, prior to switching to any configuration, the full source is
+   committed to git.  This ensures that a single git hash is sufficient to
+   completely reconstruct your configuration as it was at any point in history.
+2. Ensure that it's always possible to rollback or reconfigure without network
+   access.  In particular, we want to be able to recover from a scenario where a
+   configuration change makes the internet unreachable.
+3. Built-in backward compatibility for Basalt itself.
