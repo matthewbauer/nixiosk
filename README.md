@@ -1,20 +1,84 @@
+# Basalt
+
 ## IMPORTANT
 
 This software is not yet stable; please do not use it on important systems yet.
 
 ## Introduction
 
-Basalt is a tool for using git to manage your nixos configuration.  Rather than using nixos-rebuild switch, we push to a branch.
+Basalt is a tool for using git to manage your nixos or home-manager
+configuration.  Rather than using nixos-rebuild switch, we push to a branch.
 
-One big reason to do this is that, even though NixOS makes rolling back to a particular generation trivial, it can be difficult or impossible to figure out what set of inputs actually produced that generation.  With a git-based approach, we hope to ensure that each NixOS generation is completely described by a single git hash.
+One big reason to do this is that, even though NixOS makes rolling back to a
+particular generation trivial, it can be difficult or impossible to figure out
+what set of inputs actually produced that generation.  With a git-based
+approach, we hope to ensure that each NixOS generation is completely described
+by a single git hash.
 
-## How To
+## Recommended tools
 
-### Install prerequisites
+We recommend that you use
+[git-subrepo](https://github.com/ingydotnet/git-subrepo) to manage the input
+"thunks" of your configuration.
 
 ```bash
 nix-env -iA nixpkgs.gitAndTools.git-subrepo
 ```
+
+## home-manager configuration target
+
+For Basalt to manage your [home-manager](https://github.com/rycee/home-manager)
+configuration (i.e. `home.nix`), you must first create a Git repository with all
+the input components.  This includes Basalt itself, the home-manager source, and
+Nixpkgs for your user packages.
+
+```bash
+git init home-manager-config
+cd home-manager-config
+git subrepo clone https://gitlab.com/obsidian.systems/basalt.git basalt
+git subrepo clone https://github.com/rycee/home-manager.git home-manager
+git subrepo clone https://github.com/NixOS/nixpkgs.git nixpkgs
+cp ~/.config/nixpkgs/home.nix .  # if you are already using home-manager
+git add home.nix
+git commit
+```
+
+Please note cloning the Nixpkgs repository may take an extended period of time,
+as it is quite large.  You may also wish to specify a particular branch when
+cloning Nixpkgs, such as `release-19.09`, to match your desired release.
+
+Next you must create a target git repo, whose only purpose is to run the Git
+hooks and keep a record of successful revisions.  You probably also want a
+separate Basalt repo outside of your config repo to actually store the hooks.
+
+```bash
+git clone https://gitlab.com/obsidian.systems/basalt.git basalt
+git init --bare home-manager-config-target.git
+```
+
+Then install the hooks by symlinking.
+
+```bash
+cd home-manager-config-target.git
+rm -r hooks
+ln -s ../basalt/targets/home-manager/git-hooks hooks
+```
+
+Set the target repo as the origin for your non-bare repo, and then push to build
+your new configuration and install it if successful.  You must use the `master`
+branch for this to work properly.
+
+```bash
+cd home-manager-config
+git remote add origin ../home-manager-config-target.git
+git push --set-upstream origin master
+```
+
+You can also add a remote repository and store, or back up, your configuration
+there as well, of course.  However, the home-manager build and activation
+process will only run when you push to your local target repo.
+
+## NixOS configuration target
 
 ### Set up Basalt
 
@@ -26,7 +90,7 @@ git clone https://gitlab.com/obsidian.systems/basalt
 git init --bare configuration.git
 cd configuration.git
 rm -r hooks
-ln -s ../basalt/git-hooks hooks
+ln -s ../basalt/targets/nixos/git-hooks hooks
 ```
 
 * Everything that used to be in /etc/nixos moves to the configuration repo
