@@ -5,11 +5,9 @@ set -x
 # Function to clean up temporary files and directories.
 cleanup ()
 {
-    rm -rf "$CLEAN"
+    TO_CLEAN="$1"
+    rm -rf "$TO_CLEAN"
 }
-
-# Ensure that cleanup always runs even if something goes wrong.
-trap cleanup EXIT
 
 # Store script arguments given by Git.
 BRANCH_NAME=$1
@@ -23,6 +21,9 @@ TARGET_SRC_SUBDIR="targets/home-manager"
 # This crazy workaround ensures that it will work on both Mac OS and Linux; see
 # https://unix.stackexchange.com/questions/30091/fix-or-alternative-for-mktemp-in-os-x
 CLEAN=$(mktemp -d 2>/dev/null || mktemp -d -t 'clean')
+
+# Ensure that cleanup always runs even if something goes wrong.
+trap "cleanup $CLEAN" EXIT
 
 # Launch the newly pushed self-updater.
 mkdir "$CLEAN/src"

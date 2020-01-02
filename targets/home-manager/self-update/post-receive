@@ -5,13 +5,15 @@ set -x
 # Function to clean up temporary files and directories.
 cleanup ()
 {
-    # Once we've switched to it and put it in the profile, we don't need to retain
-    # the result link anymore.
-    rm "$GIT_DIR/builds/$REV_TO_ACTIVATE"
+    TO_CLEAN="$1"
+    # Once we've switched to it and put it in the profile, we don't need to
+    # retain the result link anymore.  No -rf flags since it is expected to be a
+    # symlink and we don't want to scrub the actual target.
+    rm "$TO_CLEAN"
 }
 
 # Ensure that cleanup always runs even if something goes wrong.
-trap cleanup EXIT
+trap "cleanup $GIT_DIR/builds/$REV_TO_ACTIVATE" EXIT
 
 REV_TO_ACTIVATE="$1"
 PATH_TO_ACTIVATE="$(realpath "$GIT_DIR/builds/$REV_TO_ACTIVATE")"

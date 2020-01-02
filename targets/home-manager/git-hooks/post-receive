@@ -5,11 +5,9 @@ set -x
 # Function to clean up temporary files and directories.
 cleanup ()
 {
-    rm -rf "$CLEAN"
+    TO_CLEAN="$1"
+    rm -rf "$TO_CLEAN"
 }
-
-# Ensure that cleanup always runs even if something goes wrong.
-trap cleanup EXIT
 
 # Important vars.
 BASALT_SRC_DIR="basalt"
@@ -29,6 +27,9 @@ if [ "$REV_TO_ACTIVATE" != "" ] ; then
     # This crazy workaround ensures that it will work on both Mac OS and Linux:
     # https://unix.stackexchange.com/questions/30091/fix-or-alternative-for-mktemp-in-os-x
     CLEAN=$(mktemp -d 2>/dev/null || mktemp -d -t 'clean')
+
+    # Ensure that cleanup always runs even if something goes wrong.
+    trap "cleanup $CLEAN" EXIT
 
     mkdir "$CLEAN/src"
     git archive --format=tar "$REV_TO_ACTIVATE" "$BASALT_SRC_DIR/$TARGET_SRC_SUBDIR/self-update" | tar x -C "$CLEAN/src"
