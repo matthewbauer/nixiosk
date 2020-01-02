@@ -35,14 +35,16 @@ Nixpkgs for your user packages.
 ```bash
 git init home-manager-config
 cd home-manager-config
-git subrepo clone https://gitlab.com/obsidian.systems/basalt.git basalt
-git subrepo clone https://github.com/rycee/home-manager.git home-manager
-git subrepo clone https://github.com/NixOS/nixpkgs.git nixpkgs
 cp ~/.config/nixpkgs/home.nix .  # if you are already using home-manager
 git add home.nix
 git commit
+git subrepo clone https://gitlab.com/obsidian.systems/basalt.git basalt
+git subrepo clone https://github.com/rycee/home-manager.git home-manager
+git subrepo clone https://github.com/NixOS/nixpkgs.git nixpkgs
 ```
 
+The steps for adding `home.nix` come prior to adding the thunks because there
+must be at least one existing commit or `git-subrepo` will refuse to clone.
 Please note cloning the Nixpkgs repository may take an extended period of time,
 as it is quite large.  You may also wish to specify a particular branch when
 cloning Nixpkgs, such as `release-19.09`, to match your desired release.
