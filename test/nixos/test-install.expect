@@ -2,7 +2,8 @@ set timeout 100
 
 # Boot the machine
 # Note: we use -drive rather than -pflash so that we can specify the format; otherwise we get a warning like 'Image format was not specified for 'OVMF.fd' and probing guessed raw.
-spawn qemu-kvm -nographic -drive file=OVMF.fd,format=raw,if=pflash -m 8G -cdrom "$env(INSTALLER_ISO)" -virtfs "local,path=$env(BASALT_DIR),mount_tag=basalt,security_model=none,readonly" -virtfs "local,path=/home/ryan/.nixpkgs/nixpkgs,mount_tag=nixpkgs,security_model=none,readonly" -nic none root.qcow2
+spawn qemu-kvm -nographic -drive file=OVMF.fd,format=raw,if=pflash,readonly -m 8G -cdrom "$env(INSTALLER_ISO)" -virtfs "local,path=$env(TEST_DIR),mount_tag=basalt,security_model=none,readonly" -virtfs "local,path=$env(NIXPKGS_DIR),mount_tag=nixpkgs,security_model=none,readonly" -nic none root.qcow2
+
 # Don't wait for boot loader countdown
 expect "automatically"
 send -- "\r"
