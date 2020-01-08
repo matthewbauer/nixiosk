@@ -1,15 +1,14 @@
-set timeout 100
+set timeout 60
 
 # Boot the machine
-# Note: we use -drive rather than -pflash so that we can specify the format; otherwise we get a warning like 'Image format was not specified for 'OVMF.fd' and probing guessed raw.
-spawn qemu-kvm -nographic -drive file=OVMF.fd,format=raw,if=pflash,readonly -m 8G -cdrom "$env(INSTALLER_ISO)" -virtfs "local,path=$env(TEST_DIR),mount_tag=basalt,security_model=none,readonly" -virtfs "local,path=$env(NIXPKGS_DIR),mount_tag=nixpkgs,security_model=none,readonly" -nic none root.qcow2
+spawn qemu-system-x86_64 -enable-kvm -nographic -m 8G -smp 4 -nic none -bios bios.bin -boot once=d -cdrom "$env(INSTALLER_ISO)" -virtfs "local,path=$env(BASALT_DIR),mount_tag=basalt,security_model=none,readonly" -virtfs "local,path=$env(NIXPKGS_DIR),mount_tag=nixpkgs,security_model=none,readonly" -hda root.qcow2
 
 # Don't wait for boot loader countdown
 expect "automatically"
 send -- "\r"
 expect "nixos@nixos"
 
-send -- "sudo bash\r"
+send -- "sudo -i\r"
 expect "root@nixos"
 
 send -- "mkdir /basalt\r"
@@ -65,7 +64,7 @@ expect "root@nixos"
 send -- "rm -rf /mnt/etc/nixos/configuration.git/hooks\r"
 expect "root@nixos"
 
-send -- "ln -s /basalt/git-hooks /mnt/etc/nixos/configuration.git/hooks\r"
+send -- "ln -s /basalt/targets/nixos/git-hooks /mnt/etc/nixos/configuration.git/hooks\r"
 expect "root@nixos"
 
 send -- "ls /mnt/etc/nixos/configuration.git/hooks/\r"
@@ -86,14 +85,16 @@ expect "root@nixos"
 send -- "rsync -arv --exclude .git /basalt configuration/\r"
 expect "root@nixos"
 
-send -- "git -C configuration add basalt configuration.nix\r"
+# copying nixpkgs can take a while
+set timeout 600
+
+send -- "rsync -arv --exclude .git /nixpkgs configuration/\r"
+expect "root@nixos"
+
+send -- "git -C configuration add -A\r"
 expect "root@nixos"
 
 send -- "git -C configuration commit -m 'Initial commit'\r"
-expect "root@nixos"
-
-set timeout -1
-send -- "git -C configuration subrepo clone -v /nixpkgs nixpkgs\r"
 expect "root@nixos"
 
 send -- "git -C configuration push -u origin HEAD\r"

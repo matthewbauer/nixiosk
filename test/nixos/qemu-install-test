@@ -6,14 +6,15 @@ set -x
 #TODO: Make it run in a temp directory
 
 export TEST_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+export BASALT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../.. && pwd )
 export INSTALLER_ISO="$(echo "$(nix-build --no-out-link "$TEST_DIR/testInstaller.nix")"/iso/*.iso)"
 #TODO: Lock down nixpkgs
 export NIXPKGS_DIR=$(nix-instantiate --eval -E '<nixpkgs>')
 
 # Necessary for UEFI
 OVMF_IN_STORE="$(nix-build '<nixpkgs>' -A OVMF.fd --no-out-link)"
-if [ ! -e "OVMF.fd" ]; then
-    cp "$OVMF_IN_STORE/FV/OVMF.fd" .
+if [ ! -e "bios.bin" ]; then
+    cp "$OVMF_IN_STORE/FV/OVMF.fd" bios.bin
 fi
 
 qemu-img create -f qcow2 root.qcow2 10G
