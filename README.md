@@ -6,8 +6,9 @@ This software is not yet stable; please do not use it on important systems yet.
 
 ## Introduction
 
-Basalt is a tool for using git to manage your nixos or home-manager
-configuration.  Rather than using nixos-rebuild switch, we push to a branch.
+Basalt is a tool for using Git to manage your NixOS or home-manager
+configuration.  Rather than using `nixos-rebuild switch` or `home-manager
+switch`, we push to a branch.
 
 One big reason to do this is that, even though NixOS makes rolling back to a
 particular generation trivial, it can be difficult or impossible to figure out
