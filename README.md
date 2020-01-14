@@ -18,20 +18,33 @@ by a single git hash.
 
 ## Recommended tools
 
-We recommend that you use
-[git-subrepo](https://github.com/ingydotnet/git-subrepo) to manage the input
-"thunks" of your configuration.
+We recommend that you use `git-subtree` for tracking external dependencies in a
+configuration repository.  It has been included as a standard command since Git
+`v1.7.11` and may simplify the process of updating the dependencies.  It also
+makes sure they can be accessed simply by cloning the configuration repository,
+without requiring a separate dependency fetching step.  No extra files are
+needed for `git-subtree` to track the metadata associated with the dependency
+subdirectories, unlike `git-submodule` or `git-subrepo`, for example.
+
+You may wish to add named remotes for each dependency so you don't forget where
+to pull from.  Take `nixpkgs`, for example:
 
 ```bash
-nix-env -iA nixpkgs.gitAndTools.git-subrepo
+git remote add -f nixpkgs-github https://github.com/NixOS/nixpkgs.git
 ```
+
+However, you will still need to remember which branch you want to use when
+pulling updates.  It is not recommended to pull directly from the `master`
+branch of `nixpkgs`, so perhaps instead you could make a comment in your
+configuration somewhere that documents which branch/release it is using.
 
 ## home-manager configuration target
 
 For Basalt to manage your [home-manager](https://github.com/rycee/home-manager)
 configuration (i.e. `home.nix`), you must first create a Git repository with all
-the input components.  This includes Basalt itself, the home-manager source, and
-Nixpkgs for your user packages.
+the required dependencies for the build input.  This includes Basalt itself, the
+home-manager source, and Nixpkgs for your user packages.  These dependencies are
+also referred to as "thunks".
 
 ```bash
 git init home-manager-config
@@ -39,16 +52,18 @@ cd home-manager-config
 cp ~/.config/nixpkgs/home.nix .  # if you are already using home-manager
 git add home.nix
 git commit
-git subrepo clone https://gitlab.com/obsidian.systems/basalt.git basalt
-git subrepo clone https://github.com/rycee/home-manager.git home-manager
-git subrepo clone https://github.com/NixOS/nixpkgs.git nixpkgs
+git subtree add --prefix=basalt https://gitlab.com/obsidian.systems/basalt.git master --squash
+git subtree add --prefix=home-manager https://github.com/rycee/home-manager.git master --squash
+git subtree add --prefix=nixpkgs https://github.com/NixOS/nixpkgs.git nixpkgs-unstable --squash
 ```
 
-The steps for adding `home.nix` come prior to adding the thunks because there
-must be at least one existing commit or `git-subrepo` will refuse to clone.
+For consistency, it is important to have an existing initial commit before
+attempting to add the dependencies.  Do not forget the `--squash` option!
 Please note cloning the Nixpkgs repository may take an extended period of time,
-as it is quite large.  You may also wish to specify a particular branch when
-cloning Nixpkgs, such as `release-19.09`, to match your desired release.
+as it is quite large.  You may also wish to specify a particular release branch
+other than `nixpkgs-unstable` when cloning Nixpkgs, such as `release-19.09`, to
+match your desired release!  If you are using a stable release of Nixpkgs, then
+you will also need to use a corresponding stable branch of home-manager.
 
 Next you must create a target git repo, whose only purpose is to run the Git
 hooks and keep a record of successful revisions.  You probably also want a
