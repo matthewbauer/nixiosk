@@ -12,7 +12,6 @@
     isoImage.includeSystemBuildDependencies = true;
     environment.systemPackages = with pkgs; [
       git
-      gitAndTools.git-subrepo
     ];
     nix.binaryCaches = lib.mkForce [ "auto?trusted=1" ];
     nix.extraOptions = ''
