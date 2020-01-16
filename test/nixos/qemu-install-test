@@ -8,6 +8,7 @@ set -x
 export TEST_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 export BASALT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../.. && pwd )
 export INSTALLER_ISO="$(echo "$(nix-build --no-out-link "$TEST_DIR/testInstaller.nix")"/iso/*.iso)"
+export QEMU_IMAGE="$TEST_DIR/root.qcow2"
 #TODO: Lock down nixpkgs
 export NIXPKGS_DIR=$(nix-instantiate --eval -E '<nixpkgs>')
 
@@ -17,6 +18,6 @@ if [ ! -e "bios.bin" ]; then
     cp "$OVMF_IN_STORE/FV/OVMF.fd" bios.bin
 fi
 
-qemu-img create -f qcow2 root.qcow2 10G
+qemu-img create -f qcow2 "$QEMU_IMAGE" 10G
 
 expect -f "$TEST_DIR/test-install.expect"

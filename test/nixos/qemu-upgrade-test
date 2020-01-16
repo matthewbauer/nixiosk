@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+set -x
+
+#TODO: Purify this
+#TODO: Make it run in a temp directory
+
+export TEST_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+export BASALT_DIR=$(realpath ../..)
+export QEMU_IMAGE="$TEST_DIR/root.qcow2"
+
+expect -f "$TEST_DIR/test-upgrade.expect"

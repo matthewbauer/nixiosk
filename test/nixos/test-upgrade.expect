@@ -1,0 +1,55 @@
+set timeout 60
+
+spawn qemu-system-x86_64 -enable-kvm -nographic -m 8G -smp 4 -nic none -bios bios.bin -virtfs "local,path=$env(BASALT_DIR),mount_tag=basalt,security_model=none,readonly" -hda "$env(QEMU_IMAGE)"
+
+expect "login:"
+
+send -- "root\r"
+expect "Password"
+
+send -- "password\r"
+expect "root@nixos"
+
+send -- "git config --global user.email test@example.com\r"
+expect "root@nixos"
+
+send -- "git config --global user.name 'Test User'\r"
+expect "root@nixos"
+
+send -- "git clone /etc/nixos/configuration.git\r"
+expect "root@nixos"
+
+send -- "cd configuration\r"
+expect "root@nixos"
+
+send -- "mkdir /tmp/basalt\r"
+expect "root@nixos"
+
+send -- "mount -t 9p -o trans=virtio,version=9p2000.L basalt /tmp/basalt\r"
+expect "root@nixos"
+
+send -- "rsync -arv --exclude .git --exclude *.qcow2 /tmp/basalt .\r"
+expect "root@nixos"
+
+send -- "git add -A\r"
+expect "root@nixos"
+
+send -- "git commit -m 'Update basalt.'\r"
+expect "root@nixos"
+
+send -- "git push -u origin master\r"
+expect "root@nixos"
+
+send -- "reboot\r"
+expect "nixos login:"
+
+send -- "root\r"
+expect "Password"
+
+send -- "password\r"
+expect "root@nixos"
+
+send -- "ls /nix/var/nix/profiles\r"
+expect "root@nixos"
+
+exit 0
