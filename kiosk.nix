@@ -1,6 +1,6 @@
 { pkgs ? import (builtins.fetchTarball {
-    url = "https://github.com/matthewbauer/nixpkgs/archive/f1becbaafef23a4aa538d0bc0249fd9b2b867c67.tar.gz";
-    sha256 = "16yvharvm5gpzpz7dnlw158rnjc489m9h9cb878g9g3fd6zqzj29";
+    url = "https://github.com/matthewbauer/nixpkgs/archive/19f78b3461c95433e7b58df7488d460f8df8049d.tar.gz";
+    sha256 = "0qi3w6zm9dlc0nlvm9wck0sqz61kqgyvrcr76x2i9i9vdlx9ssxq";
   }) {}
 , hostName
 , programFunc
@@ -15,6 +15,8 @@
     ./rpi-sd.nix
     ./cage.nix
     ({lib, pkgs, ...}: {
+      sdImage.compressImage = false;
+
       networking.hostName = hostName;
 
       services.openssh = {
@@ -41,31 +43,35 @@
       nixpkgs = {
         overlays = [(self: super: {
           gtk3 = super.gtk3.override { cupsSupport = false; };
-          webkitgtk = super.webkitgtk.override { gst-plugins-bad = null; enableGeoLocation = false; stdenv = super.stdenv; };
-          python27 = super.python27.override {
-            packageOverrides = self: super: { cython = super.cython.override { gdb = null; }; };
+          webkitgtk = super.webkitgtk.override {
+            gst-plugins-bad = null;
+            enableGeoLocation = false;
+            stdenv = super.stdenv;
+          };
+          epiphany = super.epiphany.override {
+            gst_all_1 = super.gst_all_1 // {
+              gst-plugins-bad = null;
+              gst-plugins-ugly = null;
+              gst-plugins-good = null;
+            };
           };
           python37 = super.python37.override {
             packageOverrides = self: super: { cython = super.cython.override { gdb = null; }; };
           };
           libass = super.libass.override { encaSupport = false; };
-          midori-unwrapped = super.midori-unwrapped.override { libpeas = null; };
           libproxy = super.libproxy.override { networkmanager = null; };
           enchant2 = super.enchant2.override { hspell = null; };
           cage = super.cage.override { xwayland = null; };
         }) ];
-        config = { allowUnfree = true; };
         inherit crossSystem;
       };
 
       # Disable some stuff that doesn’t cross compile / take a long time.
       boot.supportedFilesystems = lib.mkForce [ "vfat" ];
       programs.command-not-found.enable = false;
-      programs.ssh.setXAuthLocation = false;
       security.pam.services.su.forwardXAuth = lib.mkForce false;
       powerManagement.enable = false;
       documentation.enable = false;
-      services.nixosManual.showManual = false;
       services.udisks2.enable = false;
       fonts.fontconfig.enable = false;
       security.polkit.enable = false;

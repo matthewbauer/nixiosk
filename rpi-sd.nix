@@ -26,10 +26,12 @@ let
 in {
   sdImage = {
     populateFirmwareCommands = ''
-      mkdir -p ./files/boot
-      ${extlinux-conf-builder} -t 3 -c ${config.system.build.toplevel} -d ./files/boot
+      mkdir -p boot
+      ${extlinux-conf-builder} -t 3 -c ${config.system.build.toplevel} -d boot
     '';
     populateRootCommands = ''
+      mkdir -p boot
+
       (cd ${pkgs.raspberrypifw}/share/raspberrypi/boot && cp bootcode.bin fixup*.dat start*.elf $NIX_BUILD_TOP/boot/)
 
     '' + lib.optionalString (pkgs.stdenv.hostPlatform.system == "armv6l-linux") ''
