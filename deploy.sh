@@ -42,6 +42,7 @@ if ! [ -f "$HOME/.ssh/id_rsa.pub" ]; then
 fi
 
 sd_drv=$(nix-instantiate --no-gc-warning --show-trace kiosk.nix \
+        -A config.system.build.sdImage
         --argstr hostName kiosk \
         --arg crossSystem '{ system = "armv6l-linux"; config = "armv6l-unknown-linux-gnueabihf"; }' \
         --arg authorizedKeys "[\"$(cat $HOME/.ssh/id_rsa.pub)\"]" \

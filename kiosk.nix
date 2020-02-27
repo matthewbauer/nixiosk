@@ -1,6 +1,6 @@
 { pkgs ? import (builtins.fetchTarball {
-    url = "https://github.com/matthewbauer/nixpkgs/archive/e829d02c7298fcf811b3708253809ae5ce4ba0c4.tar.gz";
-    sha256 = "1h8276r37r3rlka311v555j8xyx1nkysnwk9sfn7hlpb4yqk7dk8";
+    url = "https://github.com/matthewbauer/nixpkgs/archive/8804f095ef2a8f5e5aad987ab46bbb5f63850931.tar.gz";
+    sha256 = "1715ng2n5y9b472z6nl7gpz81jg7cfbfchrji9sgp3cg3nqav8jz";
   }) {}
 , hostName
 , programFunc
@@ -16,11 +16,8 @@
     ./cage.nix
     ({lib, pkgs, ...}: {
       boot.plymouth.enable = true;
-
       sdImage.compressImage = false;
-
       networking.hostName = hostName;
-
       hardware.opengl.enable = true;
 
       services.openssh = {
@@ -80,4 +77,4 @@
       fonts.fontconfig.enable = false;
       security.polkit.enable = false;
     }) ];
-}).config.system.build.sdImage
+})
