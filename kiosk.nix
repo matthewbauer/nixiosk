@@ -1,6 +1,6 @@
-{ pkgs ? import (builtins.fetchTarball {
-    url = "https://github.com/matthewbauer/nixpkgs/archive/19f78b3461c95433e7b58df7488d460f8df8049d.tar.gz";
-    sha256 = "0qi3w6zm9dlc0nlvm9wck0sqz61kqgyvrcr76x2i9i9vdlx9ssxq";
+{ pkgs ? import ../nixpkgs (builtins.fetchTarball {
+    url = "https://github.com/matthewbauer/nixpkgs/archive/e829d02c7298fcf811b3708253809ae5ce4ba0c4.tar.gz";
+    sha256 = "1h8276r37r3rlka311v555j8xyx1nkysnwk9sfn7hlpb4yqk7dk8";
   }) {}
 , hostName
 , programFunc
@@ -15,6 +15,8 @@
     ./rpi-sd.nix
     ./cage.nix
     ({lib, pkgs, ...}: {
+      boot.plymouth.enable = true;
+
       sdImage.compressImage = false;
 
       networking.hostName = hostName;
