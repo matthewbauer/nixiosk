@@ -21,6 +21,8 @@
 
       networking.hostName = hostName;
 
+      hardware.opengl.enable = true;
+
       services.openssh = {
         enable = true;
         permitRootLogin = "without-password";
