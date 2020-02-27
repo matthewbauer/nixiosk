@@ -1,4 +1,4 @@
-{ pkgs ? import ../nixpkgs (builtins.fetchTarball {
+{ pkgs ? import (builtins.fetchTarball {
     url = "https://github.com/matthewbauer/nixpkgs/archive/e829d02c7298fcf811b3708253809ae5ce4ba0c4.tar.gz";
     sha256 = "1h8276r37r3rlka311v555j8xyx1nkysnwk9sfn7hlpb4yqk7dk8";
   }) {}
