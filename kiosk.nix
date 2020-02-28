@@ -40,6 +40,32 @@
         program = programFunc pkgs;
       };
 
+      services.avahi = {
+        enable = true;
+        nssmdns = true;
+        publish = {
+          enable = true;
+          userServices = true;
+          addresses = true;
+          hinfo = true;
+          workstation = true;
+          domain = true;
+        };
+      };
+      environment.etc."avahi/services/ssh.service" = {
+        text = ''
+<?xml version="1.0" standalone='no'?><!--*-nxml-*-->
+<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+<service-group>
+  <name replace-wildcards="yes">%h</name>
+  <service>
+    <type>_ssh._tcp</type>
+    <port>22</port>
+  </service>
+</service-group>
+        '';
+      };
+
       # Setup cross compilation.
       nixpkgs = {
         overlays = [(self: super: {
