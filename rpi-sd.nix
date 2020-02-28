@@ -51,17 +51,24 @@ in {
 
       (cd ${pkgs.raspberrypifw}/share/raspberrypi/boot && cp bootcode.bin fixup*.dat start*.elf $NIX_BUILD_TOP/firmware/)
 
-      cp ${pkgs.raspberrypi-armstubs}/armstub8-gic.bin firmware/armstub8-gic.bin
     '' + lib.optionalString (pkgs.stdenv.hostPlatform.system == "armv6l-linux") ''
       install -D ${pkgs.ubootRaspberryPiZero}/u-boot.bin firmware/u-boot-rpi0.bin
       install -D ${pkgs.ubootRaspberryPi}/u-boot.bin firmware/u-boot-rpi1.bin
+      cp ${pkgs.raspberrypi-armstubs}/armstub7.bin firmware/armstub7.bin
+      cp ${pkgs.raspberrypi-armstubs}/armstub8-32.bin firmware/armstub8-32.bin
+      cp ${pkgs.raspberrypi-armstubs}/armstub8-32-gic.bin firmware/armstub8-32-gic.bin
     '' + lib.optionalString (pkgs.stdenv.hostPlatform.system == "armv7l-linux") ''
       install -D ${pkgs.ubootRaspberryPi2}/u-boot.bin firmware/u-boot-rpi2.bin
       install -D ${pkgs.ubootRaspberryPi3_32bit}/u-boot.bin firmware/u-boot-rpi3.bin
       install -D ${pkgs.ubootRaspberryPi4_32bit}/u-boot.bin firmware/u-boot-rpi4.bin
+      cp ${pkgs.raspberrypi-armstubs}/armstub7.bin firmware/armstub7.bin
+      cp ${pkgs.raspberrypi-armstubs}/armstub8-32.bin firmware/armstub8-32.bin
+      cp ${pkgs.raspberrypi-armstubs}/armstub8-32-gic.bin firmware/armstub8-32-gic.bin
     '' + lib.optionalString (pkgs.stdenv.hostPlatform.system == "aarch64-linux") ''
       install -D ${pkgs.ubootRaspberryPi3_64bit}/u-boot.bin firmware/u-boot-rpi3.bin
       install -D ${pkgs.ubootRaspberryPi4_64bit}/u-boot.bin firmware/u-boot-rpi4.bin
+      cp ${pkgs.raspberrypi-armstubs}/armstub8.bin firmware/armstub8.bin
+      cp ${pkgs.raspberrypi-armstubs}/armstub8-gic.bin firmware/armstub8-gic.bin
     '';
     imageBaseName = "kiosk";
   };

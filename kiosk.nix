@@ -1,6 +1,6 @@
-{ pkgs ? import (builtins.fetchTarball {
-    url = "https://github.com/matthewbauer/nixpkgs/archive/4490cc959b690797cab89d66654f9424282e9120.tar.gz";
-    sha256 = "1n5pbsn4rkwjygn9mcvb4r1hsdwcqds26a01wpnx56122qdayc3h";
+{ pkgs ? import  (builtins.fetchTarball {
+    url = "https://github.com/matthewbauer/nixpkgs/archive/4b3d8a9a7e370afc32f2052ce3ad384c9f2a4b06.tar.gz";
+    sha256 = "0ad7cyaknfk2k6m67wzgrizchf5xca90lbnf4a62g5g3f9ainj7m";
   }) {}
 , hostName
 , programFunc
