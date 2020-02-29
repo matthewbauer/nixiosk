@@ -1,4 +1,4 @@
-{ pkgs ? import  (builtins.fetchTarball {
+{ pkgs ? import (builtins.fetchTarball {
     url = "https://github.com/matthewbauer/nixpkgs/archive/4b3d8a9a7e370afc32f2052ce3ad384c9f2a4b06.tar.gz";
     sha256 = "0ad7cyaknfk2k6m67wzgrizchf5xca90lbnf4a62g5g3f9ainj7m";
   }) {}
@@ -7,7 +7,7 @@
 , authorizedKeys
 , crossSystem }:
 
-(import (pkgs.path + /nixos/lib/eval-config.nix) {
+import (pkgs.path + /nixos/lib/eval-config.nix) {
   modules = [
     (pkgs.path + /nixos/modules/profiles/clone-config.nix)
     (pkgs.path + /nixos/modules/installer/cd-dvd/channel.nix)
@@ -93,7 +93,7 @@
         inherit crossSystem;
       };
 
-      # Disable some stuff that doesn’t cross compile / take a long time.
+      # Disable some stuff that doesn’t cross compile / takes a long time.
       boot.supportedFilesystems = lib.mkForce [ "vfat" ];
       programs.command-not-found.enable = false;
       security.pam.services.su.forwardXAuth = lib.mkForce false;
@@ -103,4 +103,4 @@
       fonts.fontconfig.enable = false;
       security.polkit.enable = false;
     }) ];
-})
+}
