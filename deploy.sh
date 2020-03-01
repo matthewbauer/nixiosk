@@ -64,4 +64,4 @@ if ! [ -w "$block" ]; then
     SUDO=sudo
 fi
 
-"$SUDO" dd if="$sd_image" of="$block" status=progress conv=fsync
+"$SUDO" dd bs=1M if="$sd_image" of="$block" status=progress conv=fsync
