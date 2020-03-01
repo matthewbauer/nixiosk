@@ -6,11 +6,6 @@ let
       pkgs = pkgs.buildPackages;
     };
   configTxt = pkgs.writeText "config.txt" ''
-    # Prevent the firmware from smashing the framebuffer setup
-    # done by the mainline kernel when attempting to show low-voltage
-    # or overtemperature warnings.
-    avoid_warnings=1
-
     [pi0]
     kernel=u-boot-rpi0.bin
 
@@ -29,47 +24,47 @@ let
     armstub=armstub8-gic.bin
 
     [all]
-    # Boot in 64-bit mode.
-    arm_64bit=1
-    # U-Boot needs this to work, regardless of whether UART is actually used or not.
-    # Look in arch/arm/mach-bcm283x/Kconfig in the U-Boot tree to see if this is still
-    # a requirement in the future.
-    enable_uart=1
-    # Prevent the firmware from smashing the framebuffer setup done by the mainline kernel
-    # when attempting to show low-voltage or overtemperature warnings.
     avoid_warnings=1
+    # hdmi_drive=2
+    # dtparam=audio=on
+    # dtparam=spi=on
+    # dtparam=i2c_arm=on
+  '' + pkgs.stdenv.lib.optionalString pkgs.stdenv.hostPlatform.isAarch64 ''
+    arm_64bit=1
   '';
 in {
+
+  hardware.firmware = with pkgs; [
+    firmwareLinuxNonfree
+    raspberrypiWirelessFirmware
+  ];
+
   sdImage = {
     populateRootCommands = ''
       mkdir -p files/boot
-      ${extlinux-conf-builder} -t 3 -c ${config.system.build.toplevel} -d files/boot
+      ${extlinux-conf-builder} -t 0.1 -c ${config.system.build.toplevel} -d files/boot
     '';
     populateFirmwareCommands = ''
       mkdir -p firmware
       install -D ${configTxt} firmware/config.txt
 
       (cd ${pkgs.raspberrypifw}/share/raspberrypi/boot && cp bootcode.bin fixup*.dat start*.elf $NIX_BUILD_TOP/firmware/)
-
-    '' + lib.optionalString (pkgs.stdenv.hostPlatform.system == "armv6l-linux") ''
-      install -D ${pkgs.ubootRaspberryPiZero}/u-boot.bin firmware/u-boot-rpi0.bin
-      install -D ${pkgs.ubootRaspberryPi}/u-boot.bin firmware/u-boot-rpi1.bin
-      cp ${pkgs.raspberrypi-armstubs}/armstub7.bin firmware/armstub7.bin
-      cp ${pkgs.raspberrypi-armstubs}/armstub8-32.bin firmware/armstub8-32.bin
-      cp ${pkgs.raspberrypi-armstubs}/armstub8-32-gic.bin firmware/armstub8-32-gic.bin
-    '' + lib.optionalString (pkgs.stdenv.hostPlatform.system == "armv7l-linux") ''
-      install -D ${pkgs.ubootRaspberryPi2}/u-boot.bin firmware/u-boot-rpi2.bin
-      install -D ${pkgs.ubootRaspberryPi3_32bit}/u-boot.bin firmware/u-boot-rpi3.bin
-      install -D ${pkgs.ubootRaspberryPi4_32bit}/u-boot.bin firmware/u-boot-rpi4.bin
-      cp ${pkgs.raspberrypi-armstubs}/armstub7.bin firmware/armstub7.bin
-      cp ${pkgs.raspberrypi-armstubs}/armstub8-32.bin firmware/armstub8-32.bin
-      cp ${pkgs.raspberrypi-armstubs}/armstub8-32-gic.bin firmware/armstub8-32-gic.bin
-    '' + lib.optionalString (pkgs.stdenv.hostPlatform.system == "aarch64-linux") ''
-      install -D ${pkgs.ubootRaspberryPi3_64bit}/u-boot.bin firmware/u-boot-rpi3.bin
-      install -D ${pkgs.ubootRaspberryPi4_64bit}/u-boot.bin firmware/u-boot-rpi4.bin
-      cp ${pkgs.raspberrypi-armstubs}/armstub8.bin firmware/armstub8.bin
-      cp ${pkgs.raspberrypi-armstubs}/armstub8-gic.bin firmware/armstub8-gic.bin
-    '';
+    '' + {
+      armv6l-linux = ''
+        install -D ${pkgs.ubootRaspberryPiZero}/u-boot.bin firmware/u-boot-rpi0.bin
+        install -D ${pkgs.ubootRaspberryPi}/u-boot.bin firmware/u-boot-rpi1.bin
+      '';
+      armv7l-linux = ''
+        install -D ${pkgs.ubootRaspberryPi2}/u-boot.bin firmware/u-boot-rpi2.bin
+        install -D ${pkgs.ubootRaspberryPi3_32bit}/u-boot.bin firmware/u-boot-rpi3.bin
+        install -D ${pkgs.ubootRaspberryPi4_32bit}/u-boot.bin firmware/u-boot-rpi4.bin
+      '';
+      aarch64-linux = ''
+        install -D ${pkgs.ubootRaspberryPi3_64bit}/u-boot.bin firmware/u-boot-rpi3.bin
+        install -D ${pkgs.ubootRaspberryPi4_64bit}/u-boot.bin firmware/u-boot-rpi4.bin
+        cp ${pkgs.raspberrypi-armstubs}/armstub8-gic.bin firmware/armstub8-gic.bin
+      '';
+    }.${pkgs.stdenv.hostPlatform.system} or (throw "unknown raspberry pi system");
     imageBaseName = "kiosk";
   };
 
@@ -77,14 +72,14 @@ in {
 
   boot = {
     consoleLogLevel = 7;
-    kernelPackages = pkgs.linuxPackages_rpi0;
-    kernelParams = [
-      "dwc_otg.lpm_enable=0"
-      "console=ttyAMA0,115200"
-      "rootwait"
-      "elevator=deadline"
-    ];
+    kernelPackages = {
+      "armv6l-linux" = pkgs.linuxPackages_rpi1;
+      "armv7l-linux" = pkgs.linuxPackages_rpi2;
+      "aarch64-linux" = pkgs.linuxPackages_rpi4;
+    }.${pkgs.stdenv.hostPlatform.system} or (throw "unknown raspberry pi system");
+    kernelParams = [ "dwc_otg.lpm_enable=0" ];
     loader.grub.enable = false;
+    loader.generic-extlinux-compatible.enable = true;
   };
 
 }
