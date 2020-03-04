@@ -34,15 +34,12 @@ let
   '';
 in {
 
-  hardware.firmware = with pkgs; [
-    firmwareLinuxNonfree
-    raspberrypiWirelessFirmware
-  ];
+  hardware.enableRedistributableFirmware = true;
 
   sdImage = {
     populateRootCommands = ''
       mkdir -p files/boot
-      ${extlinux-conf-builder} -t 0.1 -c ${config.system.build.toplevel} -d files/boot
+      ${extlinux-conf-builder} -t 0 -c ${config.system.build.toplevel} -d files/boot
     '';
     populateFirmwareCommands = ''
       mkdir -p firmware
@@ -80,6 +77,10 @@ in {
     kernelParams = [ "dwc_otg.lpm_enable=0" ];
     loader.grub.enable = false;
     loader.generic-extlinux-compatible.enable = true;
+    initrd.kernelModules = [ "vc4" "bcm2835_dma" "i2c_bcm2835" ];
+
+    # avoids https://github.com/raspberrypi/linux/issues/3139
+    blacklistedKernelModules = [ "bcm2708_fb" ];
   };
 
 }

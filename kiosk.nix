@@ -1,11 +1,14 @@
 { pkgs ? import (builtins.fetchTarball {
-    url = "https://github.com/matthewbauer/nixpkgs/archive/4b3d8a9a7e370afc32f2052ce3ad384c9f2a4b06.tar.gz";
-    sha256 = "0ad7cyaknfk2k6m67wzgrizchf5xca90lbnf4a62g5g3f9ainj7m";
+    url = "https://github.com/matthewbauer/nixpkgs/archive/fc6225dd5be5d26f661318c34ec745fd784e40d8.tar.gz";
+    sha256 = "1zsihp3157a6dhw1xfpm5c9z6kps3zbry53qkz4iqgs6jrqrsxw1";
   }) {}
 , hostName
 , programFunc
 , authorizedKeys
-, crossSystem }:
+, crossSystem
+, networks ? {}
+, country ? "US"
+, timeZone ? "America/New_York" }:
 
 import (pkgs.path + /nixos/lib/eval-config.nix) {
   modules = [
@@ -102,5 +105,13 @@ import (pkgs.path + /nixos/lib/eval-config.nix) {
       services.udisks2.enable = false;
       fonts.fontconfig.enable = false;
       security.polkit.enable = false;
+
+      networking.wireless = {
+        enable = true;
+        inherit networks;
+        extraConfig = "country=${country}";
+      };
+
     }) ];
+
 }
