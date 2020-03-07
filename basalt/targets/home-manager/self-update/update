@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+set -euo pipefail
+set -x
+
+# Function to clean up temporary files and directories.
+cleanup ()
+{
+    TO_CLEAN="$1"
+    rm -rf "$TO_CLEAN"
+}
+
+# Important default vars.
+HOME_MANAGER_CONFIG_SRC_PATH="home.nix"
+HOME_MANAGER_CHANNEL_SRC_PATH="home-manager"
+NIXPKGS_CHANNEL_SRC_PATH="nixpkgs"
+
+# Store script arguments given by Git.
+BRANCH_NAME=$1
+FROM_REV=$2
+TO_REV=$3
+
+if [ "$BRANCH_NAME" != "refs/heads/master" ] ; then
+    exit 0
+fi
+
+if [ $(git rev-list "$TO_REV".."$FROM_REV" | head -c1 | wc -c) -ne 0 ] ; then
+    2>&1 echo "Cannot update $BRANCH_NAME from $FROM_REV to $TO_REV; not a fast-forward"
+    exit 1
+fi
+
+# This crazy workaround ensures that it will work on both Mac OS and Linux; see
+# https://unix.stackexchange.com/questions/30091/fix-or-alternative-for-mktemp-in-os-x
+CLEAN=$(mktemp -d 2>/dev/null || mktemp -d -t 'clean')
+
+# Ensure that cleanup always runs even if something goes wrong.
+trap "cleanup $CLEAN" EXIT
+
+unpack_source ()
+{
+    mkdir "$CLEAN/src"
+    git archive --format=tar "$TO_REV" | tar x -C "$CLEAN/src"
+}
+
+make_set_local_build_dir ()
+{
+    mkdir -p "$GIT_DIR/builds"
+    LOCAL_BUILD_DIR=$(realpath "$GIT_DIR/builds")
+}
+
+build_home_env ()
+{
+    # Enter subshell.
+    (
+        cd "$CLEAN/src"
+        NIX_PATH=/var/empty
+        NIX_BUILD_RESULT="$(home-manager -I "home-manager=$CLEAN/src/$HOME_MANAGER_CHANNEL_SRC_PATH" \
+                            -I "nixpkgs=$CLEAN/src/$NIXPKGS_CHANNEL_SRC_PATH" \
+                            build -f "$CLEAN/src/$HOME_MANAGER_CONFIG_SRC_PATH" --show-trace)"
+        ln -s "$NIX_BUILD_RESULT" "$LOCAL_BUILD_DIR/$TO_REV"
+    )
+}
+
+#TODO: Need a way to kick off this process without pushing a fresh reference
+make_set_local_build_dir
+unpack_source
+build_home_env

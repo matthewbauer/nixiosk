@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -euo pipefail
+set -x
+
+# Function to clean up temporary files and directories.
+cleanup ()
+{
+    TO_CLEAN="$1"
+    # Once we've switched to it and put it in the profile, we don't need to
+    # retain the result link anymore.  No -rf flags since it is expected to be a
+    # symlink and we don't want to scrub the actual target.
+    rm "$TO_CLEAN"
+}
+
+REV_TO_ACTIVATE="$1"
+
+# Ensure that cleanup always runs even if something goes wrong.
+trap "cleanup $GIT_DIR/builds/$REV_TO_ACTIVATE" EXIT
+
+PATH_TO_ACTIVATE="$(realpath "$GIT_DIR/builds/$REV_TO_ACTIVATE")"
+
+switch_home_env ()
+{
+    "$PATH_TO_ACTIVATE/activate"
+}
+
+# switch_nixos
+switch_home_env

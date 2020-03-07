@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+env -u NIX_PATH nix-build "${STORE_ARGS[@]}" -E '(import ./nixpkgs/nixos { configuration = import ./configuration.nix; }).system' --no-out-link --keep-going --show-trace || env -u NIX_PATH nix-build "${STORE_ARGS[@]}" -E '(import ./nixpkgs/nixos { configuration = import ./configuration.nix; }).system' --no-out-link -j 1

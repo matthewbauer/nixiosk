@@ -1,0 +1,127 @@
+set timeout 60
+
+# Boot the machine
+spawn qemu-system-x86_64 -enable-kvm -nographic -m 8G -smp 4 -nic none -bios bios.bin -boot once=d -cdrom "$env(INSTALLER_ISO)" -virtfs "local,path=$env(BASALT_DIR),mount_tag=basalt,security_model=none,readonly" -virtfs "local,path=$env(NIXPKGS_DIR),mount_tag=nixpkgs,security_model=none,readonly" -hda "$env(QEMU_IMAGE)"
+
+# Don't wait for boot loader countdown
+expect "automatically"
+send -- "\r"
+expect "nixos@nixos"
+
+send -- "sudo -i\r"
+expect "root@nixos"
+
+send -- "mkdir /basalt\r"
+expect "root@nixos"
+
+send -- "mount -t 9p -o trans=virtio,version=9p2000.L basalt /basalt\r"
+expect "root@nixos"
+
+send -- "mkdir /nixpkgs\r"
+expect "root@nixos"
+
+send -- "mount -t 9p -o trans=virtio,version=9p2000.L nixpkgs /nixpkgs\r"
+expect "root@nixos"
+
+# Partition the target disk
+send -- "gdisk /dev/sda\r"
+expect "Command"
+# Create the boot partition
+send -- "n\r\r\r+2G\rEF00\r"
+expect "Command"
+# Create the root partition
+send -- "n\r\r\r\r\r"
+expect "Command"
+# Write the partition table
+send -- "w\ry\r"
+expect "root@nixos"
+
+send -- "mkfs.fat -F 32 -n boot /dev/sda1\r"
+expect "root@nixos"
+
+send -- "mkfs.ext4 /dev/sda2\r"
+expect "root@nixos"
+
+send -- "mount /dev/sda2 /mnt\r"
+expect "root@nixos"
+
+send -- "mkdir /mnt/boot\r"
+expect "root@nixos"
+
+send -- "mount /dev/sda1 /mnt/boot\r"
+expect "root@nixos"
+
+send -- "mkdir -m 0755 -p /mnt/etc/nixos\r"
+expect "root@nixos"
+
+# Mark the location as a nixos installation
+send -- "touch /mnt/etc/NIXOS\r"
+expect "root@nixos"
+
+send -- "git init --bare /mnt/etc/nixos/configuration.git\r"
+expect "root@nixos"
+
+send -- "cp -r --no-clobber /basalt /mnt/etc/nixos/basalt\r"
+expect "root@nixos"
+
+send -- "rm -rf /mnt/etc/nixos/configuration.git/hooks\r"
+expect "root@nixos"
+
+send -- "ln -s /mnt/etc/nixos/basalt/git-hooks /mnt/etc/nixos/configuration.git/hooks\r"
+expect "root@nixos"
+
+send -- "git clone /mnt/etc/nixos/configuration.git\r"
+expect "root@nixos"
+
+send -- "echo '{ config, pkgs, ... }: { boot.loader.systemd-boot.enable = true; boot.loader.efi.canTouchEfiVariables = true; boot.kernelParams = \[ \"console=ttyS0\" \]; fileSystems.\"/\" = { device = \"/dev/sda2\"; fsType = \"ext4\"; }; fileSystems.\"/boot\" = { device = \"/dev/sda1\"; fsType = \"vfat\"; }; users.users.root.initialHashedPassword = \"\\\$6\\\$fpizjqA4j\\\$xYuPmLI1c6Z7DcDIyDaPAW4nGL8KN2HhuuAB8avyd5D2FvuCbZG9zldi4OZwogMiOReZNWq1FkO3l3i1kYinF/\"; environment.systemPackages = with pkgs; \[ git vim \]; }' >configuration/configuration.nix\r"
+expect "root@nixos"
+
+send -- "git config --global user.email test@example.com\r"
+expect "root@nixos"
+
+send -- "git config --global user.name 'Test User'\r"
+expect "root@nixos"
+
+send -- "rsync -arv --exclude .git /basalt configuration/\r"
+expect "root@nixos"
+
+# copying nixpkgs can take a while
+set timeout 600
+
+send -- "rsync -arv --exclude .git /nixpkgs configuration/\r"
+expect "root@nixos"
+
+send -- "git -C configuration add -A\r"
+expect "root@nixos"
+
+send -- "git -C configuration commit -m 'Initial commit'\r"
+expect "root@nixos"
+
+send -- "git -C configuration push -u origin HEAD\r"
+expect "root@nixos"
+
+send -- "for n in {1..50} ; do echo ; done ; echo done\r"
+expect "done"
+expect "root@nixos"
+
+send -- "cat /mnt/etc/shadow | grep root\r"
+expect "root@nixos"
+
+send -- "rm /mnt/etc/nixos/configuration.git/hooks\r"
+expect "root@nixos"
+
+send -- "ln -s /etc/nixos/basalt/git-hooks /mnt/etc/nixos/configuration.git/hooks\r"
+expect "root@nixos"
+
+send -- "shutdown -r now\r"
+expect "Boot in"
+send -- "\r"
+expect "nixos login:"
+
+send -- "root\r"
+expect "Password"
+
+send -- "password\r"
+expect "root@nixos"
+
+exit 0
