@@ -20,26 +20,21 @@ let
 
     [pi4]
     kernel=u-boot-rpi4.bin
-    enable_gic=1
     armstub=armstub8-gic.bin
 
     [all]
     avoid_warnings=1
-    # hdmi_drive=2
-    # dtparam=audio=on
-    # dtparam=spi=on
-    # dtparam=i2c_arm=on
   '' + pkgs.stdenv.lib.optionalString pkgs.stdenv.hostPlatform.isAarch64 ''
     arm_64bit=1
   '';
 in {
-
-  hardware.enableRedistributableFirmware = true;
+  imports = [ (pkgs.path + /nixos/modules/installer/cd-dvd/sd-image.nix) ];
 
   sdImage = {
     populateRootCommands = ''
       mkdir -p files/boot
       ${extlinux-conf-builder} -t 0 -c ${config.system.build.toplevel} -d files/boot
+      mkdir -p files/boot/firmware
     '';
     populateFirmwareCommands = ''
       mkdir -p firmware
@@ -63,24 +58,6 @@ in {
       '';
     }.${pkgs.stdenv.hostPlatform.system} or (throw "unknown raspberry pi system");
     imageBaseName = "kiosk";
-  };
-
-  console.extraTTYs = [ "ttyAMA0" ];
-
-  boot = {
-    consoleLogLevel = 7;
-    kernelPackages = {
-      "armv6l-linux" = pkgs.linuxPackages_rpi1;
-      "armv7l-linux" = pkgs.linuxPackages_rpi2;
-      "aarch64-linux" = pkgs.linuxPackages_rpi4;
-    }.${pkgs.stdenv.hostPlatform.system} or (throw "unknown raspberry pi system");
-    kernelParams = [ "dwc_otg.lpm_enable=0" ];
-    loader.grub.enable = false;
-    loader.generic-extlinux-compatible.enable = true;
-    initrd.kernelModules = [ "vc4" "bcm2835_dma" "i2c_bcm2835" ];
-
-    # avoids https://github.com/raspberrypi/linux/issues/3139
-    blacklistedKernelModules = [ "bcm2708_fb" ];
   };
 
 }

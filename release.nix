@@ -1,16 +1,28 @@
 let
 
-  kiosk = import ./kiosk.nix;
+  kiosk = custom: import ./boot { inherit custom; };
 
 in
 
 {
 
-  rasperryPi0 = (kiosk {
+  raspberryPi0 = (kiosk {
     hostName = "kiosk";
-    crossSystem.config = "armv6l-unknown-linux-gnueabihf";
+    hardware = "raspberryPi0";
     authorizedKeys = [];
-    programFunc = pkgs: "${pkgs.epiphany}/bin/epiphany";
+    program = { package = "epiphany"; path = "/bin/epiphany"; };
+    networks = {};
+    locale = { timeZone = "America/New_York"; country = "US"; };
+    localSystem = { system = "x86_64-linux"; };
+  }).config.system.build.sdImage;
+
+  raspberryPi4 = (kiosk {
+    hostName = "kiosk";
+    authorizedKeys = [];
+    program = { package = "epiphany"; path = "/bin/epiphany"; };
+    networks = {};
+    locale = { timeZone = "America/New_York"; country = "US"; };
+    localSystem = { system = "x86_64-linux"; };
   }).config.system.build.sdImage;
 
 }

@@ -1,6 +1,8 @@
 #!/usr/bin/env nix-shell
 #!nix-shell -i bash -p rsync coreutils nix
 
+set -eu -o pipefail
+
 if [ "$#" -ne 1 ]; then
     echo Need to provide device path for SD card
     exit 1
@@ -34,23 +36,12 @@ fi
 
 shift
 
-# if [ "$(cat "$dev/removable")" != 1 ]; then
-#     echo $1 is a valid device, but is not removable.
-#     exit 1
-# fi
-
 if ! [ -f "$HOME/.ssh/id_rsa.pub" ]; then
     echo No default ssh key exists.
     exit 1
 fi
 
-sd_drv=$(nix-instantiate --no-gc-warning --show-trace kiosk.nix \
-        -A config.system.build.sdImage \
-        --argstr hostName kiosk \
-        --arg crossSystem '{ system = "armv6l-linux"; config = "armv6l-unknown-linux-gnueabihf"; }' \
-        --arg authorizedKeys "[\"$(cat $HOME/.ssh/id_rsa.pub)\"]" \
-        --arg programFunc "pkgs: \"\${pkgs.epiphany}/bin/epiphany\"" \
-    )
+sd_drv=$(nix-instantiate --no-gc-warning --show-trace boot -A config.system.build.sdImage)
 
 sd_image=$(echo "$(nix-build --keep-going --no-out-link "$sd_drv")"/sd-image/*.img)
 
