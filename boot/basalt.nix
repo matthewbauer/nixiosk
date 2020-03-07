@@ -2,13 +2,16 @@
 
 let
 
-  self = builtins.fetchgit {
-    url = ./.;
+  git = pkgs.git.override {
+    withManual = false;
+    pythonSupport = false;
+    withpcre2 = false;
+    perlSupport = false;
   };
 
 in {
 
-  environment.systemPackages = [ pkgs.git pkgs.openssh ];
+  environment.systemPackages = [ git pkgs.openssh ];
 
   boot.postBootCommands = ''
     mkdir -p /root/.ssh
@@ -16,7 +19,10 @@ in {
         ssh-keygen -q -t rsa -b 4096 -N "" -f /root/.ssh/id_rsa
     fi
 
-    git clone ${self} /root/configuration
+    git clone ${builtins.path {
+      path = ../.git;
+      name = "configuration-bare.git";
+    }} /root/configuration
 
     cd /root/configuration
     cp ${builtins.toFile "config.json" (builtins.toJSON custom)} config.json
@@ -29,7 +35,7 @@ in {
       git commit -m "Add config.json" --author="NixOS Basalt module"
 
     mkdir -p /etc/nixos
-    git clone --bare ${self} /etc/nixos/configuration.git
+    git clone --bare /root/configuration /etc/nixos/configuration.git
 
     rm -rf /root/configuration
 

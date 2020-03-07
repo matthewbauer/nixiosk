@@ -27,7 +27,7 @@
       "initcall_blacklist=bcm2708_fb_init"
 
       # avoids https://github.com/raspberrypi/firmware/issues/1247
-      "cma=100M"
+      "cma=512M"
     ];
     loader.grub.enable = false;
     loader.generic-extlinux-compatible.enable = true;
