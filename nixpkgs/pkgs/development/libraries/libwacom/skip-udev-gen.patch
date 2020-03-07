@@ -1,0 +1,35 @@
+diff --git a/meson.build b/meson.build
+index 70554a2..6e261b0 100644
+--- a/meson.build
++++ b/meson.build
+@@ -437,18 +437,18 @@ executable('libwacom-list-local-devices',
+ 
+ tools_cflags = ['-DTOPSRCDIR="@0@"'.format(meson.source_root())]
+ 
+-gen_udev_rules = executable('generate-udev-rules',
+-			    'tools/generate-udev-rules.c',
+-			    dependencies: [dep_libwacom, dep_glib],
+-			    include_directories: [includes_src],
+-			    c_args: tools_cflags,
+-			    install: false)
+-custom_target('udev-rules',
+-	      command: gen_udev_rules,
+-	      capture: true,
+-	      output: '65-libwacom.rules',
+-	      install: true,
+-	      install_dir: join_paths(dir_udev, 'rules.d'))
++# gen_udev_rules = executable('generate-udev-rules',
++# 			    'tools/generate-udev-rules.c',
++# 			    dependencies: [dep_libwacom, dep_glib],
++# 			    include_directories: [includes_src],
++# 			    c_args: tools_cflags,
++# 			    install: false)
++# custom_target('udev-rules',
++# 	      command: gen_udev_rules,
++# 	      capture: true,
++# 	      output: '65-libwacom.rules',
++# 	      install: true,
++# 	      install_dir: join_paths(dir_udev, 'rules.d'))
+ 
+ executable('list-devices',
+ 	   'tools/list-devices.c',
