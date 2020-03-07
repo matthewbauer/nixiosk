@@ -27,7 +27,11 @@
       "initcall_blacklist=bcm2708_fb_init"
 
       # avoids https://github.com/raspberrypi/firmware/issues/1247
-      "cma=512M"
+      "cma=${{
+        "armv6l-linux" = "256M";
+        "armv7l-linux" = "512M";
+        "aarch64-linux" = "512M";
+      }.${pkgs.stdenv.hostPlatform.system} or (throw "unknown raspberry pi system")}"
     ];
     loader.grub.enable = false;
     loader.generic-extlinux-compatible.enable = true;
