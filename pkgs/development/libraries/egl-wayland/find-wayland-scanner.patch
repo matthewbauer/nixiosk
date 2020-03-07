@@ -1,0 +1,31 @@
+diff --git a/meson.build b/meson.build
+index af5ca25..b0871a9 100644
+--- a/meson.build
++++ b/meson.build
+@@ -24,8 +24,7 @@ wayland_client = dependency('wayland-client')
+ wayland_egl_backend = dependency('wayland-egl-backend', version : ['>=3'])
+ threads = dependency('threads')
+ 
+-wl_scanner = dependency('wayland-scanner', native: true)
+-prog_scanner = find_program(wl_scanner.get_pkgconfig_variable('wayland_scanner'))
++prog_scanner = find_program('wayland-scanner')
+ 
+ inc = include_directories(
+     'include',
+diff --git a/wayland-eglstream/meson.build b/wayland-eglstream/meson.build
+index a713900..1750850 100644
+--- a/wayland-eglstream/meson.build
++++ b/wayland-eglstream/meson.build
+@@ -14,11 +14,7 @@ foreach proto : generated_private_protocols + generated_public_protocols
+             output_file = '@0@-server-protocol.h'.format(proto)
+         else
+             output_file = '@0@-protocol.c'.format(proto)
+-            if wl_scanner.version().version_compare('< 1.14.91')
+-                output_type = 'code'
+-            elif generated_public_protocols.contains(proto)
+-                output_type = 'public-code'
+-            endif
++            output_type = 'code'
+         endif
+ 
+         var_name = output_file.underscorify()

@@ -1,0 +1,20 @@
+diff --git a/meson.build b/meson.build
+index db94f85f04e..c9e87230edd 100644
+--- a/meson.build
++++ b/meson.build
+@@ -1359,13 +1359,8 @@ endif
+ # TODO: symbol mangling
+ 
+ if with_platform_wayland
+-  dep_wl_scanner = dependency('wayland-scanner', native: true)
+-  prog_wl_scanner = find_program(dep_wl_scanner.get_pkgconfig_variable('wayland_scanner'))
+-  if dep_wl_scanner.version().version_compare('>= 1.15')
+-    wl_scanner_arg = 'private-code'
+-  else
+-    wl_scanner_arg = 'code'
+-  endif
++  prog_wl_scanner = find_program('wayland-scanner')
++  wl_scanner_arg = 'code'
+   dep_wl_protocols = dependency('wayland-protocols', version : '>= 1.8')
+   dep_wayland_client = dependency('wayland-client', version : '>=1.11')
+   dep_wayland_server = dependency('wayland-server', version : '>=1.11')
