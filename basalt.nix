@@ -8,10 +8,14 @@ let
 
 in {
 
-  environment.systemPackages = [ pkgs.git ];
+  environment.systemPackages = [ pkgs.git pkgs.openssh ];
 
   boot.postBootCommands = ''
-    mkdir -p /root
+    mkdir -p /root/.ssh
+    if ! [ -f /root/.ssh/id_rsa ]; then
+        ssh-keygen -q -t rsa -b 4096 -N "" -f /root/.ssh/id_rsa
+    fi
+
     git clone ${self} /root/configuration
 
     cd /root/configuration
