@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -euo pipefail
+set -x
+
+CLEAN=$(mktemp -d 2>/dev/null || mktemp -d -t 'clean') # This crazy workaround ensures that it will work on both Mac OS and Linux; see https://unix.stackexchange.com/questions/30091/fix-or-alternative-for-mktemp-in-os-x
+trap "rm -rf \"$CLEAN\"" EXIT
+
+cd "$CLEAN"
+
+git clone /etc/nixos/configuration.git --reference /etc/nixos/configuration.git
+cd configuration
+
+OLD_HEAD="$(git rev-parse HEAD)"
+
+#TODO: Only do this if we're on a cheap internet connection (e.g. not tethered cellular)
+# We can use https://stackoverflow.com/questions/43228973/detect-if-current-connection-is-metered-with-networkmanager
+# to determine whether the connection is metered; if unknown or "guessed", we can ask the user to choose
+git subrepo pull --all
+
+NEW_HEAD="$(git rev-parse HEAD)"
+
+if [ "$OLD_HEAD" == "$NEW_HEAD" ] ; then
+    # No changes, so bail out
+    exit 0
+fi
+
+#TODO: Only do this if we're on AC power or if it can be done by only download cache (and we're on a cheap internet connection)
+./basalt/test
