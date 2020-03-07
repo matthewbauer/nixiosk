@@ -28,9 +28,8 @@ let
     arm_64bit=1
   '';
 in {
-  imports = [ (pkgs.path + /nixos/modules/installer/cd-dvd/sd-image.nix) ];
-
   sdImage = {
+    compressImage = false;
     populateRootCommands = ''
       mkdir -p files/boot
       ${extlinux-conf-builder} -t 0 -c ${config.system.build.toplevel} -d files/boot

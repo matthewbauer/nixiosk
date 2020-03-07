@@ -111,13 +111,13 @@
       cage = super.cage.override { xwayland = null; };
     }) ];
     crossSystem = {
-      raspberryPi0 = "armv6l-unknown-linux-gnueabihf";
-      raspberryPi1 = "armv6l-unknown-linux-gnueabihf";
-      raspberryPi2 = "armv7l-unknown-linux-gnueabihf";
-      raspberryPi3 = "armv7l-unknown-linux-gnueabihf";
-      raspberryPi4 = "aarch64-unknown-linux-gnueabihf";
-    } or throw "No known crossSystem for ${custom.hardware}.";
-    inherit localSystem;
+      raspberryPi0 = { config = "armv6l-unknown-linux-gnueabihf"; };
+      raspberryPi1 = { config = "armv6l-unknown-linux-gnueabihf"; };
+      raspberryPi2 = { config = "armv7l-unknown-linux-gnueabihf"; };
+      raspberryPi3 = { config = "armv7l-unknown-linux-gnueabihf"; };
+      raspberryPi4 = { config = "aarch64-unknown-linux-gnu"; };
+    }.${custom.hardware} or (throw "No known crossSystem for ${custom.hardware}.");
+    inherit (custom) localSystem;
   };
 
   boot.supportedFilesystems = lib.mkForce [ "vfat" ];

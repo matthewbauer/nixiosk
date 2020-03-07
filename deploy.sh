@@ -8,6 +8,12 @@ if [ "$#" -ne 1 ]; then
     exit 1
 fi
 
+custom=./custom.json
+if ! [ -f "$custom" ]; then
+    echo No "$custom" provided
+    exit 1
+fi
+
 dev="$1"
 if ! [ -f "$dev/dev" ]; then
     dev="/sys/block/$(echo "$1" | sed s,/dev/,,)"
@@ -41,7 +47,9 @@ if ! [ -f "$HOME/.ssh/id_rsa.pub" ]; then
     exit 1
 fi
 
-sd_drv=$(nix-instantiate --no-gc-warning --show-trace boot -A config.system.build.sdImage)
+sd_drv=$(nix-instantiate --no-gc-warning --show-trace \
+          --arg custom "builtins.fromJSON (builtins.readFile $custom)" \
+          boot -A config.system.build.sdImage)
 
 sd_image=$(echo "$(nix-build --keep-going --no-out-link "$sd_drv")"/sd-image/*.img)
 
