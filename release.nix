@@ -14,7 +14,7 @@ in
     networks = {};
     locale = { timeZone = "America/New_York"; country = "US"; };
     localSystem = { system = "x86_64-linux"; };
-  }).config.system.build.sdImage;
+  }).config.system.build.toplevel;
 
   raspberryPi1 = (kiosk {
     hostName = "kiosk";
@@ -24,7 +24,7 @@ in
     networks = {};
     locale = { timeZone = "America/New_York"; country = "US"; };
     localSystem = { system = "x86_64-linux"; };
-  }).config.system.build.sdImage;
+  }).config.system.build.toplevel;
 
   raspberryPi2 = (kiosk {
     hostName = "kiosk";
@@ -34,7 +34,7 @@ in
     networks = {};
     locale = { timeZone = "America/New_York"; country = "US"; };
     localSystem = { system = "x86_64-linux"; };
-  }).config.system.build.sdImage;
+  }).config.system.build.toplevel;
 
   raspberryPi3 = (kiosk {
     hostName = "kiosk";
@@ -44,7 +44,7 @@ in
     networks = {};
     locale = { timeZone = "America/New_York"; country = "US"; };
     localSystem = { system = "x86_64-linux"; };
-  }).config.system.build.sdImage;
+  }).config.system.build.toplevel;
 
   raspberryPi4 = (kiosk {
     hostName = "kiosk";
@@ -54,6 +54,6 @@ in
     networks = {};
     locale = { timeZone = "America/New_York"; country = "US"; };
     localSystem = { system = "x86_64-linux"; };
-  }).config.system.build.sdImage;
+  }).config.system.build.toplevel;
 
 }

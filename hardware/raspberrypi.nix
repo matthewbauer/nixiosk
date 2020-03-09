@@ -4,7 +4,9 @@
 
   hardware.deviceTree = {
     base = "${pkgs.device-tree_rpi}/broadcom";
-    overlays = [ "${pkgs.device-tree_rpi.overlays}/vc4-fkms-v3d.dtbo" ];
+    overlays = [
+      "${pkgs.raspberrypifw}/share/raspberrypi/boot/overlays/vc4-fkms-v3d.dtbo"
+    ];
   };
 
   hardware.enableRedistributableFirmware = true;
@@ -35,7 +37,7 @@
     ];
     loader.grub.enable = false;
     loader.generic-extlinux-compatible.enable = true;
-    initrd.kernelModules = [ "vc4" "bcm2835_dma" "i2c_bcm2835" ];
+    initrd.kernelModules = [ "vc4" "bcm2835_dma" "i2c_bcm2835" "bcm2835_rng" ];
   };
 
 }

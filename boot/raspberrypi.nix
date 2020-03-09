@@ -5,7 +5,7 @@ let
     import (pkgs.path + /nixos/modules/system/boot/loader/generic-extlinux-compatible/extlinux-conf-builder.nix) {
       pkgs = pkgs.buildPackages;
     };
-  configTxt = pkgs.writeText "config.txt" ''
+  configTxt = pkgs.writeText "config.txt" (''
     [pi0]
     kernel=u-boot-rpi0.bin
 
@@ -26,7 +26,7 @@ let
     avoid_warnings=1
   '' + pkgs.stdenv.lib.optionalString pkgs.stdenv.hostPlatform.isAarch64 ''
     arm_64bit=1
-  '';
+  '');
 in {
   sdImage = {
     compressImage = false;

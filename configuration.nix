@@ -11,9 +11,13 @@
     }.${custom.hardware} or {})
   ];
 
-  boot.plymouth.enable = true;
   sdImage.compressImage = false;
   hardware.opengl.enable = true;
+  hardware.bluetooth.enable = true;
+  sound.enable = true;
+  hardware.pulseaudio.enable = true;
+
+  services.dbus.enable = true;
 
   time = { inherit (custom.locale) timeZone; };
 
@@ -45,16 +49,25 @@
     useDefaultShell = true;
   };
 
-  systemd.services."cage-tty1".environment.WLR_LIBINPUT_NO_DEVICES = "1";
-  systemd.services."cage-tty1".environment.XDG_DATA_DIRS = "/nix/var/nix/profiles/default/share:/run/current-system/sw/share";
-  systemd.services."cage-tty1".environment.XDG_CONFIG_DIRS = "/nix/var/nix/profiles/default/etc/xdg:/run/current-system/sw/etc/xdg";
-  systemd.services."cage-tty1".environment.GDK_PIXBUF_MODULE_FILE = config.environment.variables.GDK_PIXBUF_MODULE_FILE;
+  systemd.services."cage-tty1".environment = {
+    EGL_PLATFORM = "drm";
+    WLR_LIBINPUT_NO_DEVICES = "1";
+    XDG_DATA_DIRS = "/nix/var/nix/profiles/default/share:/run/current-system/sw/share";
+    XDG_CONFIG_DIRS = "/nix/var/nix/profiles/default/etc/xdg:/run/current-system/sw/etc/xdg";
+    GDK_PIXBUF_MODULE_FILE = config.environment.variables.GDK_PIXBUF_MODULE_FILE;
+    WEBKIT_DISABLE_COMPOSITING_MODE = "1";
+  };
 
   systemd.enableEmergencyMode = false;
   systemd.services."serial-getty@ttyS0".enable = false;
   systemd.services."serial-getty@hvc0".enable = false;
   systemd.services."getty@tty1".enable = false;
   systemd.services."autovt@".enable = false;
+
+  services.udisks2.enable = false;
+  documentation.enable = false;
+  powerManagement.enable = false;
+  programs.command-not-found.enable = false;
 
   services.cage = {
     enable = true;
@@ -109,6 +122,8 @@
       libproxy = super.libproxy.override { networkmanager = null; };
       enchant2 = super.enchant2.override { hspell = null; };
       cage = super.cage.override { xwayland = null; };
+      alsaPlugins = super.alsaPlugins.override { libjack2 = null; };
+      ffmpeg_4 = super.ffmpeg_4.override { sdlSupport = false; };
     }) ];
     crossSystem = {
       raspberryPi0 = { config = "armv6l-unknown-linux-gnueabihf"; };
@@ -120,16 +135,14 @@
     inherit (custom) localSystem;
   };
 
-  boot.supportedFilesystems = lib.mkForce [ "vfat" ];
-  programs.command-not-found.enable = false;
-  powerManagement.enable = false;
-  documentation.enable = false;
-  services.udisks2.enable = false;
-  security.polkit.enable = false;
-
-  boot.extraModprobeConfig = ''
-    options cfg80211 ieee80211_regdom="${custom.locale.country}"
-  '';
+  boot = {
+    plymouth.enable = true;
+    supportedFilesystems = lib.mkForce [ "vfat" ];
+    extraModprobeConfig = ''
+      options cfg80211 ieee80211_regdom="${custom.locale.country}"
+    '';
+    kernelParams = ["quiet"];
+  };
 
   networking = {
     inherit (custom) hostName;

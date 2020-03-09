@@ -3,14 +3,8 @@
 
 set -eu -o pipefail
 
-if [ "$#" -ne 1 ]; then
+if [ "$#" -lt 1 ]; then
     echo Need to provide device path for SD card
-    exit 1
-fi
-
-custom=./custom.json
-if ! [ -f "$custom" ]; then
-    echo No "$custom" provided
     exit 1
 fi
 
@@ -41,6 +35,17 @@ if ! [ -b "$block" ]; then
 fi
 
 shift
+
+custom=./custom.json
+if [ "$#" -gt 0 ]; then
+    custom="$1"
+    shift
+fi
+
+if ! [ -f "$custom" ]; then
+    echo No "$custom" provided
+    exit 1
+fi
 
 if ! [ -f "$HOME/.ssh/id_rsa.pub" ]; then
     echo No default ssh key exists.
