@@ -23,6 +23,9 @@
       (pkgs.path + /nixos/modules/installer/cd-dvd/sd-image.nix)
     ];
   }.${custom.hardware} or (throw "No known booter for ${custom.hardware}."))
-  ++ [ ({pkgs, ...}: import ./basalt.nix ({ inherit pkgs custom; }))
-       ({pkgs, lib, config, ...}: import ../configuration.nix { inherit pkgs lib config custom; } ) ];
+  ++ [
+    # ({pkgs, ...}: import ./basalt.nix ({ inherit pkgs custom; }))
+    ({pkgs, lib, config, ...}:
+      import ../configuration.nix { inherit pkgs lib config custom; } )
+  ];
 }
