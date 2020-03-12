@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+set -euo pipefail
+set -x
+
+# Function to clean up temporary files and directories.
+cleanup ()
+{
+    TO_CLEAN="$1"
+    rm -rf "$TO_CLEAN"
+}
+
+# Store script arguments given by Git.
+BRANCH_NAME=$1
+FROM_REV=$2
+TO_REV=$3
+
+# Important vars.
+BASALT_SRC_DIR="basalt"
+TARGET_SRC_SUBDIR="targets/home-manager"
+
+# This crazy workaround ensures that it will work on both Mac OS and Linux; see
+# https://unix.stackexchange.com/questions/30091/fix-or-alternative-for-mktemp-in-os-x
+CLEAN=$(mktemp -d 2>/dev/null || mktemp -d -t 'clean')
+
+# Ensure that cleanup always runs even if something goes wrong.
+trap "cleanup $CLEAN" EXIT
+
+# Launch the newly pushed self-updater.
+mkdir "$CLEAN/src"
+git archive --format=tar "$TO_REV" "$BASALT_SRC_DIR/$TARGET_SRC_SUBDIR/self-update" | tar x -C "$CLEAN/src"
+
+# NOTE: We can't exec here, because that will defeat our EXIT trap for cleaning up the temporary directory
+# See https://stackoverflow.com/questions/24111981/how-can-i-achieve-bash-exit-trap-when-exec-ing-another-binary
+"$CLEAN/src/$BASALT_SRC_DIR/$TARGET_SRC_SUBDIR/self-update/update" "$@"

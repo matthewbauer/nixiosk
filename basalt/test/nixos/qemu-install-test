@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+set -x
+
+error () {
+    >&2 printf "%s\n" "$*"
+}
+
+#TODO: Purify this
+
+CHECKOUT=
+
+while getopts ":c:" OPT; do
+    case $OPT in
+        c  ) CHECKOUT="$OPTARG";;
+        \? ) error "Unknown flag, exiting."
+             exit 1;;
+    esac
+done
+
+export TEST_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+export INSTALLER_ISO="$(echo "$(nix-build --no-out-link "$TEST_DIR/testInstaller.nix")"/iso/*.iso)"
+export QEMU_IMAGE="$TEST_DIR/root.qcow2"
+#TODO: Lock down nixpkgs
+export NIXPKGS_DIR=$(nix-instantiate --eval -E '<nixpkgs>')
+
+export CLEAN=$(mktemp -d)
+export BASALT_DIR="$CLEAN/basalt"
+git clone "$(realpath "$TEST_DIR/../..")" "$BASALT_DIR"
+
+# Optionally check out a different version of basalt.
+if [ -n "$CHECKOUT" ]; then
+    (
+        cd "$BASALT_DIR"
+        git checkout "$CHECKOUT"
+    )
+fi
+
+# Necessary for UEFI
+OVMF_IN_STORE="$(nix-build '<nixpkgs>' -A OVMF.fd --no-out-link)"
+if [ ! -e "bios.bin" ]; then
+    cp "$OVMF_IN_STORE/FV/OVMF.fd" bios.bin
+fi
+
+qemu-img create -f qcow2 "$QEMU_IMAGE" 10G
+
+expect -f "$TEST_DIR/test-install.expect"

@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+set -x
+
+REV_TO_ACTIVATE=
+
+while read FROM_REV TO_REV REFNAME ; do
+    if [ "$REFNAME" = "refs/heads/master" ] ; then
+        REV_TO_ACTIVATE="$TO_REV"
+    fi
+done
+
+if [ "$REV_TO_ACTIVATE" != "" ] ; then
+    CLEAN=$(mktemp -d 2>/dev/null || mktemp -d -t 'clean') # This crazy workaround ensures that it will work on both Mac OS and Linux; see https://unix.stackexchange.com/questions/30091/fix-or-alternative-for-mktemp-in-os-x
+    trap "rm -rf \"$CLEAN\"" EXIT
+
+    mkdir "$CLEAN/src"
+    git archive --format=tar "$REV_TO_ACTIVATE" basalt | tar x -C "$CLEAN/src"
+
+    #NOTE: We can't exec here, because that will defeat our EXIT trap for cleaning up the temporary directory
+    # See https://stackoverflow.com/questions/24111981/how-can-i-achieve-bash-exit-trap-when-exec-ing-another-binary
+    "$CLEAN/src/basalt/git-hook-impls/post-receive" "$REV_TO_ACTIVATE" "$@"
+fi
