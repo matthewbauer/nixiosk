@@ -1,27 +1,33 @@
+{ hardware }:
+
 { pkgs, lib, config, ... }:
 
 {
 
-  hardware.deviceTree = {
-    base = "${pkgs.device-tree_rpi}/broadcom";
-    overlays = [
-      "${pkgs.raspberrypifw}/share/raspberrypi/boot/overlays/vc4-fkms-v3d.dtbo"
-    ];
+  hardware = {
+    deviceTree = {
+      base = "${pkgs.device-tree_rpi}/broadcom";
+      overlays = [
+        "${pkgs.raspberrypifw}/share/raspberrypi/boot/overlays/vc4-kms-v3d.dtbo"
+      ];
+    };
+    # enableRedistributableFirmware = true;
+    firmware = [ pkgs.wireless-regdb pkgs.raspberrypiWirelessFirmware ];
   };
 
-  hardware.enableRedistributableFirmware = true;
-  hardware.firmware = [ pkgs.wireless-regdb ];
-  environment.systemPackages = [ pkgs.raspberrypi-tools ];
+  # environment.systemPackages = [ pkgs.raspberrypi-tools ];
 
   console.extraTTYs = [ "ttyAMA0" ];
 
   boot = {
     consoleLogLevel = 7;
     kernelPackages = {
-      "armv6l-linux" = pkgs.linuxPackages_rpi1;
-      "armv7l-linux" = pkgs.linuxPackages_rpi2;
-      "aarch64-linux" = pkgs.linuxPackages_rpi4;
-    }.${pkgs.stdenv.hostPlatform.system} or (throw "unknown raspberry pi system");
+      raspberryPi0 = pkgs.linuxPackages_rpi0;
+      raspberryPi1 = pkgs.linuxPackages_rpi1;
+      raspberryPi2 = pkgs.linuxPackages_rpi2;
+      raspberryPi3 = pkgs.linuxPackages_rpi3;
+      raspberryPi4 = pkgs.linuxPackages_rpi4;
+    }.${hardware} or (throw "unknown raspberry pi system (${hardware})");
     kernelParams = [
       "dwc_otg.lpm_enable=0"
 
@@ -30,14 +36,24 @@
 
       # avoids https://github.com/raspberrypi/firmware/issues/1247
       "cma=${{
-        "armv6l-linux" = "256M";
-        "armv7l-linux" = "512M";
-        "aarch64-linux" = "512M";
-      }.${pkgs.stdenv.hostPlatform.system} or (throw "unknown raspberry pi system")}"
+        raspberryPi0 = "256M";
+        raspberryPi1 = "256M";
+        raspberryPi2 = "256M";
+        raspberryPi3 = "512M";
+        raspberryPi4 = "512M";
+      }.${hardware} or (throw "unknown raspberry pi system (${hardware})")}"
     ];
     loader.grub.enable = false;
     loader.generic-extlinux-compatible.enable = true;
     initrd.kernelModules = [ "vc4" "bcm2835_dma" "i2c_bcm2835" "bcm2835_rng" ];
   };
+
+  nixpkgs.crossSystem = {
+    raspberryPi0 = { config = "armv6l-unknown-linux-gnueabihf"; };
+    raspberryPi1 = { config = "armv6l-unknown-linux-gnueabihf"; };
+    raspberryPi2 = { config = "armv7l-unknown-linux-gnueabihf"; };
+    raspberryPi3 = { config = "aarch64-unknown-linux-gnu"; };
+    raspberryPi4 = { config = "aarch64-unknown-linux-gnu"; };
+  }.${hardware} or (throw "No known crossSystem for ${hardware}.");
 
 }

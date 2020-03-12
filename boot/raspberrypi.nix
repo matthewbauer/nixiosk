@@ -17,6 +17,7 @@ let
 
     [pi3]
     kernel=u-boot-rpi3.bin
+    armstub=armstub8-gic.bin
 
     [pi4]
     kernel=u-boot-rpi4.bin
@@ -55,7 +56,7 @@ in {
         install -D ${pkgs.ubootRaspberryPi4_64bit}/u-boot.bin firmware/u-boot-rpi4.bin
         cp ${pkgs.raspberrypi-armstubs}/armstub8-gic.bin firmware/armstub8-gic.bin
       '';
-    }.${pkgs.stdenv.hostPlatform.system} or (throw "unknown raspberry pi system");
+    }.${pkgs.stdenv.hostPlatform.system} or (throw "unknown raspberry pi system (${pkgs.stdenv.hostPlatform.system})");
     imageBaseName = "kiosk";
   };
 

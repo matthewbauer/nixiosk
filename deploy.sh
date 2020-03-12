@@ -39,6 +39,9 @@ shift
 custom=./custom.json
 if [ "$#" -gt 0 ]; then
     custom="$1"
+    if [ "${custom:0:2}" != ./ ] && [ "${custom:0:1}" != / ]; then
+        custom="./$custom"
+    fi
     shift
 fi
 
@@ -56,7 +59,8 @@ sd_drv=$(nix-instantiate --no-gc-warning --show-trace \
           --arg custom "builtins.fromJSON (builtins.readFile $custom)" \
           boot -A config.system.build.sdImage)
 
-sd_image=$(echo "$(nix-build --keep-going --no-out-link "$sd_drv")"/sd-image/*.img)
+out=$(nix-build --keep-going --no-out-link "$sd_drv")
+sd_image=$(echo "$out"/sd-image/*.img)
 
 echo "SD image is: $sd_image"
 

@@ -1,59 +1,73 @@
 let
 
-  kiosk = custom: import ./boot { inherit custom; };
+  kiosk = { hardware, program, name }: import ./boot {
+    custom = {
+      inherit hardware program;
+      hostName = name;
+      authorizedKeys = [];
+      networks = {};
+      locale = { timeZone = "America/New_York"; country = "US"; lang = "en_US.UTF-8"; };
+      localSystem = { system = "x86_64-linux"; };
+      basalt = false;
+    };
+  };
 
 in
 
 {
 
-  raspberryPi0 = (kiosk {
-    hostName = "kiosk";
+  retroPi0 = (kiosk {
+    name = "kiosk";
     hardware = "raspberryPi0";
-    authorizedKeys = [];
-    program = { package = "epiphany"; path = "/bin/epiphany"; };
-    networks = {};
-    locale = { timeZone = "America/New_York"; country = "US"; };
-    localSystem = { system = "x86_64-linux"; };
+    program = { package = "retroarchBare"; path = "/bin/retroarch"; };
   }).config.system.build.toplevel;
 
-  raspberryPi1 = (kiosk {
-    hostName = "kiosk";
-    hardware = "raspberryPi1";
-    authorizedKeys = [];
-    program = { package = "epiphany"; path = "/bin/epiphany"; };
-    networks = {};
-    locale = { timeZone = "America/New_York"; country = "US"; };
-    localSystem = { system = "x86_64-linux"; };
-  }).config.system.build.toplevel;
-
-  raspberryPi2 = (kiosk {
-    hostName = "kiosk";
-    hardware = "raspberryPi2";
-    authorizedKeys = [];
-    program = { package = "epiphany"; path = "/bin/epiphany"; };
-    networks = {};
-    locale = { timeZone = "America/New_York"; country = "US"; };
-    localSystem = { system = "x86_64-linux"; };
-  }).config.system.build.toplevel;
-
-  raspberryPi3 = (kiosk {
-    hostName = "kiosk";
-    hardware = "raspberryPi3";
-    authorizedKeys = [];
-    program = { package = "epiphany"; path = "/bin/epiphany"; };
-    networks = {};
-    locale = { timeZone = "America/New_York"; country = "US"; };
-    localSystem = { system = "x86_64-linux"; };
-  }).config.system.build.toplevel;
-
-  raspberryPi4 = (kiosk {
-    hostName = "kiosk";
+  retroPi4 = (kiosk {
+    name = "kiosk";
     hardware = "raspberryPi4";
-    authorizedKeys = [];
+    program = { package = "retroarchBare"; path = "/bin/retroarch"; };
+  }).config.system.build.toplevel;
+
+  epiphanyPi0 = (kiosk {
+    name = "kiosk";
+    hardware = "raspberryPi0";
     program = { package = "epiphany"; path = "/bin/epiphany"; };
-    networks = {};
-    locale = { timeZone = "America/New_York"; country = "US"; };
-    localSystem = { system = "x86_64-linux"; };
+  }).config.system.build.toplevel;
+
+  epiphanyPi4 = (kiosk {
+    name = "kiosk";
+    hardware = "raspberryPi4";
+    program = { package = "retroarchBare"; path = "/bin/epiphany"; };
+  }).config.system.build.toplevel;
+
+  demoPi0 = (kiosk {
+    name = "kiosk";
+    hardware = "raspberryPi0";
+    program = { package = "gtk3"; path = "/bin/gtk3-demo"; };
+  }).config.system.build.toplevel;
+
+  demoPi1 = (kiosk {
+    name = "kiosk";
+    hardware = "raspberryPi1";
+    program = { package = "gtk3"; path = "/bin/gtk3-demo"; };
+  }).config.system.build.toplevel;
+
+  demoPi2 = (kiosk {
+    name = "kiosk";
+    hardware = "raspberryPi2";
+    program = { package = "gtk3"; path = "/bin/gtk3-demo"; };
+  }).config.system.build.toplevel;
+
+  demoPi3 = (kiosk {
+    name = "kiosk";
+    hardware = "raspberryPi3";
+    program = { package = "gtk3"; path = "/bin/gtk3-demo"; };
+  }).config.system.build.toplevel;
+
+  demoPi4 = (kiosk {
+    name = "kiosk";
+    hardware = "raspberryPi4";
+    program = { package = "gtk3"; path = "/bin/gtk3-demo"; };
   }).config.system.build.toplevel;
 
 }
