@@ -16,8 +16,8 @@ let
     }} configuration
 
     cd configuration
-    cp ${builtins.toFile "config.json" (builtins.toJSON custom)} config.json
-    git add --force config.json
+    cp ${builtins.toFile "kioskix.json" (builtins.toJSON custom)} kioskix.json
+    git add --force kioskix.json
 
     env GIT_AUTHOR_NAME="NixOS Basalt Module" \
         GIT_AUTHOR_EMAIL=matthewbauer@users.noreply.github.com \
@@ -26,23 +26,20 @@ let
       git commit -m "Add config.json"
 
     git clone --bare . $out
+    rm -rf $out/hooks/*
   '';
 
 in {
 
-  environment.systemPackages = [ git pkgs.openssh ];
-
   boot.postBootCommands = ''
-    mkdir -p /root/.ssh
-    if ! [ -f /root/.ssh/id_rsa ]; then
-        ssh-keygen -q -t rsa -b 4096 -N "" -f /root/.ssh/id_rsa
+    if ! [ -d /etc/nixos/configuration.git ]; then
+      mkdir -p /etc/nixos
+      ${git}/bin/git clone --bare ${configuration} /etc/nixos/configuration.git
+
+      rm -rf /etc/nixos/configuration.git/hooks
+      ln -s ../basalt/targets/nixos/git-hooks /etc/nixos/configuration.git/hooks
+      cp -r ${../basalt} /etc/nixos/basalt
     fi
-
-    mkdir -p /etc/nixos
-    git clone --bare ${configuration} /etc/nixos/configuration.git
-
-    rm -rf /etc/nixos/configuration.git/hooks
-    ln -s ../basalt/targets/nixos/git-hooks /etc/nixos/configuration.git/hooks
   '';
 
 }

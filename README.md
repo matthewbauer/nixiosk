@@ -5,25 +5,29 @@ single graphical program. This is useful for making systems that do
 video conferencing, digital signage, informational displays, Internet
 kiosks, and more. Right now, only Raspberry Pi 0-4 are supported.
 
-## custom.json format ##
+## kioskix.json format ##
 
-custom.json should look something like this:
+This file is used to configure your system. It is a JSON file that is
+read to create your system. The kioskix.json file should look
+something like this:
 
 ``` json
 {
     "hostName": "kiosk",
-    "hardware": "raspberryPi0",
+    "hardware": "raspberryPi4",
     "authorizedKeys": ["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC050iPG8ckY/dj2O3ol20G2lTdr7ERFz4LD3R4yqoT5W0THjNFdCqavvduCIAtF1Xx/OmTISblnGKf10rYLNzDdyMMFy7tUSiC7/T37EW0s+EFGhS9yOcjCVvHYwgnGZCF4ec33toE8Htq2UKBVgtE0PMwPAyCGYhFxFLYN8J8/xnMNGqNE6iTGbK5qb4yg3rwyrKMXLNGVNsPVcMfdyk3xqUilDp4U7HHQpqX0wKrUvrBZ87LnO9z3X/QIRVQhS5GqnIjRYe4L9yxZtTjW5HdwIq1jcvZc/1Uu7bkMh3gkCwbrpmudSGpdUlyEreaHOJf3XH4psr6IMGVJvxnGiV9 mbauer@dellbook"],
     "program": {
         "package": "epiphany",
-        "path": "/bin/epiphany"
+        "executable": "/bin/epiphany",
+        "args": ["https://en.wikipedia.org/"]
     },
     "networks": {
         "my-router": "0000000000000000000000000000000000000000000000000000000000000000",
     },
     "locale": {
         "timeZone": "America/New_York",
-        "country": "US"
+        "regDom": "US",
+        "lang": "en_US.UTF-8"
     },
     "localSystem": {
         "system": "x86_64-linux",
@@ -32,6 +36,9 @@ custom.json should look something like this:
     }
 }
 ```
+
+"epiphany" is a lightweight web browser that supports Wayland and
+allows a 
 
 authorizedKeys must be included to allow changing the system! If you
 lose the private key, you will be locked out and have to reflash your
@@ -46,7 +53,7 @@ to do. Some steps are as follows:
 
 ### Remote builder ###
 
-Before starting, you need to make sure your custom.json has the
+Before starting, you need to make sure your kioskix.json has the
 correct values for your local computer under localSystem. This should
 be a hostname that the Kiosk will be able to access. For this to work,
 you also need to be a trusted-user on your local system.

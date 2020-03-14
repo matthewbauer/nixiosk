@@ -1,0 +1,23 @@
+{
+    "hostName": "kiosk",
+    "hardware": "raspberryPi4",
+    "authorizedKeys": ["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC050iPG8ckY/dj2O3ol20G2lTdr7ERFz4LD3R4yqoT5W0THjNFdCqavvduCIAtF1Xx/OmTISblnGKf10rYLNzDdyMMFy7tUSiC7/T37EW0s+EFGhS9yOcjCVvHYwgnGZCF4ec33toE8Htq2UKBVgtE0PMwPAyCGYhFxFLYN8J8/xnMNGqNE6iTGbK5qb4yg3rwyrKMXLNGVNsPVcMfdyk3xqUilDp4U7HHQpqX0wKrUvrBZ87LnO9z3X/QIRVQhS5GqnIjRYe4L9yxZtTjW5HdwIq1jcvZc/1Uu7bkMh3gkCwbrpmudSGpdUlyEreaHOJf3XH4psr6IMGVJvxnGiV9 mbauer@dellbook"],
+    "program": {
+        "package": "epiphany",
+        "executable": "/bin/epiphany",
+        "args": ["https://en.wikipedia.org/"]
+    },
+    "networks": {
+        "my-router": "0000000000000000000000000000000000000000000000000000000000000000",
+    },
+    "locale": {
+        "timeZone": "America/New_York",
+        "regDom": "US",
+        "lang": "en_US.UTF-8"
+    },
+    "localSystem": {
+        "system": "x86_64-linux",
+        "sshUser": "me",
+        "hostName": "my-laptop-host",
+    }
+}

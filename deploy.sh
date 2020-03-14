@@ -36,7 +36,7 @@ fi
 
 shift
 
-custom=./custom.json
+custom=./kioskix.json
 if [ "$#" -gt 0 ]; then
     custom="$1"
     if [ "${custom:0:2}" != ./ ] && [ "${custom:0:1}" != / ]; then
@@ -46,7 +46,7 @@ if [ "$#" -gt 0 ]; then
 fi
 
 if ! [ -f "$custom" ]; then
-    echo No "$custom" provided
+    echo No "$custom" provided. Consult README.md for a template to use.
     exit 1
 fi
 
@@ -59,6 +59,7 @@ sd_drv=$(nix-instantiate --no-gc-warning --show-trace \
           --arg custom "builtins.fromJSON (builtins.readFile $custom)" \
           boot -A config.system.build.sdImage)
 
+# nix build --keep-going --no-out-link "$sd_drv"
 out=$(nix-build --keep-going --no-out-link "$sd_drv")
 sd_image=$(echo "$out"/sd-image/*.img)
 

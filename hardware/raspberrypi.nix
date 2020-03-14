@@ -1,14 +1,18 @@
-{ hardware }:
+{ pkgs, lib, config, hardware, ... }:
 
-{ pkgs, lib, config, ... }:
-
-{
+let
+  # vc4-kms and vc4-fkms-v3d seem to work better on different hardware
+  # unclear why that is
+  gpu-overlay = if builtins.elem hardware ["raspberryPi0" "raspberryPi1" "raspberryPi2"]
+                then "vc4-kms-v3d"
+                else "vc4-fkms-v3d";
+in {
 
   hardware = {
     deviceTree = {
       base = "${pkgs.device-tree_rpi}/broadcom";
       overlays = [
-        "${pkgs.raspberrypifw}/share/raspberrypi/boot/overlays/vc4-kms-v3d.dtbo"
+        "${pkgs.raspberrypifw}/share/raspberrypi/boot/overlays/${gpu-overlay}.dtbo"
       ];
     };
     # enableRedistributableFirmware = true;
@@ -55,5 +59,52 @@
     raspberryPi3 = { config = "aarch64-unknown-linux-gnu"; };
     raspberryPi4 = { config = "aarch64-unknown-linux-gnu"; };
   }.${hardware} or (throw "No known crossSystem for ${hardware}.");
+
+  boot.loader.raspberryPi = {
+    enable = true;
+    version = {
+      raspberryPi0 = 0;
+      raspberryPi1 = 1;
+      raspberryPi2 = 2;
+      raspberryPi3 = 3;
+      raspberryPi4 = 4;
+    }.${hardware} or (throw "No known crossSystem for ${hardware}.");
+
+    # u-boot / extlinux doesn’t work on raspberry pi 4
+    uboot.enable = let extlinuxDisabled = [ "raspberryPi4" ];
+                   in !(builtins.elem hardware extlinuxDisabled);
+  };
+
+  swapDevices = [{
+    device = "/swapfile";
+    size = 2048;
+  }];
+
+  fileSystems = lib.mkForce (if config.boot.loader.raspberryPi.uboot.enable then {
+    "/boot" = {
+      device = "/dev/disk/by-label/FIRMWARE";
+      fsType = "vfat";
+    };
+    "/" = {
+      device = "/dev/disk/by-label/NIXOS_SD";
+      fsType = "ext4";
+    };
+  } else {
+    "/boot/firmware" = {
+      device = "/dev/disk/by-label/FIRMWARE";
+      fsType = "vfat";
+      options = [ "nofail" "noauto" ];
+    };
+    "/" = {
+      device = "/dev/disk/by-label/NIXOS_SD";
+      fsType = "ext4";
+    };
+  });
+
+  nixpkgs.overlays = [(self: super: {
+    wlroots = super.wlroots.overrideAttrs (o: {
+      patches = (o.patches or []) ++ [./wlroots-rpi.patch];
+    });
+  })];
 
 }

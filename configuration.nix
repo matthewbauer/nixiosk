@@ -1,21 +1,19 @@
-{ lib, pkgs, config
-, custom ? builtins.fromJSON (builtins.readFile ./custom.json)
-, ...}: {
+{ lib, pkgs, config, ...}: let
+  custom = config.system.build.custom or (builtins.fromJSON (builtins.readFile ./kioskix.json));
+in {
+
+  # TODO: figure out how to case this on hardware type without getting
+  # an infinite recursion.
   imports = [
-    (import ({
-      raspberryPi0 = ./hardware/raspberrypi.nix;
-      raspberryPi1 = ./hardware/raspberrypi.nix;
-      raspberryPi2 = ./hardware/raspberrypi.nix;
-      raspberryPi3 = ./hardware/raspberrypi.nix;
-      raspberryPi4 = ./hardware/raspberrypi.nix;
-    }.${custom.hardware} or {}) { inherit (custom) hardware; })
+    ({pkgs, lib, config, ...}:
+      import ./hardware/raspberrypi.nix { inherit pkgs lib config; inherit (custom) hardware; })
   ];
 
-  sdImage.compressImage = false;
   hardware.opengl.enable = true;
   hardware.bluetooth.enable = true;
   sound.enable = true;
-  # hardware.pulseaudio.enable = true;
+  hardware.pulseaudio.enable = true;
+  hardware.pulseaudio.systemWide = true;
   services.dbus.enable = true;
 
   # HACKS!
@@ -31,14 +29,56 @@
   i18n.defaultLocale = custom.locale.lang;
   i18n.supportedLocales = [ "${custom.locale.lang}/UTF-8" ];
   boot.extraModprobeConfig = ''
-    options cfg80211 ieee80211_regdom="${custom.locale.country}"
+    options cfg80211 ieee80211_regdom="${custom.locale.regDom}"
   '';
 
-  # themes
   gtk.iconCache.enable = true;
-  environment.systemPackages = [
-    pkgs.gnome3.adwaita-icon-theme
-    pkgs.hicolor-icon-theme
+
+  environment.systemPackages = lib.mkForce [
+    pkgs.gnome3.adwaita-icon-theme pkgs.hicolor-icon-theme
+
+    config.nix.package
+    config.programs.ssh.package
+    pkgs.acl
+    pkgs.attr
+    pkgs.bashInteractive
+    pkgs.bzip2
+    pkgs.coreutils-full
+    pkgs.cpio
+    pkgs.curl
+    pkgs.diffutils
+    pkgs.findutils
+    pkgs.gawk
+    pkgs.getconf
+    pkgs.getent
+    pkgs.gnugrep
+    pkgs.gnupatch
+    pkgs.gnused
+    pkgs.gnutar
+    pkgs.gzip
+    pkgs.file
+    pkgs.less
+    pkgs.libcap
+    pkgs.nano
+    pkgs.ncurses
+    pkgs.netcat
+    pkgs.perl
+    pkgs.procps
+    pkgs.rsync
+    pkgs.stdenv.cc.libc
+    pkgs.strace
+    pkgs.su
+    pkgs.tree
+    pkgs.time
+    pkgs.utillinux
+    pkgs.which
+    pkgs.xz
+    (pkgs.git.override {
+      withManual = false;
+      pythonSupport = false;
+      withpcre2 = false;
+      perlSupport = false;
+    })
   ];
 
   # input
@@ -47,7 +87,9 @@
   nix = {
     buildMachines = lib.optional (custom.localSystem ? sshUser && custom.localSystem ? hostName) {
       inherit (custom.localSystem) system sshUser hostName;
-      sshKey = "/root/.ssh/id_rsa";
+
+      # ??? is this okay to use for ssh keys?
+      sshKey = "/etc/ssh/ssh_host_rsa_key";
     };
     # package = pkgs.nixUnstable;
   };
@@ -64,6 +106,7 @@
   users.users.kiosk = {
     isNormalUser = true;
     useDefaultShell = true;
+    extraGroups = [ "audio" ];
   };
 
   systemd.services."cage-tty1" = {
@@ -87,12 +130,11 @@
   documentation.enable = false;
   powerManagement.enable = false;
   programs.command-not-found.enable = false;
-  security.polkit.enable = false;
 
   services.cage = {
     enable = true;
     user = "kiosk";
-    program = "${lib.getBin pkgs.${custom.program.package}}${custom.program.path}";
+    program = "${lib.getBin pkgs.${custom.program.package}}${custom.program.executable} ${toString (custom.program.args or [])}";
   };
 
   services.avahi = {
@@ -150,25 +192,51 @@
       cage = super.cage.override { xwayland = null; };
       alsaPlugins = super.alsaPlugins.override { libjack2 = null; };
 
-      # some ffmpeg libs are compiled with neon which rpi0 doesn’t support
-      ffmpeg_4 = super.ffmpeg_4.override {
+      ffmpeg_4 = super.ffmpeg_4.override ({
         sdlSupport = false;
+        # some ffmpeg libs are compiled with neon which rpi0 doesn’t support
+      } // lib.optionalAttrs (super.stdenv.hostPlatform.parsed.cpu.name == "armv6l") {
         libopus = null;
         x264 = null;
         x265 = null;
         soxr = null;
-      };
-      ffmpeg = super.ffmpeg.override {
+      });
+      ffmpeg = super.ffmpeg.override ({
         sdlSupport = false;
+      } // lib.optionalAttrs (super.stdenv.hostPlatform.parsed.cpu.name == "armv6l") {
         libopus = null;
         x264 = null;
         x265 = null;
         soxr = null;
+      });
+
+      retroarchBare = super.retroarchBare.override {
+        SDL2 = null;
+        withVulkan = false;
+        withX11 = false;
       };
-      retroarchBare = super.retroarchBare.override { SDL2 = null; withVulkan = false; };
+
+      # armv6l (no NEON) and aarch64 don’t have prebuilt cores, so
+      # provide some here that are known to work well. Feel free to
+      # include more that are known to work here. To add more cores,
+      # or update existing core, contribute them upstream in Nixpkgs
+      retroarch = super.retroarch.override {
+        cores = {
+          armv6l = with super.libretro; [ snes9x stella fba fceumm vba-next vecx handy prboom bluemsx ];
+          aarch64 = with super.libretro; [ _4do atari800 beetle-gba beetle-lynx beetle-ngp beetle-pce-fast beetle-pcfx beetle-psx beetle-saturn beetle-snes beetle-supergrafx beetle-vb beetle-wswan bluemsx bsnes-mercury dosbox fba fceumm gambatte genesis-plus-gx gpsp handy mesen mgba mupen64plus nestopia o2em pcsx_rearmed prboom prosystem quicknes snes9x stella vba-m vba-next vecx virtualjaguar yabause ];
+        }.${super.stdenv.hostPlatform.parsed.cpu.name} or [];
+      };
 
     }) ];
-    inherit (custom) localSystem;
+
+    # We use remote builders for things like 32-bit arm where there is
+    # no binary cache, otherwise, we can might as well build it
+    # natively, with the cache covering most of it.
+    localSystem = let
+      cachedSystems = [ "aarch64-linux" "x86_64-linux" "x86_64-darwin" ];
+    in if builtins.elem (lib.systems.elaborate config.nixpkgs.crossSystem).system cachedSystems
+       then config.nixpkgs.crossSystem
+       else custom.localSystem;
   };
 
   boot.plymouth.enable = true;
