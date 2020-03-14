@@ -34,51 +34,8 @@ in {
 
   gtk.iconCache.enable = true;
 
-  environment.systemPackages = lib.mkForce [
+  environment.systemPackages = [
     pkgs.gnome3.adwaita-icon-theme pkgs.hicolor-icon-theme
-
-    config.nix.package
-    config.programs.ssh.package
-    pkgs.acl
-    pkgs.attr
-    pkgs.bashInteractive
-    pkgs.bzip2
-    pkgs.coreutils-full
-    pkgs.cpio
-    pkgs.curl
-    pkgs.diffutils
-    pkgs.findutils
-    pkgs.gawk
-    pkgs.getconf
-    pkgs.getent
-    pkgs.gnugrep
-    pkgs.gnupatch
-    pkgs.gnused
-    pkgs.gnutar
-    pkgs.gzip
-    pkgs.file
-    pkgs.less
-    pkgs.libcap
-    pkgs.nano
-    pkgs.ncurses
-    pkgs.netcat
-    pkgs.perl
-    pkgs.procps
-    pkgs.rsync
-    pkgs.stdenv.cc.libc
-    pkgs.strace
-    pkgs.su
-    pkgs.tree
-    pkgs.time
-    pkgs.utillinux
-    pkgs.which
-    pkgs.xz
-    (pkgs.git.override {
-      withManual = false;
-      pythonSupport = false;
-      withpcre2 = false;
-      perlSupport = false;
-    })
   ];
 
   # input
