@@ -2,7 +2,7 @@
 
 let
   raspberrypi-conf-builder =
-    import (modulesPath + /system/boot/loader/raspberrypi/raspberrypi-builder.nix) {
+    import (modulesPath + "/system/boot/loader/raspberrypi/raspberrypi-builder.nix") {
       pkgs = pkgs.buildPackages;
       raspberrypifw = pkgs.raspberrypifw;
       configTxt = pkgs.writeText "config.txt" (''
