@@ -8,10 +8,6 @@ let
   configTxt = pkgs.writeText "config.txt" (''
     [pi0]
     kernel=u-boot-rpi0.bin
-    arm_freq=1000
-    core_freq=500
-    sdram_freq=600
-    overvoltage=2
 
     [pi1]
     kernel=u-boot-rpi1.bin
