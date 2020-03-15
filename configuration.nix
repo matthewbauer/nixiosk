@@ -13,7 +13,6 @@ in {
   hardware.bluetooth.enable = true;
   sound.enable = true;
   hardware.pulseaudio.enable = true;
-  hardware.pulseaudio.systemWide = true;
   services.dbus.enable = true;
 
   # HACKS!
@@ -32,8 +31,8 @@ in {
     options cfg80211 ieee80211_regdom="${custom.locale.regDom}"
   '';
 
+  # theming
   gtk.iconCache.enable = true;
-
   environment.systemPackages = [
     pkgs.gnome3.adwaita-icon-theme pkgs.hicolor-icon-theme
   ];
@@ -63,7 +62,6 @@ in {
   users.users.kiosk = {
     isNormalUser = true;
     useDefaultShell = true;
-    extraGroups = [ "audio" ];
   };
 
   systemd.services."cage-tty1" = {
@@ -167,11 +165,17 @@ in {
         soxr = null;
       });
 
-      retroarchBare = super.retroarchBare.override {
+      retroarchBare = (super.retroarchBare.override {
         SDL2 = null;
         withVulkan = false;
         withX11 = false;
-      };
+      }).overrideAttrs (o: {
+        patches = (o.patches or []) ++ [ ./retroarch-lakkaish.patch ];
+      });
+
+      # mesa = super.mesa.override {
+      #   eglPlatforms = ["wayland"];
+      # };
 
       # armv6l (no NEON) and aarch64 don’t have prebuilt cores, so
       # provide some here that are known to work well. Feel free to
@@ -204,8 +208,26 @@ in {
     inherit (custom) hostName;
     wireless = {
       enable = true;
-      networks = builtins.mapAttrs (name: value: { pskRaw = value; }) custom.networks;
+      networks = builtins.mapAttrs (_: value: { pskRaw = value; }) custom.networks;
     };
+    dhcpcd.extraConfig = "timeout 0";
   };
+
+  services.ddclient = {
+    enable = custom ? ddclient;
+    protocol = "${custom.ddclient.protocol}";
+    password = "${custom.ddclient.password}";
+    domains = ["${custom.ddclient.domain}"];
+  };
+
+  # systemd.services.port-map = {
+  #   enable = custom ? sshPort;
+  #   wantedBy = [ "multi-user.target" ];
+  #   after = [ "network.target" ];
+  #   serviceConfig = {
+  #     Type = "oneshot";
+  #     ExecStart = "${pkgs.miniupnpc}/bin/upnpc -r 22 ${toString custom.sshPort} tcp";
+  #   };
+  # };
 
 }

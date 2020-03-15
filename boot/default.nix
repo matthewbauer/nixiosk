@@ -26,6 +26,9 @@
   ++ [
     ({pkgs, ...}: import ./basalt.nix ({ inherit pkgs custom; }))
     ../configuration.nix
-    ({lib, ...}: { system.build = {inherit custom;}; nixpkgs.localSystem = lib.mkForce { system = builtins.currentSystem; }; })
+    ({lib, ...}: {
+      system.build = { inherit custom; };
+      nixpkgs.localSystem = lib.mkForce { system = builtins.currentSystem; };
+    })
   ];
 }

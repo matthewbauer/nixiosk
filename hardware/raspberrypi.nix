@@ -52,6 +52,16 @@ in {
     initrd.kernelModules = [ "vc4" "bcm2835_dma" "i2c_bcm2835" "bcm2835_rng" ];
   };
 
+  # nixpkgs.overlays = [(self: super: {
+  #   mesa = super.mesa.override {
+  #     vulkanDrivers = [];
+  #     driDrivers = [];
+  #     galliumDrivers = ["vc4" "swrast"];
+  #     enableRadv = false;
+  #     withValgrind = false;
+  #   };
+  # })];
+
   nixpkgs.crossSystem = {
     raspberryPi0 = { config = "armv6l-unknown-linux-gnueabihf"; };
     raspberryPi1 = { config = "armv6l-unknown-linux-gnueabihf"; };
@@ -73,6 +83,10 @@ in {
     # u-boot / extlinux doesn’t work on raspberry pi 4
     uboot.enable = let extlinuxDisabled = [ "raspberryPi4" ];
                    in !(builtins.elem hardware extlinuxDisabled);
+
+    firmwareConfig = ''
+      disable_splash=1
+    '';
   };
 
   swapDevices = [{
@@ -100,11 +114,5 @@ in {
       fsType = "ext4";
     };
   });
-
-  nixpkgs.overlays = [(self: super: {
-    wlroots = super.wlroots.overrideAttrs (o: {
-      patches = (o.patches or []) ++ [./wlroots-rpi.patch];
-    });
-  })];
 
 }
