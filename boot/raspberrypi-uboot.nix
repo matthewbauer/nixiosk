@@ -59,7 +59,7 @@ in {
         cp ${pkgs.raspberrypi-armstubs}/armstub8-gic.bin firmware/armstub8-gic.bin
       '';
     }.${pkgs.stdenv.hostPlatform.system} or (throw "unknown raspberry pi system (${pkgs.stdenv.hostPlatform.system})");
-    imageBaseName = "kiosk";
+    imageBaseName = "nixiosk";
   };
 
 }

@@ -1,6 +1,6 @@
 { lib, pkgs, config, ...}: {
 
-  imports = [ ./custom.nix ./hardware/raspberrypi.nix ];
+  imports = [ ./nixiosk.nix ./hardware/raspberrypi.nix ];
 
   hardware.opengl.enable = true;
   hardware.bluetooth.enable = true;
@@ -169,7 +169,7 @@
       cachedSystems = [ "aarch64-linux" "x86_64-linux" "x86_64-darwin" ];
     in if builtins.elem (config.nixpkgs.crossSystem.system or null) cachedSystems
        then config.nixpkgs.crossSystem
-       else config.kioskix.localSystem;
+       else config.nixiosk.localSystem;
   };
 
   boot.plymouth.enable = true;

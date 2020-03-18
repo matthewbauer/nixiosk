@@ -16,8 +16,8 @@ let
     }} configuration
 
     cd configuration
-    cp ${builtins.toFile "kioskix.json" (builtins.toJSON config.kioskix)} kioskix.json
-    git add --force kioskix.json
+    cp ${builtins.toFile "nixiosk.json" (builtins.toJSON config.nixiosk)} nixiosk.json
+    git add --force nixiosk.json
 
     env GIT_AUTHOR_NAME="NixOS Basalt Module" \
         GIT_AUTHOR_EMAIL=matthewbauer@users.noreply.github.com \

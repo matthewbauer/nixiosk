@@ -1,19 +1,19 @@
 # How it works #
 
-This is a kiosk builder system. It can be used to make a system that
+This is a Kiosk builder system. It can be used to make a system that
 single graphical program. This is useful for making systems that do
 video conferencing, digital signage, informational displays, Internet
 kiosks, and more. Right now, only Raspberry Pi 0-4 are supported.
 
-## kioskix.json format ##
+## nixiosk.json format ##
 
 This file is used to configure your system. It is a JSON file that is
-read to create your system. The kioskix.json file should look
+read to create your system. The nixiosk.json file should look
 something like this:
 
 ``` json
 {
-    "hostName": "kiosk",
+    "hostName": "nixiosk",
     "hardware": "raspberryPi4",
     "authorizedKeys": ["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC050iPG8ckY/dj2O3ol20G2lTdr7ERFz4LD3R4yqoT5W0THjNFdCqavvduCIAtF1Xx/OmTISblnGKf10rYLNzDdyMMFy7tUSiC7/T37EW0s+EFGhS9yOcjCVvHYwgnGZCF4ec33toE8Htq2UKBVgtE0PMwPAyCGYhFxFLYN8J8/xnMNGqNE6iTGbK5qb4yg3rwyrKMXLNGVNsPVcMfdyk3xqUilDp4U7HHQpqX0wKrUvrBZ87LnO9z3X/QIRVQhS5GqnIjRYe4L9yxZtTjW5HdwIq1jcvZc/1Uu7bkMh3gkCwbrpmudSGpdUlyEreaHOJf3XH4psr6IMGVJvxnGiV9 mbauer@dellbook"],
     "program": {
@@ -53,7 +53,7 @@ to do. Some steps are as follows:
 
 ### Remote builder ###
 
-Before starting, you need to make sure your kioskix.json has the
+Before starting, you need to make sure your nixiosk.json has the
 correct values for your local computer under localSystem. This should
 be a hostname that the Kiosk will be able to access. For this to work,
 you also need to be a trusted-user on your local system.
@@ -61,14 +61,14 @@ you also need to be a trusted-user on your local system.
 First, we need to give the Kiosk SSH access:
 
 ``` sh
-$ echo $(ssh root@kiosk.local cat '$HOME'/.ssh/id_rsa.pub) >> $HOME/.ssh/authorized_keys
+$ echo $(ssh root@nixiosk.local cat '$HOME'/.ssh/id_rsa.pub) >> $HOME/.ssh/authorized_keys
 ```
 
 Then, we need to test that we can access the local computer through
 SSH:
 
 ``` sh
-$ ssh root@kiosk.local
+$ ssh root@nixiosk.local
 $ ssh me@my-laptop-host
 ```
 
@@ -76,11 +76,11 @@ If all is well, then we can proceed to cloning the configuration.
 
 ### Cloning ###
 
-Once you have a remote builder configure on your kiosk, you can clone
+Once you have a remote builder configure on your Kiosk, you can clone
 your Kiosk repo:
 
 ``` sh
-$ git clone ssh://root@kiosk.local/etc/nixos/configuration.git kiosk-configuration
+$ git clone ssh://root@nixiosk.local/etc/nixos/configuration.git nixiosk-configuration
 ```
 
 From here, you can make some changes, and commit them to the repo.

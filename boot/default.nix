@@ -14,7 +14,7 @@
     ./basalt.nix
     ../configuration.nix
     ({lib, ...}: {
-      kioskix = lib.mkForce custom;
+      nixiosk = lib.mkForce custom;
       nixpkgs.localSystem = lib.mkForce { system = builtins.currentSystem; };
     })
   ];

@@ -2,11 +2,11 @@
 
 let
   # u-boot / extlinux doesn’t work on raspberry pi 4
-  ubootEnabled = !(builtins.elem config.kioskix.hardware [ "raspberryPi4" ]);
+  ubootEnabled = !(builtins.elem config.nixiosk.hardware [ "raspberryPi4" ]);
 
   # vc4-kms and vc4-fkms-v3d seem to work better on different hardware
   # unclear why that is. Manually tested each on my rpi0 and rpi4.
-  gpu-overlay = if builtins.elem config.kioskix.hardware ["raspberryPi0" "raspberryPi1" "raspberryPi2"]
+  gpu-overlay = if builtins.elem config.nixiosk.hardware ["raspberryPi0" "raspberryPi1" "raspberryPi2"]
                 then "vc4-kms-v3d"
                 else "vc4-fkms-v3d";
 
@@ -19,7 +19,7 @@ let
   };
 in {
 
-  config = lib.mkIf (builtins.elem config.kioskix.hardware ["raspberryPi0" "raspberryPi1" "raspberryPi2" "raspberryPi3" "raspberryPi4"])
+  config = lib.mkIf (builtins.elem config.nixiosk.hardware ["raspberryPi0" "raspberryPi1" "raspberryPi2" "raspberryPi3" "raspberryPi4"])
     {
 
   hardware = {
@@ -55,7 +55,7 @@ in {
       raspberryPi2 = pkgs.linuxPackages_rpi2;
       raspberryPi3 = pkgs.linuxPackages_rpi3;
       raspberryPi4 = pkgs.linuxPackages_rpi4;
-    }.${config.kioskix.hardware} or (throw "Unknown raspberry pi system (${config.kioskix.hardware})");
+    }.${config.nixiosk.hardware} or (throw "Unknown raspberry pi system (${config.nixiosk.hardware})");
     kernelParams = [
       # appparently this avoids some common bug in Raspberry Pi.
       "dwc_otg.lpm_enable=0"
@@ -70,7 +70,7 @@ in {
         raspberryPi2 = "256M";
         raspberryPi3 = "512M";
         raspberryPi4 = "512M";
-      }.${config.kioskix.hardware} or (throw "unknown raspberry pi system (${config.kioskix.hardware})")}"
+      }.${config.nixiosk.hardware} or (throw "unknown raspberry pi system (${config.nixiosk.hardware})")}"
     ];
     loader.grub.enable = false;
     loader.generic-extlinux-compatible.enable = true;
@@ -99,7 +99,7 @@ in {
     raspberryPi2 = { config = "armv7l-unknown-linux-gnueabihf"; };
     raspberryPi3 = { config = "aarch64-unknown-linux-gnu"; };
     raspberryPi4 = { config = "aarch64-unknown-linux-gnu"; };
-  }.${config.kioskix.hardware} or (throw "No known crossSystem for ${config.kioskix.hardware}.");
+  }.${config.nixiosk.hardware} or (throw "No known crossSystem for ${config.nixiosk.hardware}.");
 
   boot.loader.raspberryPi = {
     enable = true;
@@ -109,7 +109,7 @@ in {
       raspberryPi2 = 2;
       raspberryPi3 = 3;
       raspberryPi4 = 4;
-    }.${config.kioskix.hardware} or (throw "No known raspberrypi version for ${config.kioskix.hardware}.");
+    }.${config.nixiosk.hardware} or (throw "No known raspberrypi version for ${config.nixiosk.hardware}.");
 
     uboot.enable = ubootEnabled;
 

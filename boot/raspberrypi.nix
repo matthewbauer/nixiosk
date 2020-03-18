@@ -21,7 +21,7 @@ in {
     firmwareSize = 128;
     populateFirmwareCommands = "${raspberrypi-conf-builder} -c ${config.system.build.toplevel} -d firmware";
     populateRootCommands = "";
-    imageBaseName = "kiosk";
+    imageBaseName = "nixiosk";
   };
 
 }

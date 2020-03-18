@@ -36,7 +36,7 @@ fi
 
 shift
 
-custom=./kioskix.json
+custom=./nixiosk.json
 if [ "$#" -gt 0 ]; then
     custom="$1"
     if [ "${custom:0:2}" != ./ ] && [ "${custom:0:1}" != / ]; then

@@ -1,6 +1,6 @@
 let
 
-  kiosk = { hardware ? null, program, name }: import ./boot {
+  boot = { hardware ? null, program, name }: import ./boot {
     custom = {
       inherit hardware program;
       hostName = name;
@@ -31,73 +31,73 @@ in
     program = { package = "retroarch"; executable = "/bin/retroarch"; };
   });
 
-  retroPi0 = (kiosk {
+  retroPi0 = (boot {
     name = "retroPi0";
     hardware = "raspberryPi0";
     program = { package = "retroarch"; executable = "/bin/retroarch"; };
   }).config.system.build.toplevel;
 
-  retroPi4 = (kiosk {
+  retroPi4 = (boot {
     name = "retroPi4";
     hardware = "raspberryPi4";
     program = { package = "retroarch"; executable = "/bin/retroarch"; };
   }).config.system.build.toplevel;
 
-  retroOva = (kiosk {
+  retroOva = (boot {
     name = "retroOva";
     hardware = "ova";
     program = { package = "retroarch"; executable = "/bin/retroarch"; };
   }).config.system.build.virtualBoxOVA;
 
-  retroIso = (kiosk {
+  retroIso = (boot {
     name = "retroIso";
     hardware = "iso";
     program = { package = "retroarch"; executable = "/bin/retroarch"; };
   }).config.system.build.isoImage;
 
-  epiphanyPi0 = (kiosk {
+  epiphanyPi0 = (boot {
     name = "epiphanyPi0";
     hardware = "raspberryPi0";
     program = { package = "epiphany"; executable = "/bin/epiphany"; };
   }).config.system.build.toplevel;
 
-  epiphanyPi4 = (kiosk {
+  epiphanyPi4 = (boot {
     name = "epiphanyPi4";
     hardware = "raspberryPi4";
     program = { package = "epiphany"; executable = "/bin/epiphany"; };
   }).config.system.build.toplevel;
 
-  demoPi0 = (kiosk {
+  demoPi0 = (boot {
     name = "demoPi0";
     hardware = "raspberryPi0";
     program = { package = "gtk3"; executable = "/bin/gtk3-demo"; };
   }).config.system.build.toplevel;
 
-  demoPi1 = (kiosk {
+  demoPi1 = (boot {
     name = "demoPi1";
     hardware = "raspberryPi1";
     program = { package = "gtk3"; executable = "/bin/gtk3-demo"; };
   }).config.system.build.toplevel;
 
-  demoPi2 = (kiosk {
+  demoPi2 = (boot {
     name = "demoPi2";
     hardware = "raspberryPi2";
     program = { package = "gtk3"; executable = "/bin/gtk3-demo"; };
   }).config.system.build.toplevel;
 
-  demoPi3 = (kiosk {
+  demoPi3 = (boot {
     name = "demoPi3";
     hardware = "raspberryPi3";
     program = { package = "gtk3"; executable = "/bin/gtk3-demo"; };
   }).config.system.build.toplevel;
 
-  demoPi4 = (kiosk {
+  demoPi4 = (boot {
     name = "demoPi4";
     hardware = "raspberryPi4";
     program = { package = "gtk3"; executable = "/bin/gtk3-demo"; };
   }).config.system.build.toplevel;
 
-  # kodiPi4 = (kiosk {
+  # kodiPi4 = (boot {
   #   name = "kodiPi4";
   #   hardware = "raspberryPi0";
   #   program = { package = "kodi"; executable = "/bin/kodi"; };
