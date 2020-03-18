@@ -1,13 +1,6 @@
-{ lib, pkgs, config, ...}: let
-  custom = config.system.build.custom or (builtins.fromJSON (builtins.readFile ./kioskix.json));
-in {
+{ lib, pkgs, config, ...}: {
 
-  # TODO: figure out how to case this on hardware type without getting
-  # an infinite recursion.
-  imports = [
-    ({pkgs, lib, config, ...}:
-      import ./hardware/raspberrypi.nix { inherit pkgs lib config; inherit (custom) hardware; })
-  ];
+  imports = [ ./custom.nix ./hardware/raspberrypi.nix ];
 
   hardware.opengl.enable = true;
   hardware.bluetooth.enable = true;
@@ -23,14 +16,6 @@ in {
     ProtectHome = lib.mkForce false;
   };
 
-  # localization
-  time = { inherit (custom.locale) timeZone; };
-  i18n.defaultLocale = custom.locale.lang;
-  i18n.supportedLocales = [ "${custom.locale.lang}/UTF-8" ];
-  boot.extraModprobeConfig = ''
-    options cfg80211 ieee80211_regdom="${custom.locale.regDom}"
-  '';
-
   # theming
   gtk.iconCache.enable = true;
   environment.systemPackages = [
@@ -40,23 +25,11 @@ in {
   # input
   services.udev.packages = [ pkgs.libinput.out ];
 
-  nix = {
-    buildMachines = lib.optional (custom.localSystem ? sshUser && custom.localSystem ? hostName) {
-      inherit (custom.localSystem) system sshUser hostName;
-
-      # ??? is this okay to use for ssh keys?
-      sshKey = "/etc/ssh/ssh_host_rsa_key";
-    };
-    # package = pkgs.nixUnstable;
-  };
+  # nix.package = pkgs.nixUnstable;
 
   services.openssh = {
     enable = true;
     permitRootLogin = "without-password";
-  };
-
-  users.users.root = {
-    openssh.authorizedKeys.keys = custom.authorizedKeys;
   };
 
   users.users.kiosk = {
@@ -70,7 +43,7 @@ in {
       WLR_LIBINPUT_NO_DEVICES = "1";
       XDG_DATA_DIRS = "/nix/var/nix/profiles/default/share:/run/current-system/sw/share";
       XDG_CONFIG_DIRS = "/nix/var/nix/profiles/default/etc/xdg:/run/current-system/sw/etc/xdg";
-      GDK_PIXBUF_MODULE_FILE = config.environment.variables.GDK_PIXBUF_MODULE_FILE;
+      # GDK_PIXBUF_MODULE_FILE = config.environment.variables.GDK_PIXBUF_MODULE_FILE;
       WEBKIT_DISABLE_COMPOSITING_MODE = "1";
     };
   };
@@ -89,7 +62,6 @@ in {
   services.cage = {
     enable = true;
     user = "kiosk";
-    program = "${lib.getBin pkgs.${custom.program.package}}${custom.program.executable} ${toString (custom.program.args or [])}";
   };
 
   services.avahi = {
@@ -120,7 +92,7 @@ in {
 
   # Setup cross compilation.
   nixpkgs = {
-    overlays = [(self: super: {
+    overlays = [(self: super: (lib.optionalAttrs (super.stdenv.hostPlatform != super.stdenv.buildPlatform) {
 
       # doesn’t cross compile
       gtk3 = super.gtk3.override { cupsSupport = false; };
@@ -173,9 +145,9 @@ in {
         patches = (o.patches or []) ++ [ ./retroarch-lakkaish.patch ];
       });
 
-      # mesa = super.mesa.override {
-      #   eglPlatforms = ["wayland"];
-      # };
+      mesa = super.mesa.override {
+        eglPlatforms = ["wayland"];
+      };
 
       # armv6l (no NEON) and aarch64 don’t have prebuilt cores, so
       # provide some here that are known to work well. Feel free to
@@ -188,16 +160,16 @@ in {
         }.${super.stdenv.hostPlatform.parsed.cpu.name} or [];
       };
 
-    }) ];
+    })) ];
 
     # We use remote builders for things like 32-bit arm where there is
     # no binary cache, otherwise, we can might as well build it
     # natively, with the cache covering most of it.
     localSystem = let
       cachedSystems = [ "aarch64-linux" "x86_64-linux" "x86_64-darwin" ];
-    in if builtins.elem (lib.systems.elaborate config.nixpkgs.crossSystem).system cachedSystems
+    in if builtins.elem (config.nixpkgs.crossSystem.system or null) cachedSystems
        then config.nixpkgs.crossSystem
-       else custom.localSystem;
+       else config.kioskix.localSystem;
   };
 
   boot.plymouth.enable = true;
@@ -205,29 +177,8 @@ in {
   boot.kernelParams = ["quiet"];
 
   networking = {
-    inherit (custom) hostName;
-    wireless = {
-      enable = true;
-      networks = builtins.mapAttrs (_: value: { pskRaw = value; }) custom.networks;
-    };
+    wireless.enable = true;
     dhcpcd.extraConfig = "timeout 0";
   };
-
-  services.ddclient = {
-    enable = custom ? ddclient;
-    protocol = "${custom.ddclient.protocol}";
-    password = "${custom.ddclient.password}";
-    domains = ["${custom.ddclient.domain}"];
-  };
-
-  # systemd.services.port-map = {
-  #   enable = custom ? sshPort;
-  #   wantedBy = [ "multi-user.target" ];
-  #   after = [ "network.target" ];
-  #   serviceConfig = {
-  #     Type = "oneshot";
-  #     ExecStart = "${pkgs.miniupnpc}/bin/upnpc -r 22 ${toString custom.sshPort} tcp";
-  #   };
-  # };
 
 }

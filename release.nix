@@ -1,48 +1,59 @@
 let
 
-  kiosk = { hardware, program, name }: import ./boot {
+  kiosk = { hardware ? null, program, name }: import ./boot {
     custom = {
       inherit hardware program;
       hostName = name;
-      authorizedKeys = [];
-      networks = {};
-      locale = { timeZone = "America/New_York"; regDom = "US"; lang = "en_US.UTF-8"; };
-      localSystem = { system = "x86_64-linux"; };
+      localSystem = { system = builtins.currentSystem; };
     };
+  };
+
+  rebuilder = { hardware, program, name }: import ((import ./nixpkgs {}).path + /nixos/lib/eval-config.nix) {
+    modules = [
+      ./configuration.nix
+      ({lib, ...}: {
+        system.build = {
+          custom = {
+            inherit hardware program;
+            hostName = name;
+            localSystem = { system = builtins.currentSystem; };
+          }; }; })
+    ];
   };
 
 in
 
 {
 
-  rebuild = (import ((import ./nixpkgs {}).path + /nixos/lib/eval-config.nix) {
-    modules = [
-      ./configuration.nix
-      ({lib, ...}: {
-        system.build = {
-          custom = {
-            hardware = "raspberryPi4";
-            program = { package = "gtk3"; executable = "/bin/gtk3-demo"; };
-            hostName = "rebuilder";
-            authorizedKeys = [];
-            networks = {};
-            locale = { timeZone = "America/New_York"; regDom = "US"; lang = "en_US.UTF-8"; };
-            localSystem = { system = "x86_64-linux"; };
-          }; }; })
-    ];
-  }).config.system.build.toplevel;
+  rebuildRetroPi0 = (rebuilder {
+    name = "rebuilderRetroPi0";
+    hardware = "raspberryPi0";
+    program = { package = "retroarch"; executable = "/bin/retroarch"; };
+  });
 
   retroPi0 = (kiosk {
     name = "retroPi0";
     hardware = "raspberryPi0";
-    program = { package = "retroarch"; executable = "/bin/retroarch"; args = [ "-f" ]; };
+    program = { package = "retroarch"; executable = "/bin/retroarch"; };
   }).config.system.build.toplevel;
 
   retroPi4 = (kiosk {
     name = "retroPi4";
     hardware = "raspberryPi4";
-    program = { package = "retroarch"; executable = "/bin/retroarch"; args = [ "-f" ]; };
+    program = { package = "retroarch"; executable = "/bin/retroarch"; };
   }).config.system.build.toplevel;
+
+  retroOva = (kiosk {
+    name = "retroOva";
+    hardware = "ova";
+    program = { package = "retroarch"; executable = "/bin/retroarch"; };
+  }).config.system.build.virtualBoxOVA;
+
+  retroIso = (kiosk {
+    name = "retroIso";
+    hardware = "iso";
+    program = { package = "retroarch"; executable = "/bin/retroarch"; };
+  }).config.system.build.isoImage;
 
   epiphanyPi0 = (kiosk {
     name = "epiphanyPi0";

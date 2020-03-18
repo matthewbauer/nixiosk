@@ -7,18 +7,13 @@ let
       raspberrypifw = pkgs.raspberrypifw;
       configTxt = pkgs.writeText "config.txt" (''
         avoid_warnings=1
-        enable_uart=1
-        disable_splash=1
         kernel=kernel.img
         initramfs initrd followkernel
-        gpu_mem=320
-        dtoverlay=vc4-fkms-v3d
-        dtparam=audio=on
-      '' + lib.optionalString pkgs.stdenv.hostPlatform.isAarch64 ''
-        arm_64bit=1
-      '');
+      '' + config.loader.raspberryPi.firmwareConfig);
     };
 in {
+  imports = [ (modulesPath + "/installer/cd-dvd/sd-image.nix") ];
+
   boot.loader.raspberryPi.enable = lib.mkForce false;
 
   sdImage = {

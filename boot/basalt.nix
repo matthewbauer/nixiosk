@@ -1,4 +1,4 @@
-{ pkgs, custom, ... }:
+{ pkgs, config, ... }:
 
 let
 
@@ -16,7 +16,7 @@ let
     }} configuration
 
     cd configuration
-    cp ${builtins.toFile "kioskix.json" (builtins.toJSON custom)} kioskix.json
+    cp ${builtins.toFile "kioskix.json" (builtins.toJSON config.kioskix)} kioskix.json
     git add --force kioskix.json
 
     env GIT_AUTHOR_NAME="NixOS Basalt Module" \

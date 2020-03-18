@@ -24,12 +24,11 @@ let
 
     [all]
     avoid_warnings=1
-    disable_splash=1
     enable_uart=1
-  '' + pkgs.stdenv.lib.optionalString pkgs.stdenv.hostPlatform.isAarch64 ''
-    arm_64bit=1
-  '');
+  '' + config.loader.raspberryPi.firmwareConfig);
 in {
+  imports = [ (modulesPath + "/installer/cd-dvd/sd-image.nix") ];
+
   boot.loader.raspberryPi.enable = lib.mkForce false;
 
   sdImage = {
