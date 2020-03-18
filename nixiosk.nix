@@ -37,7 +37,7 @@
       default = "America/New_York";
     };
     nixiosk.localSystem.system = lib.mkOption {
-      type = lib.types.str;
+      type = lib.types.nullOr lib.types.str;
     };
     nixiosk.localSystem.sshUser = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
@@ -56,7 +56,7 @@
     boot.extraModprobeConfig = ''
         options cfg80211 ieee80211_regdom="${config.nixiosk.locale.regDom}"
     '';
-    nix.buildMachines = lib.optional ((config.nixiosk.localSystem.sshUser != null) && (config.nixiosk.localSystem.hostName != null)) {
+    nix.buildMachines = lib.optional ((config.nixiosk.localSystem.hostName != null) && (config.nixiosk.localSystem.sshUser != null) && (config.nixiosk.localSystem.system != null)) {
       inherit (config.nixiosk.localSystem) system sshUser hostName;
 
       # ??? is this okay to use for ssh keys?

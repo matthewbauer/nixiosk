@@ -163,13 +163,14 @@
     })) ];
 
     # We use remote builders for things like 32-bit arm where there is
-    # no binary cache, otherwise, we can might as well build it
-    # natively, with the cache covering most of it.
+    # no binary cache, otherwise, we might as well build it natively,
+    # with the cache covering most of it.
     localSystem = let
       cachedSystems = [ "aarch64-linux" "x86_64-linux" "x86_64-darwin" ];
     in if builtins.elem (config.nixpkgs.crossSystem.system or null) cachedSystems
        then config.nixpkgs.crossSystem
-       else config.nixiosk.localSystem;
+       else if (config.nixiosk.localSystem.hostName != null) && (config.nixiosk.localSystem.sshUser != null) && (config.nixiosk.localSystem.system != null) then { inherit (config.nixiosk.localSystem) system; }
+       else config.nixpkgs.crossSystem;
   };
 
   boot.plymouth.enable = true;

@@ -51,7 +51,28 @@ to make changes to this repo and rebuild the system. Unfortunately,
 this requires setting up a remote builder which is kind of difficult
 to do. Some steps are as follows:
 
-### Remote builder ###
+### Cloning ###
+
+Once you have a remote builder configure on your Kiosk, you can clone
+your Kiosk repo:
+
+``` sh
+$ git clone ssh://root@nixiosk.local/etc/nixos/configuration.git nixiosk-configuration
+```
+
+From here, you can make some changes, and commit them to the repo.
+When done, you can just do:
+
+``` sh
+$ git push
+```
+
+and read the output of the new deployment.
+
+### Remote builder (optional) ###
+
+Note: this is only necessary for 32-bit ARM systems. NixOS binary
+caches are provided for 64-bit ARM, available in Raspberry Pi 3 and 4.
 
 Before starting, you need to make sure your nixiosk.json has the
 correct values for your local computer under localSystem. This should
@@ -73,21 +94,3 @@ $ ssh me@my-laptop-host
 ```
 
 If all is well, then we can proceed to cloning the configuration.
-
-### Cloning ###
-
-Once you have a remote builder configure on your Kiosk, you can clone
-your Kiosk repo:
-
-``` sh
-$ git clone ssh://root@nixiosk.local/etc/nixos/configuration.git nixiosk-configuration
-```
-
-From here, you can make some changes, and commit them to the repo.
-When done, you can just do:
-
-``` sh
-$ git push
-```
-
-and read the output of the new deployment.
