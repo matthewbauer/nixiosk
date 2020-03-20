@@ -19,8 +19,7 @@ let
   };
 in {
 
-  config = lib.mkIf (builtins.elem config.nixiosk.hardware ["raspberryPi0" "raspberryPi1" "raspberryPi2" "raspberryPi3" "raspberryPi4"])
-    {
+  config = lib.mkIf (builtins.elem config.nixiosk.hardware ["raspberryPi0" "raspberryPi1" "raspberryPi2" "raspberryPi3" "raspberryPi4"]) {
 
   hardware = {
     # hardware.deviceTree overlaps with raspberry pi config.txt, but
@@ -77,7 +76,7 @@ in {
     initrd.kernelModules = [ "vc4" "bcm2835_dma" "i2c_bcm2835" "bcm2835_rng" ];
   };
 
-  nixpkgs.overlays = [(self: super: (lib.optionalAttrs (super.stdenv.hostPlatform != super.stdenv.buildPlatform) {
+  nixpkgs.overlays = [(self: super: {
     # Restrict drivers built by mesa to just the ones we need This
     # reduces the install size a bit.
     mesa = (super.mesa.override {
@@ -91,7 +90,7 @@ in {
     }).overrideAttrs (o: {
       mesonFlags = (o.mesonFlags or []) ++ ["-Dglx=disabled"];
     });
-  }))];
+  })];
 
   nixpkgs.crossSystem = {
     raspberryPi0 = { config = "armv6l-unknown-linux-gnueabihf"; };
@@ -122,11 +121,6 @@ in {
       arm_64bit=1
     '';
   };
-
-  # swapDevices = [{
-  #   device = "/swapfile";
-  #   size = 2048;
-  # }];
 
   fileSystems = lib.mkForce (if ubootEnabled then {
     "/boot/firmware" = {

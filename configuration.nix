@@ -1,12 +1,13 @@
 { lib, pkgs, config, ...}: {
 
-  imports = [ ./nixiosk.nix ./hardware/raspberrypi.nix ];
+  imports = [ ./nixiosk.nix ./hardware/raspberrypi.nix ./hardware/ova.nix ];
 
   hardware.opengl.enable = true;
   hardware.bluetooth.enable = true;
   sound.enable = true;
   hardware.pulseaudio.enable = true;
   services.dbus.enable = true;
+  services.dbus.socketActivated = true;
 
   # HACKS!
   systemd.services.rngd.serviceConfig = {
@@ -20,6 +21,13 @@
   gtk.iconCache.enable = true;
   environment.systemPackages = [
     pkgs.gnome3.adwaita-icon-theme pkgs.hicolor-icon-theme
+
+    (pkgs.git.override {
+      withManual = false;
+      pythonSupport = false;
+      withpcre2 = false;
+      perlSupport = false;
+    })
   ];
 
   # input
@@ -90,11 +98,11 @@
     '';
   };
 
-  # Setup cross compilation.
   nixpkgs = {
-    overlays = [(self: super: (lib.optionalAttrs (super.stdenv.hostPlatform != super.stdenv.buildPlatform) {
+    overlays = [
 
-      # doesn’t cross compile
+    # Disable some things that don’t cross compile
+    (self: super: lib.optionalAttrs (super.stdenv.hostPlatform != super.stdenv.buildPlatform) {
       gtk3 = super.gtk3.override { cupsSupport = false; };
       webkitgtk = super.webkitgtk.override {
         enableGeoLocation = false;
@@ -137,6 +145,10 @@
         soxr = null;
       });
 
+      mesa = super.mesa.override { eglPlatforms = ["wayland"]; };
+    }) (self: super: {
+      busybox-sandbox-shell = super.busybox-sandbox-shell.override { inherit (super) busybox; };
+
       retroarchBare = (super.retroarchBare.override {
         SDL2 = null;
         withVulkan = false;
@@ -144,10 +156,6 @@
       }).overrideAttrs (o: {
         patches = (o.patches or []) ++ [ ./retroarch-lakkaish.patch ];
       });
-
-      mesa = super.mesa.override {
-        eglPlatforms = ["wayland"];
-      };
 
       # armv6l (no NEON) and aarch64 don’t have prebuilt cores, so
       # provide some here that are known to work well. Feel free to
@@ -170,7 +178,7 @@
     in if builtins.elem (config.nixpkgs.crossSystem.system or null) cachedSystems
        then config.nixpkgs.crossSystem
        else if (config.nixiosk.localSystem.hostName != null) && (config.nixiosk.localSystem.sshUser != null) && (config.nixiosk.localSystem.system != null) then { inherit (config.nixiosk.localSystem) system; }
-       else config.nixpkgs.crossSystem;
+       else (lib.mkIf (config.nixpkgs.crossSystem.system or null != null) config.nixpkgs.crossSystem);
   };
 
   boot.plymouth.enable = true;

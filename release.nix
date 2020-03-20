@@ -1,6 +1,9 @@
 let
 
+  pkgs = import ./nixpkgs {};
+
   boot = { hardware ? null, program, name }: import ./boot {
+    inherit pkgs;
     custom = {
       inherit hardware program;
       hostName = name;
@@ -8,7 +11,7 @@ let
     };
   };
 
-  rebuilder = { hardware, program, name }: import ((import ./nixpkgs {}).path + /nixos/lib/eval-config.nix) {
+  rebuilder = { hardware, program, name }: import (pkgs.path + /nixos/lib/eval-config.nix) {
     modules = [
       ./configuration.nix
       ({lib, ...}: {
