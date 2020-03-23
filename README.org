@@ -110,6 +110,9 @@ Then, we need to test that we can access the local computer through SSH:
 If all is well, then we can proceed to cloning the configuration.
 
 * Troubleshooting
+   :PROPERTIES:
+   :CUSTOM_ID: troubleshooting
+   :END:
 
 ** /dev/mmcblk0 is not a valid device
 
