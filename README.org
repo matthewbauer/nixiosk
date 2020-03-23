@@ -1,0 +1,127 @@
+* How it works
+  :PROPERTIES:
+  :CUSTOM_ID: how-it-works
+  :END:
+
+This is a Kiosk builder system. It can be used to make a system that
+single graphical program. This is useful for making systems that do
+video conferencing, digital signage, informational displays, Internet
+kiosks, and more. Right now, only Raspberry Pi 0-4 are supported.
+
+** nixiosk.json format
+   :PROPERTIES:
+   :CUSTOM_ID: nixiosk.json-format
+   :END:
+
+This file is used to configure your system. It is a JSON file that is
+read to create your system. The nixiosk.json file should look something
+like this:
+
+#+BEGIN_EXAMPLE
+  {
+      "hostName": "nixiosk",
+      "hardware": "raspberryPi4",
+      "authorizedKeys": ["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC050iPG8ckY/dj2O3ol20G2lTdr7ERFz4LD3R4yqoT5W0THjNFdCqavvduCIAtF1Xx/OmTISblnGKf10rYLNzDdyMMFy7tUSiC7/T37EW0s+EFGhS9yOcjCVvHYwgnGZCF4ec33toE8Htq2UKBVgtE0PMwPAyCGYhFxFLYN8J8/xnMNGqNE6iTGbK5qb4yg3rwyrKMXLNGVNsPVcMfdyk3xqUilDp4U7HHQpqX0wKrUvrBZ87LnO9z3X/QIRVQhS5GqnIjRYe4L9yxZtTjW5HdwIq1jcvZc/1Uu7bkMh3gkCwbrpmudSGpdUlyEreaHOJf3XH4psr6IMGVJvxnGiV9 mbauer@dellbook"],
+      "program": {
+          "package": "epiphany",
+          "executable": "/bin/epiphany",
+          "args": ["https://en.wikipedia.org/"]
+      },
+      "networks": {
+          "my-router": "0000000000000000000000000000000000000000000000000000000000000000",
+      },
+      "locale": {
+          "timeZone": "America/New_York",
+          "regDom": "US",
+          "lang": "en_US.UTF-8"
+      },
+      "localSystem": {
+          "system": "x86_64-linux",
+          "sshUser": "me",
+          "hostName": "my-laptop-host",
+      }
+  }
+#+END_EXAMPLE
+
+"epiphany" is a lightweight web browser that supports Wayland and allows
+a
+
+authorizedKeys must be included to allow changing the system! If you
+lose the private key, you will be locked out and have to reflash your
+system, so keep them safe.
+
+** Push to deploy
+   :PROPERTIES:
+   :CUSTOM_ID: push-to-deploy
+   :END:
+
+By default, Basalt is set up to enable push-to-deploy. This allows you
+to make changes to this repo and rebuild the system. Unfortunately, this
+requires setting up a remote builder which is kind of difficult to do.
+Some steps are as follows:
+
+*** Cloning
+    :PROPERTIES:
+    :CUSTOM_ID: cloning
+    :END:
+
+Once you have a remote builder configure on your Kiosk, you can clone
+your Kiosk repo:
+
+#+BEGIN_SRC sh
+  $ git clone ssh://root@nixiosk.local/etc/nixos/configuration.git nixiosk-configuration
+#+END_SRC
+
+From here, you can make some changes, and commit them to the repo. When
+done, you can just do:
+
+#+BEGIN_SRC sh
+  $ git push
+#+END_SRC
+
+and read the output of the new deployment.
+
+*** Remote builder (optional)
+    :PROPERTIES:
+    :CUSTOM_ID: remote-builder-optional
+    :END:
+
+Note: this is only necessary for 32-bit ARM systems. NixOS binary caches
+are provided for 64-bit ARM, available in Raspberry Pi 3 and 4.
+
+Before starting, you need to make sure your nixiosk.json has the correct
+values for your local computer under localSystem. This should be a
+hostname that the Kiosk will be able to access. For this to work, you
+also need to be a trusted-user on your local system.
+
+First, we need to give the Kiosk SSH access:
+
+#+BEGIN_SRC sh
+  $ echo $(ssh root@nixiosk.local cat '$HOME'/.ssh/id_rsa.pub) >> $HOME/.ssh/authorized_keys
+#+END_SRC
+
+Then, we need to test that we can access the local computer through SSH:
+
+#+BEGIN_SRC sh
+  $ ssh root@nixiosk.local
+  $ ssh me@my-laptop-host
+#+END_SRC
+
+If all is well, then we can proceed to cloning the configuration.
+
+* Troubleshooting
+
+** /dev/mmcblk0 is not a valid device
+
+If this file doesn’t exist, you may not have your SD card inserted
+properly. If it is inserted properly, you may have a different device
+name. Look in /dev for other devices.
+
+** /dev/mmcblk0 has parititions! Reformat the table to avoid loss of data
+
+You need to reformat the partition table to ensure we aren’t losing
+data. You can do this with wipefs:
+
+#+BEGIN_SRC sh
+$ nix run nixpkgs.utillinux -c wipefs /dev/mmcblk0
+#+END_SRC
