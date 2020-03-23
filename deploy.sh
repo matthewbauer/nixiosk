@@ -55,6 +55,13 @@ if ! [ -f "$HOME/.ssh/id_rsa.pub" ]; then
     exit 1
 fi
 
+SUDO=
+if ! [ -w "$block" ]; then
+    echo "Device $block not writable, trying sudo."
+    SUDO=sudo
+    sudo -v
+fi
+
 sd_drv=$(nix-instantiate --no-gc-warning --show-trace \
           --arg custom "builtins.fromJSON (builtins.readFile $custom)" \
           boot -A config.system.build.sdImage)
@@ -66,11 +73,5 @@ sd_image=$(echo "$out"/sd-image/*.img)
 echo "SD image is: $sd_image"
 
 echo "Writing to $dev, may require password."
-
-SUDO=
-if ! [ -w "$block" ]; then
-    echo "Device $block not writable, trying sudo."
-    SUDO=sudo
-fi
 
 "$SUDO" dd bs=1M if="$sd_image" of="$block" status=progress conv=fsync

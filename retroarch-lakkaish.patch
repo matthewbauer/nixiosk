@@ -1,8 +1,8 @@
 diff --git a/menu/menu_setting.c b/menu/menu_setting.c
-index 7c81c3102f..2ee4a69873 100644
+index f7f1050c27..f3e1071ec6 100644
 --- a/menu/menu_setting.c
 +++ b/menu/menu_setting.c
-@@ -7317,20 +7317,6 @@ static bool setting_append_list(
+@@ -7723,20 +7723,6 @@ static bool setting_append_list(
                 &subgroup_info,
                 parent_group);
  
@@ -23,12 +23,21 @@ index 7c81c3102f..2ee4a69873 100644
           CONFIG_ACTION(
                 list, list_info,
                 MENU_ENUM_LABEL_CONFIGURATIONS_LIST,
-@@ -7427,17 +7413,6 @@ static bool setting_append_list(
+@@ -7833,27 +7819,6 @@ static bool setting_append_list(
                 parent_group);
           menu_settings_list_current_add_cmd(list, list_info, CMD_EVENT_UI_COMPANION_TOGGLE);
  #endif
 -#if !defined(IOS)
 -         /* Apple rejects iOS apps that let you forcibly quit them. */
+-#ifdef HAVE_LAKKA
+-         CONFIG_ACTION(
+-               list, list_info,
+-               MENU_ENUM_LABEL_QUIT_RETROARCH,
+-               MENU_ENUM_LABEL_VALUE_RESTART_RETROARCH,
+-               &group_info,
+-               &subgroup_info,
+-               parent_group);
+-#else
 -         CONFIG_ACTION(
 -               list, list_info,
 -               MENU_ENUM_LABEL_QUIT_RETROARCH,
@@ -36,12 +45,13 @@ index 7c81c3102f..2ee4a69873 100644
 -               &group_info,
 -               &subgroup_info,
 -               parent_group);
+-#endif
 -         menu_settings_list_current_add_cmd(list, list_info, CMD_EVENT_QUIT);
 -#endif
  
  #if defined(HAVE_LAKKA_SWITCH) || defined(HAVE_LIBNX)
          CONFIG_ACTION(
-@@ -7449,7 +7424,6 @@ static bool setting_append_list(
+@@ -7865,7 +7830,6 @@ static bool setting_append_list(
                parent_group);
  #endif
  
@@ -49,7 +59,7 @@ index 7c81c3102f..2ee4a69873 100644
  #ifdef HAVE_LAKKA_SWITCH
          CONFIG_ACTION(
                 list, list_info,
-@@ -7484,7 +7458,6 @@ static bool setting_append_list(
+@@ -7910,7 +7874,6 @@ static bool setting_append_list(
                 &subgroup_info,
                 parent_group);
           menu_settings_list_current_add_cmd(list, list_info, CMD_EVENT_SHUTDOWN);
@@ -57,7 +67,7 @@ index 7c81c3102f..2ee4a69873 100644
  
           CONFIG_ACTION(
                 list, list_info,
-@@ -12812,24 +12785,6 @@ static bool setting_append_list(
+@@ -13547,24 +13510,6 @@ static bool setting_append_list(
                    general_write_handler,
                    general_read_handler,
                    SD_FLAG_NONE);

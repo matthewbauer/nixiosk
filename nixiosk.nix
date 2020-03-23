@@ -56,6 +56,7 @@
     boot.extraModprobeConfig = ''
         options cfg80211 ieee80211_regdom="${config.nixiosk.locale.regDom}"
     '';
+    nix.distributedBuilds = true;
     nix.buildMachines = lib.optional ((config.nixiosk.localSystem.hostName != null) && (config.nixiosk.localSystem.sshUser != null) && (config.nixiosk.localSystem.system != null)) {
       inherit (config.nixiosk.localSystem) system sshUser hostName;
 
