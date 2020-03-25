@@ -9,14 +9,6 @@
   services.dbus.enable = true;
   services.dbus.socketActivated = true;
 
-  # HACKS!
-  systemd.services.rngd.serviceConfig = {
-    NoNewPrivileges = lib.mkForce false;
-    PrivateNetwork = lib.mkForce false;
-    ProtectSystem = lib.mkForce false;
-    ProtectHome = lib.mkForce false;
-  };
-
   # theming
   gtk.iconCache.enable = true;
   environment.systemPackages = [
@@ -191,5 +183,14 @@
     wireless.enable = true;
     dhcpcd.extraConfig = "timeout 0";
   };
+
+  security.polkit.extraConfig = ''
+    polkit.addRule(function(action, subject) {
+      if (action.id == "org.freedesktop.login1.power-off" ||
+	        action.id == "org.freedesktop.login1.reboot") {
+        return polkit.Result.YES;
+      }
+    });
+  '';
 
 }
