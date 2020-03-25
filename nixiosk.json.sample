@@ -8,7 +8,7 @@
         "args": ["https://en.wikipedia.org/"]
     },
     "networks": {
-        "my-router": "0000000000000000000000000000000000000000000000000000000000000000",
+        "my-router": "0000000000000000000000000000000000000000000000000000000000000000"
     },
     "locale": {
         "timeZone": "America/New_York",
@@ -18,6 +18,6 @@
     "localSystem": {
         "system": "x86_64-linux",
         "sshUser": "me",
-        "hostName": "my-laptop-host",
+        "hostName": "my-laptop-host"
     }
 }
