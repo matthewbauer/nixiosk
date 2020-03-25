@@ -43,8 +43,8 @@ like this:
   }
 #+END_EXAMPLE
 
-"epiphany" is a lightweight web browser that supports Wayland and allows
-a
+"epiphany" is a lightweight web browser that supports Wayland and
+provides a simple UI.
 
 authorizedKeys must be included to allow changing the system! If you
 lose the private key, you will be locked out and have to reflash your
