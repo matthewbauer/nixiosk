@@ -123,6 +123,16 @@ Then, we need to test that we can access the local computer through SSH:
 If all is well, then we can proceed to cloning the configuration.
 
 * Setup
+
+** Install Nix
+
+If you haven’t already, you need to install Nix. This can be done
+through the installer:
+
+#+BEGIN_SRC sh
+$ bash <(curl -L https://nixos.org/nix/install)
+#+END_SRC
+
 ** Cache
 
 To speed things up, you should setup a binary cache for nixiosk. This
