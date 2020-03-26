@@ -8,47 +8,60 @@ single graphical program. This is useful for making systems that do
 video conferencing, digital signage, informational displays, Internet
 kiosks, and more. Right now, only Raspberry Pi 0-4 are supported.
 
-** nixiosk.json format
-   :PROPERTIES:
-   :CUSTOM_ID: nixiosk.json-format
-   :END:
+** Configuration
 
-This file is used to configure your system. It is a JSON file that is
-read to create your system. The nixiosk.json file should look something
-like this:
+To make things simple, it just reads from an ad-hoc JSON file that
+describe the hardware plus some other customizations. It looks like
+this:
 
-#+BEGIN_EXAMPLE
-  {
-      "hostName": "nixiosk",
-      "hardware": "raspberryPi4",
-      "authorizedKeys": ["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC050iPG8ckY/dj2O3ol20G2lTdr7ERFz4LD3R4yqoT5W0THjNFdCqavvduCIAtF1Xx/OmTISblnGKf10rYLNzDdyMMFy7tUSiC7/T37EW0s+EFGhS9yOcjCVvHYwgnGZCF4ec33toE8Htq2UKBVgtE0PMwPAyCGYhFxFLYN8J8/xnMNGqNE6iTGbK5qb4yg3rwyrKMXLNGVNsPVcMfdyk3xqUilDp4U7HHQpqX0wKrUvrBZ87LnO9z3X/QIRVQhS5GqnIjRYe4L9yxZtTjW5HdwIq1jcvZc/1Uu7bkMh3gkCwbrpmudSGpdUlyEreaHOJf3XH4psr6IMGVJvxnGiV9 mbauer@dellbook"],
-      "program": {
-          "package": "epiphany",
-          "executable": "/bin/epiphany",
-          "args": ["https://en.wikipedia.org/"]
-      },
-      "networks": {
-          "my-router": "0000000000000000000000000000000000000000000000000000000000000000",
-      },
-      "locale": {
-          "timeZone": "America/New_York",
-          "regDom": "US",
-          "lang": "en_US.UTF-8"
-      },
-      "localSystem": {
-          "system": "x86_64-linux",
-          "sshUser": "me",
-          "hostName": "my-laptop-host",
-      }
-  }
-#+END_EXAMPLE
+#+BEGIN_SRC json
+{
+    "hostName": "nixiosk",
+    "hardware": "raspberryPi4",
+    "authorizedKeys": [],
+    "program": {
+        "package": "epiphany",
+        "executable": "/bin/epiphany",
+        "args": ["https://en.wikipedia.org/"]
+    },
+    "networks": {
+        "my-router": "0000000000000000000000000000000000000000000000000000000000000000",
+    },
+    "locale": {
+        "timeZone": "America/New_York",
+        "regDom": "US",
+        "lang": "en_US.UTF-8"
+    },
+    "localSystem": {
+        "system": "x86_64-linux",
+        "sshUser": "me",
+        "hostName": "my-laptop-host",
+    }
+}
+#+END_SRC
 
-"epiphany" is a lightweight web browser that supports Wayland and
-provides a simple UI.
+Here’s a basic idea of what each of these fields do:
 
-authorizedKeys must be included to allow changing the system! If you
-lose the private key, you will be locked out and have to reflash your
-system, so keep them safe.
+- hostName: Name of the host to use. If mDNS is configured on your
+  network, this can be used to identify the IP address of the device
+  via “<hostName>.local”.
+- hardware: A string describing what hardware we are using. Valid
+  values currently are “raspberryPi0”, “raspberryPi1”, “raspberryPi2”,
+  “raspberryPi3”, “raspberryPi4”.
+- authorizedKeys: A list of SSH public keys that are authorized to
+  make changes to your device. Note this is required because no
+  passwords will be set for this system.
+- program: What to do in the kiosk. This should be a Nixpkgs attribute
+  (*package*), an *executable* in that package, and a list of *args*.
+- networks: This is a name/value pairing of SSIDs to PSK passphrases.
+  This can be found with the wpa_passphrase(8) command from
+  wpa_supplicant.
+- locale: This provides some information of what localizations to use.
+  You can set [[https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2][regulation domain]], [[https://www.gnu.org/software/libc/manual/html_node/Locale-Names.html#Locale-Names][language]], [[https://en.wikipedia.org/wiki/List_of_tz_database_time_zones][time zone]] via “regDom”,
+  “lang”, and “timeZone”. If unspecified, defaults to US / English /
+  New York.
+- localSystem: Information on system to use for [[https://github.com/matthewbauer/nixiosk#remote-builder-optional][remote builder]].
+  Optional.
 
 ** Push to deploy
    :PROPERTIES:
@@ -108,6 +121,133 @@ Then, we need to test that we can access the local computer through SSH:
 #+END_SRC
 
 If all is well, then we can proceed to cloning the configuration.
+
+* Setup
+** Cache
+
+To speed things up, you should setup a binary cache for nixiosk. This
+can be done easily through [[https://nixiosk.cachix.org/][Cachix]]. First, install Cachix:
+
+#+BEGIN_SRC sh
+$ nix-env -iA cachix -f https://cachix.org/api/v1/install
+#+END_SRC
+
+Then, use the nixiosk cache:
+
+#+BEGIN_SRC sh
+$ cachix use nixiosk
+#+END_SRC
+
+** Initial deployment
+
+The deployment is pretty easy provided you have [[https://nixos.org/nix/][Nix installed]]. Here
+are some steps:
+
+#+BEGIN_SRC sh
+$ git clone https://github.com/matthewbauer/nixiosk.git
+$ cd nixiosk/
+$ cp nixiosk.json.sample nixiosk.json
+#+END_SRC
+
+Now you need to make some changes to nixiosk.json to reflect what you
+want your system to do. The important ones are ‘authorizedKeys’ and
+‘networks’ so that your systems can startup and you can connect to it.
+
+If you have an SSH key setup, you can get its value with:
+
+#+BEGIN_SRC sh
+$ cat $HOME/.ssh/id_rsa.pub
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC050iPG8ckY/dj2O3ol20G2lTdr7ERFz4LD3R4yqoT5W0THjNFdCqavvduCIAtF1Xx/OmTISblnGKf10rYLNzDdyMMFy7tUSiC7/T37EW0s+EFGhS9yOcjCVvHYwgnGZCF4ec33toE8Htq2UKBVgtE0PMwPAyCGYhFxFLYN8J8/xnMNGqNE6iTGbK5qb4yg3rwyrKMXLNGVNsPVcMfdyk3xqUilDp4U7HHQpqX0wKrUvrBZ87LnO9z3X/QIRVQhS5GqnIjRYe4L9yxZtTjW5HdwIq1jcvZc/1Uu7bkMh3gkCwbrpmudSGpdUlyEreaHOJf3XH4psr6IMGVJvxnGiV9 mbauer@dellbook
+#+END_SRC
+
+which will give you a line for “authorizedKeys” like:
+
+#+BEGIN_SRC json
+  "authorizedKeys": ["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC050iPG8ckY/dj2O3ol20G2lTdr7ERFz4LD3R4yqoT5W0THjNFdCqavvduCIAtF1Xx/OmTISblnGKf10rYLNzDdyMMFy7tUSiC7/T37EW0s+EFGhS9yOcjCVvHYwgnGZCF4ec33toE8Htq2UKBVgtE0PMwPAyCGYhFxFLYN8J8/xnMNGqNE6iTGbK5qb4yg3rwyrKMXLNGVNsPVcMfdyk3xqUilDp4U7HHQpqX0wKrUvrBZ87LnO9z3X/QIRVQhS5GqnIjRYe4L9yxZtTjW5HdwIq1jcvZc/1Uu7bkMh3gkCwbrpmudSGpdUlyEreaHOJf3XH4psr6IMGVJvxnGiV9 mbauer@dellbook"],
+#+END_SRC
+
+and you can get a PSK value for your WiFi network with:
+
+#+BEGIN_SRC sh
+$ nix run nixpkgs.wpa_supplicant -c wpa_passphrase my-network
+network={
+	ssid="my-network"
+	#psk="abcdefgh"
+	psk=17e76a6490ac112dbeba996caa7cd1387c6ebf6ce721ef704f92b681bb2e9000
+}
+#+END_SRC
+
+so your .json file looks like:
+
+#+BEGIN_SRC json
+"networks": {
+  "my-network": "17e76a6490ac112dbeba996caa7cd1387c6ebf6ce721ef704f92b681bb2e9000",
+},
+#+END_SRC
+
+Now, after inserting your Raspberry Pi SD card into the primary slot,
+you can deploy to it with:
+
+#+BEGIN_SRC sh
+$ ./deploy.sh /dev/mmcblk0
+#+END_SRC
+
+Note that this will take quite a while right now because I don’t have
+a binary cache setup. Stay tuned so that this part hopefully gets
+easier. It will also take a few minutes to write to your SD card.
+
+You can now eject your SD card and insert it into your Raspberry Pi.
+It will boot immediately to an Epiphany browser, loading
+en.wikipedia.org.
+
+** Redeployments
+
+You can pretty easily make changes to a running system given you have
+SSH access. This is as easy as cloning the running config:
+
+#+BEGIN_SRC sh
+$ git clone ssh://root@nixiosk.local/etc/nixos/configuration.git nixiosk-configuration
+$ cd nixiosk-configuration
+#+END_SRC
+
+Then, make some changes in your repo. After your done, you can just
+run ‘git push’ to redeploy.
+
+#+BEGIN_SRC sh
+$ git add .
+$ git commit
+$ git push
+#+END_SRC
+
+You’ll see the NixOS switch-to-configuration log in your command
+output. If all is successful, the system should immediately reflect
+your changes. If not, the output of Git should explain what went
+wrong.
+
+* Technology
+
+Here are some of the pieces that make the Kiosk system possible:
+
+- [[https://www.hjdskes.nl/projects/cage/][Cage]] / [[https://wayland.freedesktop.org/][Wayland]]: Cage is a Wayland compositor that allows only one
+  application to display at a time. This makes the system a true
+  Kiosk.
+- [[https://nixos.org/][NixOS]] - A Linux distro built on top of functional package management.
+- [[https://gitlab.com/obsidian.systems/basalt/][Basalt]]: A tool to manage NixOS directly from Git. This allows doing
+  push-to-deploy directly to NixOS.
+- [[https://www.freedesktop.org/wiki/Software/Plymouth/][Plymouth]]: Nice graphical boot animations. Right now, it uses the
+  NixOS logo but in the future this should be configurable so that you
+  can include your own branding.
+- [[https://www.openssh.com/][OpenSSH]]: Since no direct login is available, SSH is required for
+  remote administration.
+- [[http://www.avahi.org/][Avahi]]: Configures mDNS registration for the system, allowing you to
+  remember host names instead of IP addresses.
+
+I would also like to include some more tools to make administration
+easier:
+
+- ddclient / miniupnp: Allow registering external IP address with a
+  DNS provider. This would enable administration outside of the
+  device’s immediate network.
 
 * Troubleshooting
    :PROPERTIES:
