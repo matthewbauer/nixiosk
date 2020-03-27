@@ -176,7 +176,6 @@
   };
 
   boot.plymouth.enable = true;
-  boot.supportedFilesystems = lib.mkForce [ "vfat" ];
   boot.kernelParams = ["quiet"];
 
   networking = {
