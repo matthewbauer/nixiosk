@@ -50,13 +50,13 @@ in
     name = "retroOva";
     hardware = "ova";
     program = { package = "retroarch"; executable = "/bin/retroarch"; };
-  }).config.system.build.virtualBoxOVA;
+  }).config.system.build.toplevel;
 
   retroIso = (boot {
     name = "retroIso";
     hardware = "iso";
     program = { package = "retroarch"; executable = "/bin/retroarch"; };
-  }).config.system.build.isoImage;
+  }).config.system.build.toplevel;
 
   epiphanyPi0 = (boot {
     name = "epiphanyPi0";
