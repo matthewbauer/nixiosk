@@ -90,6 +90,8 @@ in {
     }).overrideAttrs (o: {
       mesonFlags = (o.mesonFlags or []) ++ ["-Dglx=disabled"];
     });
+
+    libcec = super.libcec.override { inherit (super) libraspberrypi; };
   })];
 
   nixpkgs.crossSystem = {

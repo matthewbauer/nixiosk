@@ -100,10 +100,16 @@ in
     program = { package = "gtk3"; executable = "/bin/gtk3-demo"; };
   }).config.system.build.toplevel;
 
-  # kodiPi4 = (boot {
-  #   name = "kodiPi4";
-  #   hardware = "raspberryPi0";
-  #   program = { package = "kodi"; executable = "/bin/kodi"; };
-  # }).config.system.build.toplevel;
+  kodiPi4 = (boot {
+    name = "kodiPi4";
+    hardware = "raspberryPi4";
+    program = { package = "kodi"; executable = "/bin/kodi"; };
+  }).config.system.build.toplevel;
+
+  kodiOva = (boot {
+    name = "kodiOva";
+    hardware = "ova";
+    program = { package = "kodi"; executable = "/bin/kodi"; };
+  }).config.system.build.virtualBoxOVA;
 
 }
