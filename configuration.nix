@@ -188,7 +188,8 @@
   };
 
   boot.plymouth.enable = true;
-  boot.kernelParams = ["quiet"];
+  boot.consoleLogLevel = 3;
+  boot.kernelParams = [ "rd.udev.log_priority=3" "vt.global_cursor_default=0" ];
 
   networking = {
     wireless.enable = true;

@@ -48,6 +48,7 @@ in {
   console.extraTTYs = [ "ttyAMA0" ];
 
   boot = {
+    tmpOnTmpfs = true;
     kernelPackages = {
       raspberryPi0 = pkgs.linuxPackages_rpi0;
       raspberryPi1 = pkgs.linuxPackages_rpi1;
@@ -70,6 +71,8 @@ in {
         raspberryPi3 = "512M";
         raspberryPi4 = "512M";
       }.${config.nixiosk.hardware} or (throw "unknown raspberry pi system (${config.nixiosk.hardware})")}"
+
+      "plymouth.ignore-serial-consoles"
     ];
     loader.grub.enable = false;
     loader.generic-extlinux-compatible.enable = true;
