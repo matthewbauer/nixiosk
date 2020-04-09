@@ -110,6 +110,6 @@ in
     name = "kodiOva";
     hardware = "ova";
     program = { package = "kodi"; executable = "/bin/kodi"; };
-  }).config.system.build.virtualBoxOVA;
+  }).config.system.build.toplevel;
 
 }
