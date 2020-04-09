@@ -146,6 +146,7 @@
         sambaSupport = false;
         rtmpSupport = false;
         joystickSupport = false;
+        lirc = null;
       };
 
     }) (self: super: {
