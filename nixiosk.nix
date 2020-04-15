@@ -33,8 +33,7 @@
       default = "US";
     };
     nixiosk.locale.timeZone = lib.mkOption {
-      type = lib.types.str;
-      default = "America/New_York";
+      type = lib.types.nullOr lib.types.str;
     };
     nixiosk.localSystem.system = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
@@ -51,6 +50,8 @@
 
   config = {
     time = { timeZone = config.nixiosk.locale.timeZone; };
+    services.localtime.enable = config.nixiosk.locale.timeZone == null;
+
     i18n.defaultLocale = config.nixiosk.locale.lang;
     i18n.supportedLocales = [ "${config.nixiosk.locale.lang}/UTF-8" ];
     boot.extraModprobeConfig = ''
