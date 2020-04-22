@@ -34,9 +34,11 @@
     };
     nixiosk.locale.timeZone = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
+      default = null;
     };
     nixiosk.localSystem.system = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
+      default = null;
     };
     nixiosk.localSystem.sshUser = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
