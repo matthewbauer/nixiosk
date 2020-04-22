@@ -127,6 +127,8 @@ in {
     '';
   };
 
+  # We write to disk every 10 minutes to avoid destroying the SD card.
+  # Note this means that sudden power loss will lose written data.
   fileSystems = lib.mkForce (if ubootEnabled then {
     "/boot/firmware" = {
       device = "/dev/disk/by-label/FIRMWARE";
@@ -136,6 +138,7 @@ in {
     "/" = {
       device = "/dev/disk/by-label/NIXOS_SD";
       fsType = "ext4";
+      options = [ "defaults" "noatime" "commit=600" ];
     };
   } else {
     "/boot" = {
@@ -145,6 +148,7 @@ in {
     "/" = {
       device = "/dev/disk/by-label/NIXOS_SD";
       fsType = "ext4";
+      options = [ "defaults" "noatime" "commit=600" ];
     };
   });
 
