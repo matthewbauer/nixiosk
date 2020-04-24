@@ -270,7 +270,7 @@ If this file doesn’t exist, you may not have your SD card inserted
 properly. If it is inserted properly, you may have a different device
 name. Look in /dev for other devices.
 
-** /dev/mmcblk0 has parititions! Reformat the table to avoid loss of data
+** /dev/mmcblk0 has partitions! Reformat the table to avoid loss of data
 
 You need to reformat the partition table to ensure we aren’t losing
 data. You can do this with wipefs:
