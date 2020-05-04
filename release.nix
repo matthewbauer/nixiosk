@@ -2,22 +2,22 @@ let
 
   pkgs = import ./nixpkgs {};
 
-  boot = { hardware ? null, program, name }: import ./boot {
+  boot = { hardware ? null, program, name, locale ? {} }: import ./boot {
     inherit pkgs;
     custom = {
-      inherit hardware program;
+      inherit hardware program locale;
       hostName = name;
       localSystem = { system = builtins.currentSystem; };
     };
   };
 
-  rebuilder = { hardware, program, name }: import (pkgs.path + /nixos/lib/eval-config.nix) {
+  rebuilder = { hardware, program, name, locale ? {} }: import (pkgs.path + /nixos/lib/eval-config.nix) {
     modules = [
       ./configuration.nix
       ({lib, ...}: {
         system.build = {
           custom = {
-            inherit hardware program;
+            inherit hardware program locale;
             hostName = name;
             localSystem = { system = builtins.currentSystem; };
           }; }; })
@@ -32,18 +32,21 @@ in
     name = "rebuilderRetroPi0";
     hardware = "raspberryPi0";
     program = { package = "retroarch"; executable = "/bin/retroarch"; };
+    locale.timeZone = "America/New_York";
   });
 
   retroPi0 = (boot {
     name = "retroPi0";
     hardware = "raspberryPi0";
     program = { package = "retroarch"; executable = "/bin/retroarch"; };
+    locale.timeZone = "America/New_York";
   }).config.system.build.toplevel;
 
   retroPi4 = (boot {
     name = "retroPi4";
     hardware = "raspberryPi4";
     program = { package = "retroarch"; executable = "/bin/retroarch"; };
+    locale.timeZone = "America/New_York";
   }).config.system.build.toplevel;
 
   retroOva = (boot {
@@ -62,48 +65,56 @@ in
     name = "epiphanyPi0";
     hardware = "raspberryPi0";
     program = { package = "epiphany"; executable = "/bin/epiphany"; };
+    locale.timeZone = "America/New_York";
   }).config.system.build.toplevel;
 
   epiphanyPi4 = (boot {
     name = "epiphanyPi4";
     hardware = "raspberryPi4";
     program = { package = "epiphany"; executable = "/bin/epiphany"; };
+    locale.timeZone = "America/New_York";
   }).config.system.build.toplevel;
 
   demoPi0 = (boot {
     name = "demoPi0";
     hardware = "raspberryPi0";
     program = { package = "gtk3"; executable = "/bin/gtk3-demo"; };
+    locale.timeZone = "America/New_York";
   }).config.system.build.toplevel;
 
   demoPi1 = (boot {
     name = "demoPi1";
     hardware = "raspberryPi1";
     program = { package = "gtk3"; executable = "/bin/gtk3-demo"; };
+    locale.timeZone = "America/New_York";
   }).config.system.build.toplevel;
 
   demoPi2 = (boot {
     name = "demoPi2";
     hardware = "raspberryPi2";
     program = { package = "gtk3"; executable = "/bin/gtk3-demo"; };
+    locale.timeZone = "America/New_York";
   }).config.system.build.toplevel;
 
   demoPi3 = (boot {
     name = "demoPi3";
     hardware = "raspberryPi3";
     program = { package = "gtk3"; executable = "/bin/gtk3-demo"; };
+    locale.timeZone = "America/New_York";
   }).config.system.build.toplevel;
 
   demoPi4 = (boot {
     name = "demoPi4";
     hardware = "raspberryPi4";
     program = { package = "gtk3"; executable = "/bin/gtk3-demo"; };
+    locale.timeZone = "America/New_York";
   }).config.system.build.toplevel;
 
   kodiPi4 = (boot {
     name = "kodiPi4";
     hardware = "raspberryPi4";
     program = { package = "kodi"; executable = "/bin/kodi"; };
+    locale.timeZone = "America/New_York";
   }).config.system.build.toplevel;
 
   kodiOva = (boot {
