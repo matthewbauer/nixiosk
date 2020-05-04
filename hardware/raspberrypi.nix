@@ -16,7 +16,7 @@ let
     raspberryPi2 = 120;
     raspberryPi3 = 220;
     raspberryPi4 = 320;
-  };
+  }.${config.nixiosk.hardware or ""} or 320;
 in {
 
   config = lib.mkIf (builtins.elem config.nixiosk.hardware ["raspberryPi0" "raspberryPi1" "raspberryPi2" "raspberryPi3" "raspberryPi4"]) {
