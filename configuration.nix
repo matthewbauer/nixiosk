@@ -26,6 +26,8 @@
   services.udev.packages = [ pkgs.libinput.out ];
 
   # nix.package = pkgs.nixUnstable;
+  nix.binaryCachePublicKeys = ["https://nixiosk.cachix.org"];
+  nix.binaryCaches = ["nixiosk.cachix.org-1:zcztl5w5OEAd6KKqWvrlfH7zopGsalSg/vJp3fUJDMk="];
 
   services.openssh = {
     enable = true;
