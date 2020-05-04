@@ -5,7 +5,7 @@ let
     import (modulesPath + "/system/boot/loader/generic-extlinux-compatible/extlinux-conf-builder.nix") {
       pkgs = pkgs.buildPackages;
     };
-  configTxt = pkgs.writeText "config.txt" ''
+  configTxt = pkgs.writeText "config.txt" (''
     [pi0]
     kernel=u-boot-rpi0.bin
 
@@ -25,7 +25,7 @@ let
     [all]
     avoid_warnings=1
     enable_uart=1
-  '';
+  '' + config.boot.loader.raspberryPi.firmwareConfig);
 in {
   imports = [ (modulesPath + "/installer/cd-dvd/sd-image.nix") ];
 
