@@ -54,6 +54,9 @@
     time = { timeZone = config.nixiosk.locale.timeZone; };
     services.localtime.enable = config.nixiosk.locale.timeZone == null;
 
+    virtualbox.vmDerivationName = "${config.nixiosk.localSystem.hostName or "nixiosk"}-ova-${config.system.nixos.label}-${pkgs.stdenv.hostPlatform.system}";
+    virtualbox.vmName = "Nixiosk ${config.system.nixos.label} (${config.nixiosk.localSystem.hostName or "nixiosk"};${pkgs.stdenv.hostPlatform.system})";
+
     i18n.defaultLocale = config.nixiosk.locale.lang;
     i18n.supportedLocales = [ "${config.nixiosk.locale.lang}/UTF-8" ];
     boot.extraModprobeConfig = ''
