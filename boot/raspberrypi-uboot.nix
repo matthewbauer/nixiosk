@@ -24,7 +24,6 @@ let
 
     [all]
     avoid_warnings=1
-    enable_uart=1
   '' + config.boot.loader.raspberryPi.firmwareConfig);
 in {
   imports = [ (modulesPath + "/installer/cd-dvd/sd-image.nix") ];
