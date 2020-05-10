@@ -8,6 +8,10 @@ if [ "$#" -lt 1 ]; then
     exit 1
 fi
 
+if [ "$1" = --help ]; then
+    echo Usage: "$0" sdcard nixiosk.json.sample
+fi
+
 dev="$1"
 if ! [ -f "$dev/dev" ]; then
     dev="/sys/block/$(echo "$1" | sed s,/dev/,,)"
