@@ -17,7 +17,6 @@ let
 
     [pi3]
     kernel=u-boot-rpi3.bin
-    armstub=armstub8-gic.bin
 
     [pi4]
     kernel=u-boot-rpi4.bin
