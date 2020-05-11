@@ -73,7 +73,7 @@ sd_drv=$(nix-instantiate --no-gc-warning --show-trace \
           boot -A config.system.build.sdImage)
 
 # nix build --keep-going --no-out-link "$sd_drv"
-out=$(nix-build --keep-going --no-out-link "$sd_drv")
+out=$(nix-build --keep-going --no-out-link "$sd_drv" "$@")
 sd_image=$(echo "$out"/sd-image/*.img)
 
 echo "SD image is: $sd_image"
