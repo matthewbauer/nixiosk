@@ -110,6 +110,27 @@ in
     locale.timeZone = "America/New_York";
   }).config.system.build.sdImage;
 
+  kodiPi1 = (boot {
+    name = "kodiPi1";
+    hardware = "raspberryPi1";
+    program = { package = "kodi"; executable = "/bin/kodi"; };
+    locale.timeZone = "America/New_York";
+  }).config.system.build.sdImage;
+
+  kodiPi2 = (boot {
+    name = "kodiPi2";
+    hardware = "raspberryPi2";
+    program = { package = "kodi"; executable = "/bin/kodi"; };
+    locale.timeZone = "America/New_York";
+  }).config.system.build.sdImage;
+
+  kodiPi3 = (boot {
+    name = "kodiPi3";
+    hardware = "raspberryPi3";
+    program = { package = "kodi"; executable = "/bin/kodi"; };
+    locale.timeZone = "America/New_York";
+  }).config.system.build.sdImage;
+
   kodiPi4 = (boot {
     name = "kodiPi4";
     hardware = "raspberryPi4";
