@@ -6,7 +6,6 @@ let
       pkgs = pkgs.buildPackages;
       raspberrypifw = pkgs.raspberrypifw;
       configTxt = pkgs.writeText "config.txt" (''
-        avoid_warnings=1
         kernel=kernel.img
         initramfs initrd followkernel
       '' + config.boot.loader.raspberryPi.firmwareConfig);

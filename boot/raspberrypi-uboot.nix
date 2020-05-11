@@ -21,9 +21,6 @@ let
 
     [pi4]
     kernel=u-boot-rpi4.bin
-
-    [all]
-    avoid_warnings=1
   '' + config.boot.loader.raspberryPi.firmwareConfig);
 in {
   imports = [ (modulesPath + "/installer/cd-dvd/sd-image.nix") ];
