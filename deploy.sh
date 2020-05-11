@@ -22,16 +22,18 @@ if ! [ -f "$dev/dev" ]; then
     exit 1
 fi
 
-shopt -s nullglob
-if [ -n "$(echo "$dev"/*/partition)" ]; then
-    echo "$dev has parititions! Reformat the table to avoid loss of data."
-    exit 1
-fi
-shopt -u nullglob
-
 dev=$(readlink -f "$dev")
 
 block="/dev/$(basename "$dev")"
+
+shopt -s nullglob
+if [ -n "$(echo "$dev"/*/partition)" ]; then
+    echo "$dev has parititions! Reformat the table to avoid loss of data."
+    echo "This can be done with:"
+    echo "$ sudo wipefs $block"
+    exit 1
+fi
+shopt -u nullglob
 
 if ! [ -b "$block" ]; then
     echo "The device file $block does not exist."
