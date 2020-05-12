@@ -106,7 +106,7 @@ in {
     raspberryPi2 = { config = "armv7l-unknown-linux-gnueabihf"; };
 
     # rpi3 and rpi4 can use either aarch64 or armv8-a (armv7l).
-    raspberryPi3 = { config = "armv7l-unknown-linux-gnueabihf"; };
+    raspberryPi3 = { config = "aarch64-unknown-linux-gnu"; };
     raspberryPi4 = { config = "aarch64-unknown-linux-gnu"; };
   }.${config.nixiosk.hardware} or (throw "No known crossSystem for ${config.nixiosk.hardware}.");
 
