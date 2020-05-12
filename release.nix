@@ -110,12 +110,13 @@ in
     locale.timeZone = "America/New_York";
   }).config.system.build.sdImage;
 
-  kodiPi1 = (boot {
-    name = "kodiPi1";
-    hardware = "raspberryPi1";
-    program = { package = "kodi"; executable = "/bin/kodi"; };
-    locale.timeZone = "America/New_York";
-  }).config.system.build.sdImage;
+  # Currently broken, missing atomics in armv6l.
+  # kodiPi1 = (boot {
+  #   name = "kodiPi1";
+  #   hardware = "raspberryPi1";
+  #   program = { package = "kodi"; executable = "/bin/kodi"; };
+  #   locale.timeZone = "America/New_York";
+  # }).config.system.build.sdImage;
 
   kodiPi2 = (boot {
     name = "kodiPi2";
