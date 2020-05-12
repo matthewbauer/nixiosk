@@ -118,11 +118,8 @@ in {
     uboot.enable = ubootEnabled;
 
     firmwareConfig = ''
-      disable_splash=1
       dtoverlay=${gpu-overlay}
-      dtparam=audio=on
       gpu_mem=${toString gpu-mem}
-      enable_uart=1
     '' + pkgs.stdenv.lib.optionalString pkgs.stdenv.hostPlatform.isAarch64 ''
       arm_64bit=1
     '';
