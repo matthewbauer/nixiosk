@@ -29,8 +29,11 @@ block="/dev/$(basename "$dev")"
 shopt -s nullglob
 if [ -n "$(echo "$dev"/*/partition)" ]; then
     echo "$dev has parititions! Reformat the table to avoid loss of data."
-    echo "This can be done with:"
+    echo
+    echo "You can remove the partitions with:"
     echo "$ sudo wipefs $block"
+    echo
+    echo "You may need to remove and reinsert the SD card to proceed."
     exit 1
 fi
 shopt -u nullglob
