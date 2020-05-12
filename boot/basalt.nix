@@ -12,6 +12,10 @@ let
   configuration = pkgs.runCommand "configuration.git" { nativeBuildInputs = [ pkgs.buildPackages.gitMinimal ]; } ''
     git clone ${builtins.path {
       path = ../.git;
+      filter = path: type: !(builtins.elem (baseNameOf path) [
+        "gitk.cache" "logs" "rr-cache" "packed-refs" "config" "description" "hooks"
+        "COMMIT_EDITMSG" "FETCH_HEAD" "ORIG_HEAD"
+      ]);
       name = "configuration-bare.git";
     }} configuration
 
