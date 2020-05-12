@@ -142,7 +142,7 @@
         soxr = null;
       });
 
-      mesa = super.mesa.override { eglPlatforms = ["wayland"]; };
+      mesa = super.mesa.override { eglPlatforms = ["wayland" "drm"]; };
 
       kodiPlain = super.kodiPlain.override {
         sambaSupport = false;
