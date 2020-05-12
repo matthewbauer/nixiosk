@@ -48,6 +48,10 @@
       type = lib.types.nullOr lib.types.str;
       default = null;
     };
+    nixiosk.raspberryPi.firmwareConfig = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+    };
   };
 
   config = {

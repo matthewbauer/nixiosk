@@ -122,7 +122,7 @@ in {
       gpu_mem=${toString gpu-mem}
     '' + pkgs.stdenv.lib.optionalString pkgs.stdenv.hostPlatform.isAarch64 ''
       arm_64bit=1
-    '';
+    '' + pkgs.stdenv.lib.optionalString (config.nixiosk.raspberryPi.firmwareConfig != null) config.nixiosk.raspberryPi.firmwareConfig;
   };
 
   fileSystems = lib.mkForce (if ubootEnabled then {
