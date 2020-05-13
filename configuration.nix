@@ -118,7 +118,6 @@
       libass = super.libass.override { encaSupport = false; };
       libproxy = super.libproxy.override { networkmanager = null; };
       enchant2 = super.enchant2.override { hspell = null; };
-      cage = super.cage.override { xwayland = null; };
 
       alsaPlugins = super.alsaPlugins.override { libjack2 = null; };
       fluidsynth = super.fluidsynth.override { libjack2 = null; };
