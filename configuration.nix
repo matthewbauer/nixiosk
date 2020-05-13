@@ -39,7 +39,7 @@
     useDefaultShell = true;
   };
 
-  systemd.services."cage@" = {
+  systemd.services."cage-tty1" = {
     serviceConfig.Restart = "always";
     environment = {
       WLR_LIBINPUT_NO_DEVICES = "1";
