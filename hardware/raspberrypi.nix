@@ -37,7 +37,7 @@ in {
     ]
     # early raspberry pis don’t all have builtin wifi, so got to
     # include tons of firmware in case something is plugged into USB
-    ++ lib.optionals (builtins.elem config.nixiosk.hardware ["raspberryPi0" "raspberryPi1" "raspberryPi2"]) [
+    ++ lib.optionals config.nixiosk.raspberryPi.enableExtraFirmware [
       pkgs.firmwareLinuxNonfree
       pkgs.intel2200BGFirmware
       pkgs.rtl8192su-firmware
