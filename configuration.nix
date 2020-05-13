@@ -176,6 +176,20 @@
         useWayland = true;
         x11Support = false;
       };
+
+      makair-control-ui = self.rustPlatform.buildRustPackage {
+        name = "makair-control-ui";
+        src = builtins.fetchTarball {
+          url = "https://github.com/makers-for-life/makair-control-ui/archive/84a395809abf86ac74b3a603a2a99141e2a9b51d.tar.gz";
+          sha256 = "0hhm44nrbg1hnjz1blq7bhnffzzjnahcsbf6rqnwq5ppn86n3iav";
+        };
+        nativeBuildInputs = with super.buildPackages; [ cmake pkgconfig python3 ];
+        buildInputs = with super; [ expat freetype xorg.libxcb fontconfig  ];
+        PKG_CONFIG = "pkg-config";
+        verifyCargoDeps = true;
+        cargoSha256 = "089j0sdmjs8x2s0vlx6ik6wpfdvfdwv2194hmrr4gykyvf785w49";
+      };
+
     }) ];
 
     # We use remote builders for things like 32-bit arm where there is
