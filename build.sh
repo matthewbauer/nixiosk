@@ -25,5 +25,5 @@ sd_drv=$(nix-instantiate --no-gc-warning --show-trace \
           --arg custom "builtins.fromJSON (builtins.readFile $custom)" \
           boot -A config.system.build.sdImage)
 
-# nix build --keep-going --no-out-link "$sd_drv"
-nix-build --keep-going --no-out-link "$sd_drv" "$@"
+# nix build --keep-going "$sd_drv"
+nix-build --keep-going "$sd_drv" "$@"
