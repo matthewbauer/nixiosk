@@ -31,12 +31,20 @@ in {
       ];
     };
 
-    # linux-firmware-nonfree is pretty big (500M+), so we don’t
-    # include it It’s not needed for Raspberry Pi itself but some
-    # addons may not work as a result
-    # enableRedistributableFirmware = true;
-
-    firmware = [ pkgs.wireless-regdb pkgs.raspberrypiWirelessFirmware ];
+    firmware = [
+      pkgs.wireless-regdb
+      pkgs.raspberrypiWirelessFirmware
+    ]
+    # early raspberry pis don’t all have builtin wifi, so got to
+    # include tons of firmware in case something is plugged into USB
+    ++ lib.optionals (builtins.elem config.nixiosk.hardware ["raspberryPi0" "raspberryPi1" "raspberryPi2"]) [
+      pkgs.firmwareLinuxNonfree
+      pkgs.intel2200BGFirmware
+      pkgs.rtl8192su-firmware
+      pkgs.rtl8723bs-firmware
+      pkgs.rtlwifi_new-firmware
+      pkgs.zd1211fw
+    ];
   };
 
   # raspberrypi-tools is kind of big but does have some helpful
