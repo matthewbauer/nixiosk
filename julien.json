@@ -1,0 +1,15 @@
+{
+    "hostName": "makair-control",
+    "hardware": "raspberryPi4",
+    "authorizedKeys": ["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDrPiRMb1GY9Vq64YMY3hNlGWZgO6X02kP+G9ng15ySCKLweY0Ycj5Frg+hQwCgMb08rDnjLiFCdVEC5QJA6wS4m7uObH22zG0Y7hyixpcZXWvoGv8t2ZEzoc1VSZsiy1/Rt6/wP0ObIhSuWE/rut5xfERoGhjqChhtC6chtZ7w1ja6jw4ETdJqLDKDHWodrYLWdoBYNjMUr7Ih9xAh3QauQbW/BEyOYDTl9Scuprqw0773m0YTf9FtQQZw6MyE8gvPTGN+6Hha8YfzBnvEyq/WQb9Te2nVHPxWpP+S+9vfVW3VvXQPc+eS6QO2YSl1Z3ZFsJeIUQlbyKtCp2yKmgy9MriAr7AT02qJxp+XreHiYatkMMVnEqZREL/JzZ5hS383P5A3qzyI6s8oH28AT6aTBQNuHloBPEQDX9MmkuIa3An/EwXcrIHpIVP+4vkwualEYr2Hm9kNMvpa7jCgqrvaJxaQ+0hksoqbgwHrbfDWNdC+BiHruRelLZmsnpnf1aBdh4Vg1Cb57CimRnj36Epot4gM9v+hw8h4GeADV+xHneNYB6wvTOh5ODALkq+2ZLDUNJ6ilSYhXub7ACGPqVfFMVAhsZhL+Qo98DCV9dm4ft4tBCpBJ2Qw/8RYksfyhW27zbn3Q9bVThNm43y/zJkAmVu5ATiX0RVEhSKCCNjMLQ== julien.tanguy@jhome.fr"],
+    "program": {
+        "package": "makair-control-ui",
+        "executable": "/bin/makair-control",
+        "args": [ "--port", "0", "--translation=fr" ]
+    },
+    "locale": {
+        "timeZone": "Europe/Paris",
+        "regDom": "EU",
+        "lang": "fr_FR.UTF-8"
+    }
+}
