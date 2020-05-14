@@ -147,6 +147,7 @@ in {
     "/" = {
       device = "/dev/disk/by-label/NIXOS_SD";
       fsType = "ext4";
+      autoResize = true;
     };
   } else {
     "/boot" = {
@@ -156,6 +157,7 @@ in {
     "/" = {
       device = "/dev/disk/by-label/NIXOS_SD";
       fsType = "ext4";
+      autoResize = true;
     };
   });
 
