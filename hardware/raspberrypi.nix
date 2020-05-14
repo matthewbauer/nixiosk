@@ -103,6 +103,13 @@ in {
     });
 
     libcec = super.libcec.override { inherit (super) libraspberrypi; };
+
+    kodiPlain = (super.kodiPlain.override {
+      vdpauSupport = false;
+      libva = null;
+      raspberryPiSupport = true;
+    });
+
   })];
 
   nixpkgs.crossSystem = {
