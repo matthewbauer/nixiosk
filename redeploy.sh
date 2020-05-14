@@ -33,7 +33,7 @@ fi
 
 sd_drv=$(nix-instantiate --no-gc-warning --show-trace \
           --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
-          boot -A config.system.build.toplevel)
+          redeploy.nix -A config.system.build.toplevel)
 
 # nix build --keep-going "$sd_drv"
 out=$(nix-build --keep-going --no-out-link "$sd_drv" "$@")
