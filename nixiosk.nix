@@ -52,6 +52,10 @@
       type = lib.types.nullOr lib.types.str;
       default = null;
     };
+    nixiosk.raspberryPi.enableExtraFirmware = lib.mkOption {
+      type = lib.types.bool;
+      default = builtins.elem config.nixiosk.hardware ["raspberryPi0" "raspberryPi1" "raspberryPi2"];
+    };
   };
 
   config = {

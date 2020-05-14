@@ -210,7 +210,8 @@ You can now eject your SD card and insert it into your Raspberry Pi.
 It will boot immediately to an Epiphany browser, loading
 en.wikipedia.org.
 
-** Redeployments
+** Redeployment
+*** Git push
 
 You can pretty easily make changes to a running system given you have
 SSH access. This is as easy as cloning the running config:
@@ -233,6 +234,34 @@ You’ll see the NixOS switch-to-configuration log in your command
 output. If all is successful, the system should immediately reflect
 your changes. If not, the output of Git should explain what went
 wrong.
+
+*** Redeploy script
+
+Some machines like the Raspberry Pi 0 are too small to rebuild
+themselves. For this, we can use the =update.sh= script. This works by
+building a configuration, then running =nix copy= to move it to the
+machine, then activating the configuration. Make sure you have plenty
+of space on your SD card so that we don’t run out of space!
+
+For example, with retropi1.json, you can do this:
+
+#+BEGIN_SRC sh
+$ ./redeploy.sh kodpi2.json kodipi2.local
+#+END_SRC
+
+** Development
+
+You can fork and make changes to this repo . A =release.nix= lists all
+of the configurations that are tested in CI. There is a =build.sh=
+script as well.
+
+It can be used like:
+
+#+BEGIN_SRC sh
+$ ./build.sh kodipi2.json
+#+END_SRC
+
+Additional arguments are passed to =nix-build=.
 
 * Technology
 
