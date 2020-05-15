@@ -45,8 +45,9 @@
       WLR_LIBINPUT_NO_DEVICES = "1";
       XDG_DATA_DIRS = "/nix/var/nix/profiles/default/share:/run/current-system/sw/share";
       XDG_CONFIG_DIRS = "/nix/var/nix/profiles/default/etc/xdg:/run/current-system/sw/etc/xdg";
-      # GDK_PIXBUF_MODULE_FILE = config.environment.variables.GDK_PIXBUF_MODULE_FILE;
       WEBKIT_DISABLE_COMPOSITING_MODE = "1";
+    } // lib.optionalAttrs (config.environment.variables ? GDK_PIXBUF_MODULE_FILE) {
+      GDK_PIXBUF_MODULE_FILE = config.environment.variables.GDK_PIXBUF_MODULE_FILE;
     };
   };
 
