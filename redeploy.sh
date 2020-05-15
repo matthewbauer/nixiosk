@@ -3,6 +3,8 @@
 
 set -eu -o pipefail
 
+NIXIOSK="$PWD"
+
 if [ "$1" = --help ]; then
     echo Usage: "$0" retropi1.json retropi1.local
 fi
@@ -33,7 +35,7 @@ fi
 
 sd_drv=$(nix-instantiate --no-gc-warning --show-trace \
           --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
-          redeploy.nix -A config.system.build.toplevel)
+          "$NIXIOSK/redeploy.nix" -A config.system.build.toplevel)
 
 # nix build --keep-going "$sd_drv"
 out=$(nix-build --keep-going --no-out-link "$sd_drv" "$@")
