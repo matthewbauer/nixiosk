@@ -20,11 +20,16 @@ if ! [ -f "$custom" ]; then
     exit 1
 fi
 
-host="$(jq -r .hostName "$custom").local"
+host=
 if [ "$#" -gt 0 ]; then
-    host="$1"
-    shift
-else
+    if [ "${1:0:1}" != "-" ]; then
+        host="$1"
+        shift
+    fi
+fi
+
+if [ -z "$host" ]; then
+    host="$(jq -r .hostName "$custom").local"
     echo "No host provided, assuming $host"
 fi
 
