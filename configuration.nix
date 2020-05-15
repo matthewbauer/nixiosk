@@ -1,6 +1,6 @@
 { lib, pkgs, config, ...}: {
 
-  imports = [ ./nixiosk.nix ./hardware/raspberrypi.nix ./hardware/ova.nix ];
+  imports = [ ./custom.nix ./hardware/raspberrypi.nix ./hardware/ova.nix ];
 
   hardware.opengl.enable = true;
   hardware.bluetooth.enable = true;
