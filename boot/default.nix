@@ -6,7 +6,7 @@
       raspberryPi0 = ./raspberrypi-uboot.nix;
       raspberryPi1 = ./raspberrypi-uboot.nix;
       raspberryPi2 = ./raspberrypi-uboot.nix;
-      raspberryPi3 = ./raspberrypi-uboot.nix;
+      raspberryPi3 = ./raspberrypi.nix;
       raspberryPi4 = ./raspberrypi.nix;
       ova = ./ova.nix;
       iso = ./iso.nix;

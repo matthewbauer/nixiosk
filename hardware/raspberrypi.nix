@@ -1,8 +1,9 @@
 { lib, pkgs, config, ... }:
 
 let
-  # u-boot / extlinux doesn’t work on raspberry pi 4
-  ubootEnabled = !(builtins.elem config.nixiosk.hardware [ "raspberryPi4" ]);
+  # u-boot / extlinux doesn’t work on raspberry pi 4, raspberry pi 3
+  # looks unstable
+  ubootEnabled = !(builtins.elem config.nixiosk.hardware [ "raspberryPi3" "raspberryPi4" ]);
 
   # vc4-kms and vc4-fkms-v3d seem to work better on different hardware
   # unclear why that is. Manually tested each on my rpi0 and rpi4.
