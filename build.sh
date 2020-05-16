@@ -22,7 +22,7 @@ if ! [ -f "$custom" ]; then
 fi
 
 sd_drv=$(nix-instantiate --no-gc-warning --show-trace \
-          --arg custom "builtins.fromJSON (builtins.readFile $custom)" \
+          --arg custom "builtins.fromJSON (builtins.readFile $(realpath $custom))" \
           "$NIXIOSK/boot" -A config.system.build.sdImage)
 
 # nix build --keep-going "$sd_drv"
