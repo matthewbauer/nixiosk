@@ -49,8 +49,10 @@ shift
 
 custom=./nixiosk.json
 if [ "$#" -gt 0 ]; then
-    custom="$1"
-    shift
+    if [ "${1:0:1}" != "-" ]; then
+        custom="$1"
+        shift
+    fi
 fi
 
 if ! [ -f "$custom" ]; then
