@@ -77,7 +77,7 @@ in {
         raspberryPi0 = "256M";
         raspberryPi1 = "256M";
         raspberryPi2 = "256M";
-        raspberryPi3 = "512M";
+        raspberryPi3 = "256M";
         raspberryPi4 = "512M";
       }.${config.nixiosk.hardware} or (throw "unknown raspberry pi system (${config.nixiosk.hardware})")}"
 
