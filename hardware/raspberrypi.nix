@@ -11,13 +11,6 @@ let
                 then "vc4-kms-v3d"
                 else "vc4-fkms-v3d";
 
-  gpu-mem = {
-    raspberryPi0 = 120;
-    raspberryPi1 = 120;
-    raspberryPi2 = 120;
-    raspberryPi3 = 220;
-    raspberryPi4 = 320;
-  }.${config.nixiosk.hardware or ""} or 320;
 in {
 
   config = lib.mkIf (builtins.elem config.nixiosk.hardware ["raspberryPi0" "raspberryPi1" "raspberryPi2" "raspberryPi3" "raspberryPi4"]) {
@@ -140,7 +133,6 @@ in {
 
     firmwareConfig = ''
       dtoverlay=${gpu-overlay}
-      gpu_mem=${toString gpu-mem}
     '' + pkgs.stdenv.lib.optionalString pkgs.stdenv.hostPlatform.isAarch64 ''
       arm_64bit=1
     '' + pkgs.stdenv.lib.optionalString (config.nixiosk.raspberryPi.firmwareConfig != null) config.nixiosk.raspberryPi.firmwareConfig;
