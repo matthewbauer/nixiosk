@@ -76,8 +76,6 @@ in {
 
       # avoids https://github.com/raspberrypi/linux/issues/3331
       ++ lib.optional ubootEnabled "initcall_blacklist=bcm2708_fb_init";
-    loader.grub.enable = false;
-    loader.generic-extlinux-compatible.enable = true;
     initrd.kernelModules = [ "vc4" "bcm2835_dma" "i2c_bcm2835" "bcm2835_rng" ];
   };
 
@@ -119,6 +117,7 @@ in {
     raspberryPi4 = { config = "aarch64-unknown-linux-gnu"; };
   }.${config.nixiosk.hardware} or (throw "No known crossSystem for ${config.nixiosk.hardware}.");
 
+  boot.loader.grub.enable = false;
   boot.loader.raspberryPi = {
     enable = true;
     version = {
