@@ -45,10 +45,6 @@ in {
   # debugging tools when things go wrong, especially with graphics.
   # environment.systemPackages = [ pkgs.raspberrypi-tools ];
 
-  # tty serial port, unused right now, but may be useful for
-  # debugging.
-  console.extraTTYs = [ "ttyAMA0" ];
-
   boot = {
     tmpOnTmpfs = true;
     kernelPackages = {
