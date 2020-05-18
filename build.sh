@@ -1,5 +1,5 @@
 #!/usr/bin/env nix-shell
-#!nix-shell -i bash -p rsync coreutils nix
+#!nix-shell -i bash -p coreutils nix
 
 set -eu -o pipefail
 
