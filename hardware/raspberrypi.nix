@@ -58,20 +58,23 @@ in {
       # appparently this avoids some common bug in Raspberry Pi.
       "dwc_otg.lpm_enable=0"
 
-      # avoids https://github.com/raspberrypi/firmware/issues/1247
-      "cma=${{
-        raspberryPi0 = "256M";
-        raspberryPi1 = "256M";
-        raspberryPi2 = "256M@512M";
-        raspberryPi3 = "256M@512M";
-        raspberryPi4 = "512M";
-      }.${config.nixiosk.hardware} or (throw "unknown raspberry pi system (${config.nixiosk.hardware})")}"
-
       "plymouth.ignore-serial-consoles"
     ]
 
-      # avoids https://github.com/raspberrypi/linux/issues/3331
-      ++ lib.optional ubootEnabled "initcall_blacklist=bcm2708_fb_init";
+      ++ lib.optionals ubootEnabled [
+        # avoids https://github.com/raspberrypi/linux/issues/3331
+        "initcall_blacklist=bcm2708_fb_init"
+
+        # avoids https://github.com/raspberrypi/firmware/issues/1247
+        "cma=${{
+          raspberryPi0 = "256M";
+          raspberryPi1 = "256M";
+          raspberryPi2 = "256M@512M";
+          raspberryPi3 = "256M@512M";
+          raspberryPi4 = "512M";
+        }.${config.nixiosk.hardware} or (throw "unknown raspberry pi system (${config.nixiosk.hardware})")}"
+
+      ];
     initrd.kernelModules = [ "vc4" "bcm2835_dma" "i2c_bcm2835" "bcm2835_rng" ];
   };
 
