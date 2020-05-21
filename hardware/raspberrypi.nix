@@ -131,8 +131,6 @@ in {
 
     firmwareConfig = ''
       dtoverlay=${gpu-overlay}
-    '' + pkgs.stdenv.lib.optionalString pkgs.stdenv.hostPlatform.isAarch64 ''
-      arm_64bit=1
     '' + pkgs.stdenv.lib.optionalString (config.nixiosk.raspberryPi.firmwareConfig != null) config.nixiosk.raspberryPi.firmwareConfig;
   };
 
