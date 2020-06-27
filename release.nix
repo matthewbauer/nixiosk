@@ -7,7 +7,11 @@ let
     custom = {
       inherit hardware program locale;
       hostName = name;
-      localSystem = { system = builtins.currentSystem; };
+      localSystem = {
+        system = if builtins.currentSystem == "x86_64-darwin"
+                 then "x86_64-linux"
+                 else builtins.currentSystem;
+      };
     };
   };
 
@@ -19,7 +23,11 @@ let
           custom = {
             inherit hardware program locale;
             hostName = name;
-            localSystem = { system = builtins.currentSystem; };
+            localSystem = {
+              system = if builtins.currentSystem == "x86_64-darwin"
+                       then "x86_64-linux"
+                       else builtins.currentSystem;
+            };
           }; }; })
     ];
   };
