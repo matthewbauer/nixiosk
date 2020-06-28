@@ -15,37 +15,38 @@ if [ "$1" = --help ]; then
 fi
 
 dev="$1"
-if ! [ -f "$dev/dev" ]; then
-    dev="/sys/block/$(echo "$1" | sed s,/dev/,,)"
-fi
-
-if ! [ -f "$dev/dev" ]; then
-    echo "$dev is not a valid device."
-    exit 1
-fi
-
+shift
 dev=$(readlink -f "$dev")
 
 block="/dev/$(basename "$dev")"
 
-shopt -s nullglob
-if [ -n "$(echo "$dev"/*/partition)" ]; then
-    echo "$dev has parititions! Reformat the table to avoid loss of data."
-    echo
-    echo "You can remove the partitions with:"
-    echo "$ sudo wipefs $block"
-    echo
-    echo "You may need to remove and reinsert the SD card to proceed."
-    exit 1
-fi
-shopt -u nullglob
-
-if ! [ -b "$block" ]; then
+if ! [ -b "$block" ] && ! [[ "$(basename $block)" =~ rdisk* ]]; then
     echo "The device file $block does not exist."
     exit 1
 fi
 
-shift
+if [ "$(uname)" = Linux ]; then
+    if ! [ -f "$dev/dev" ]; then
+        dev="/sys/block/$(echo "$1" | sed s,/dev/,,)"
+    fi
+
+    if ! [ -f "$dev/dev" ]; then
+        echo "$dev is not a valid device."
+        exit 1
+    fi
+
+    shopt -s nullglob
+    if [ -n "$(echo "$dev"/*/partition)" ]; then
+        echo "$dev has parititions! Reformat the table to avoid loss of data."
+        echo
+        echo "You can remove the partitions with:"
+        echo "$ sudo wipefs $block"
+        echo
+        echo "You may need to remove and reinsert the SD card to proceed."
+        exit 1
+    fi
+    shopt -u nullglob
+fi
 
 custom=./nixiosk.json
 if [ "$#" -gt 0 ]; then
