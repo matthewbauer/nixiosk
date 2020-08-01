@@ -61,7 +61,7 @@ in
     name = "retroOva";
     hardware = "ova";
     program = { package = "retroarch"; executable = "/bin/retroarch"; };
-  }).config.system.build.toplevel;
+  }).config.system.build.virtualBoxOVA;
 
   retroIso = (boot {
     name = "retroIso";
@@ -152,5 +152,23 @@ in
     hardware = "ova";
     program = { package = "kodi"; executable = "/bin/kodi"; };
   }).config.system.build.toplevel;
+
+  kodiPxeRamDisk = (boot {
+    name = "kodiPxe";
+    hardware = "pxe";
+    program = { package = "kodi"; executable = "/bin/kodi"; };
+  }).config.system.build.netbootRamdisk;
+
+  kodiPxeScript = (boot {
+    name = "kodiPxe";
+    hardware = "pxe";
+    program = { package = "kodi"; executable = "/bin/kodi"; };
+  }).config.system.build.netbootIpxeScript;
+
+  kodiPxeKernel = (boot {
+    name = "kodiPxe";
+    hardware = "pxe";
+    program = { package = "kodi"; executable = "/bin/kodi"; };
+  }).config.system.build.kernel;
 
 }

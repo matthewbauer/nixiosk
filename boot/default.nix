@@ -10,6 +10,7 @@
       raspberryPi4 = ./raspberrypi.nix;
       ova = ./ova.nix;
       iso = ./iso.nix;
+      pxe = ./pxe.nix;
     }.${custom.hardware} or (throw "No known booter for ${custom.hardware}."))
     ./basalt.nix
     ../configuration.nix

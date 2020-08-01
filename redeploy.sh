@@ -17,7 +17,7 @@ if [ "$#" -gt 0 ]; then
 fi
 
 if ! [ -f "$custom" ]; then
-    echo No "$custom" provided. Consult README.md for a template to use.
+    echo No "$custom" provided. Consult README.org for a template to use.
     exit 1
 fi
 
