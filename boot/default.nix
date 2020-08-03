@@ -11,6 +11,7 @@
       ova = ./ova.nix;
       iso = ./iso.nix;
       pxe = ./pxe.nix;
+      qemu = ./qemu.nix;
     }.${custom.hardware} or (throw "No known booter for ${custom.hardware}."))
     ./basalt.nix
     ../configuration.nix
