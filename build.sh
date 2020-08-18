@@ -1,5 +1,5 @@
 #!/usr/bin/env nix-shell
-#!nix-shell -i bash -p coreutils nix
+#!nix-shell -i bash -p coreutils nix jq
 
 set -eu -o pipefail
 
@@ -17,7 +17,13 @@ fi
 
 if ! [ -f "$custom" ]; then
     echo "No custom file provided, $custom does not exist."
-    echo "Consult README.md for a template to use."
+    echo "Consult README.org for a template to use."
+    exit 1
+fi
+
+if ! [[ "$(jq -r .hardware $custom)" =~ "raspberryPi*" ]]; then
+    echo "Config $custom must generate an sd image, change hardware value"
+    echo "Currently only raspberryPi systems can generate bootable sd images"
     exit 1
 fi
 
