@@ -36,9 +36,6 @@ if ! test -e "$NIX_DISK_IMAGE"; then
   qemu-img create -f qcow2 "$NIX_DISK_IMAGE" 512M
 fi
 
-TMPDIR=$(mktemp -d nix-vm.XXXXXXXXXX --tmpdir)
-cd $TMPDIR
-
 qemu-kvm -cpu host -name $hostName \
   -drive index=0,id=drive0,if=none,file=$NIX_DISK_IMAGE \
   -device virtio-blk-pci,werror=report,drive=drive0 \
