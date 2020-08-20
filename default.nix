@@ -1,4 +1,3 @@
-(import (fetchTarball https://github.com/edolstra/flake-compat/archive/master.tar.gz) {
+(import (fetchTarball https://github.com/matthewbauer/flake-compat/archive/lockless-flake.tar.gz) {
   src = ./.;
 }).defaultNix
-
