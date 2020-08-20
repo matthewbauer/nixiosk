@@ -1,4 +1,4 @@
-{ pkgs, config, ... }:
+{ pkgs, lib, config, ... }:
 
 let
 
@@ -35,7 +35,7 @@ let
 
 in {
 
-  boot.postBootCommands = ''
+  boot.postBootCommands = lib.optionalString (builtins.pathExists ../.git) ''
     if ! [ -d /etc/nixos/configuration.git ]; then
       mkdir -p /etc/nixos
       ${git}/bin/git clone --bare ${configuration} /etc/nixos/configuration.git
