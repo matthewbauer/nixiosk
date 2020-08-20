@@ -36,12 +36,16 @@ if ! test -e "$NIX_DISK_IMAGE"; then
   qemu-img create -f qcow2 "$NIX_DISK_IMAGE" 512M
 fi
 
-qemu-kvm -cpu host -name $hostName \
+mkdir -p $TMPDIR/xchg
+
+qemu-kvm -name $hostName \
   -drive index=0,id=drive0,if=none,file=$NIX_DISK_IMAGE \
   -device virtio-blk-pci,werror=report,drive=drive0 \
   -device virtio-net,netdev=vmnic -netdev user,id=vmnic \
   -device virtio-rng-pci \
   -virtfs local,path=/nix/store,security_model=none,mount_tag=store \
+  -virtfs local,path=$TMPDIR/xchg,security_model=none,mount_tag=xchg \
+  -virtfs local,path=$TMPDIR/xchg,security_model=none,mount_tag=shared \
   -usb -device usb-tablet,bus=usb-bus.0 \
   -kernel $system/kernel -initrd $system/initrd \
   -append "$(cat $system/kernel-params) init=$system/init ttyS0,115200n8 tty0" \
