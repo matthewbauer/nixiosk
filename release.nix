@@ -147,11 +147,11 @@ in
     locale.timeZone = "America/New_York";
   }).config.system.build.toplevel;
 
-  kodiOva = (boot {
-    name = "kodiOva";
-    hardware = "ova";
-    program = { package = "kodi"; executable = "/bin/kodi"; };
-  }).config.system.build.toplevel;
+  # kodiOva = (boot {
+  #   name = "kodiOva";
+  #   hardware = "ova";
+  #   program = { package = "kodi"; executable = "/bin/kodi"; };
+  # }).config.system.build.toplevel;
 
   kodiPxeRamDisk = (boot {
     name = "kodiPxe";
