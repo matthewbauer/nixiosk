@@ -5,13 +5,9 @@ set -eu -o pipefail
 
 NIXIOSK="$PWD"
 
-if [ "$#" -lt 1 ]; then
-    echo Need to provide device path for SD card
-    exit 1
-fi
-
-if [ "$1" = --help ]; then
+if [ "$#" -eq 0 ] || [ "$1" = --help ]; then
     echo Usage: "$0" sdcard nixiosk.json.sample
+    exit 1
 fi
 
 dev="$1"
