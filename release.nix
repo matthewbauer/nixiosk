@@ -57,11 +57,11 @@ in
     locale.timeZone = "America/New_York";
   }).config.system.build.toplevel;
 
-  retroOva = (boot {
-    name = "retroOva";
-    hardware = "ova";
-    program = { package = "retroarch"; executable = "/bin/retroarch"; };
-  }).config.system.build.virtualBoxOVA;
+  # retroOva = (boot {
+  #   name = "retroOva";
+  #   hardware = "ova";
+  #   program = { package = "retroarch"; executable = "/bin/retroarch"; };
+  # }).config.system.build.virtualBoxOVA;
 
   retroIso = (boot {
     name = "retroIso";
