@@ -52,7 +52,7 @@ qemu-kvm -name $hostName -m 384 \
   -virtfs local,path=/nix/store,security_model=none,mount_tag=store \
   -virtfs local,path=${XCHG_DIR:-./xchg},security_model=none,mount_tag=xchg \
   -virtfs local,path=${XCHG_DIR:-./xchg},security_model=none,mount_tag=shared \
-  -usb -device usb-tablet,bus=usb-bus.0 \
+  -usb -device usb-tablet \
   -kernel $system/kernel -initrd $system/initrd \
   -append "$(cat $system/kernel-params) init=$system/init ttyS0,115200n8 tty0" \
   "$@"
