@@ -12,4 +12,6 @@
     };
   };
 
+  virtualisation.writableStore = false;
+
 }
