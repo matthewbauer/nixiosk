@@ -43,7 +43,7 @@ fi
 
 mkdir -p ${XCHG_DIR:-./xchg}
 
-qemu-kvm -name $hostName -m 384 \
+qemu-kvm -cpu max -name $hostName -m 384 \
   -vga virtio \
   -drive index=0,id=drive0,if=none,file=$NIX_DISK_IMAGE \
   -device virtio-blk-pci,werror=report,drive=drive0 \
