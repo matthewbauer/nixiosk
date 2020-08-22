@@ -22,15 +22,19 @@ if ! [ -f "$custom" ]; then
     exit 1
 fi
 
-if ! [[ "$(jq -r .hardware $custom)" =~ "raspberryPi*" ]]; then
-    echo "Config $custom must generate an sd image, change hardware value"
-    echo "Currently only raspberryPi systems can generate bootable sd images"
-    exit 1
-fi
+hardware="$(jq -r .hardware $custom)"
+target=
+case "$hardware" in
+    qemu-no-virtfs) target=config.system.build.qcow2 ;;
+    qemu) target=config.system.build.toplevel ;;
+    raspberryPi*) target=config.system.build.sdImage ;;
+    pxe) target=config.system.build.netbootIpxeScript ;;
+    iso) target=config.system.build.isoImage ;;
+    ova) target=config.system.build.virtualBoxOVA ;;
+    *) echo "hardware $hardware is not recognized"
+       exit 1 ;;
+esac
 
-sd_drv=$(nix-instantiate --no-gc-warning --show-trace \
+nix-build "$NIXIOSK/boot" --keep-going \
           --arg custom "builtins.fromJSON (builtins.readFile $(realpath $custom))" \
-          "$NIXIOSK/boot" -A config.system.build.sdImage)
-
-# nix build --keep-going "$sd_drv"
-nix-build --keep-going "$sd_drv" "$@"
+          -A $target "$@"
