@@ -159,6 +159,8 @@ in {
     };
   });
 
+  networking.wireless.enable = true;
+
   };
 
 }

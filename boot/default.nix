@@ -13,6 +13,7 @@
       iso = ./iso.nix;
       pxe = ./pxe.nix;
       qemu = ./qemu.nix;
+      qemu-no-virtfs = ./qemu-no-virtfs.nix;
     }.${custom.hardware} or (throw "No known booter for ${custom.hardware}."))
     ./basalt.nix
     ./flake.nix

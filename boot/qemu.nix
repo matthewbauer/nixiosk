@@ -2,9 +2,14 @@
 
   imports = [ (modulesPath + "/virtualisation/qemu-vm.nix") ];
 
-  system.build.qcow2 = import (pkgs.path + "/nixos/lib/make-disk-image.nix") {
-    inherit lib config pkgs;
-    format = "qcow2";
+  fileSystems = lib.mkOverride 5 {
+    "/".device = "/dev/vda";
+    "/nix/store" = {
+      device = "store";
+      fsType = "9p";
+      options = [ "trans=virtio" "version=9p2000.L" "cache=loose" ];
+      neededForBoot = true;
+    };
   };
 
 }

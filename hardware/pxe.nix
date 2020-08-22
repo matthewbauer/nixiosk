@@ -42,6 +42,8 @@
 
     hardware.enableRedistributableFirmware = true;
 
+    networking.wireless.enable = true;
+
   };
 
 }

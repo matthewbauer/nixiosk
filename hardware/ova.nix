@@ -6,11 +6,6 @@
     users.users.kiosk.extraGroups = [ "vboxsf" ];
     powerManagement.enable = false;
 
-    swapDevices = [{
-      device = "/var/swap";
-      size = 2048;
-    }];
-
     virtualisation.virtualbox.guest.enable = true;
 
     boot.growPartition = true;

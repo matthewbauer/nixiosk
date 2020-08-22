@@ -5,6 +5,7 @@
     ./hardware/raspberrypi.nix
     ./hardware/ova.nix
     ./hardware/pxe.nix
+    ./hardware/qemu.nix
   ];
 
   hardware.opengl.enable = true;
@@ -200,10 +201,10 @@
   boot.consoleLogLevel = 3;
   boot.kernelParams = [ "rd.udev.log_priority=3" "vt.global_cursor_default=0" ];
 
-  networking = {
-    wireless.enable = true;
-    dhcpcd.extraConfig = "timeout 0";
-  };
+  networking.dhcpcd.extraConfig = ''
+    timeout 0
+    noarp
+  '';
 
   security.polkit.extraConfig = ''
     polkit.addRule(function(action, subject) {
