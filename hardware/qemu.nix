@@ -1,6 +1,6 @@
 { lib, pkgs, config, ... }: {
 
-  config = lib.mkIf (builtins.elem config.nixiosk.hardware ["qemu-no-virtfs"]) {
+  config = lib.mkIf (builtins.elem config.nixiosk.hardware ["qemu" "qemu-no-virtfs"]) {
 
     boot.loader.grub.device = "/dev/vda";
 
@@ -16,8 +16,8 @@
     services.qemuGuest.enable = true;
     services.timesyncd.enable = false;
 
-    boot.initrd.availableKernelModules = [ "virtio_net" "virtio_pci" "virtio_mmio" "virtio_blk" "virtio_scsi" "9p" "9pnet_virtio" ];
-    boot.initrd.kernelModules = [ "virtio_balloon" "virtio_console" "virtio_rng" ];
+    boot.initrd.availableKernelModules = [ "virtio_net" "virtio_pci" "virtio_blk" "9p" "9pnet_virtio" ];
+    boot.initrd.kernelModules = [ "virtio_balloon" "virtio_console" "virtio_rng" "virtio_gpu" ];
 
     boot.initrd.postDeviceCommands = ''
       # Set the system time from the hardware clock to work around a

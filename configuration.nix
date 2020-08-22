@@ -32,8 +32,8 @@
   services.udev.packages = [ pkgs.libinput.out ];
 
   # nix.package = pkgs.nixUnstable;
-  nix.binaryCachePublicKeys = ["https://nixiosk.cachix.org"];
-  nix.binaryCaches = ["nixiosk.cachix.org-1:zcztl5w5OEAd6KKqWvrlfH7zopGsalSg/vJp3fUJDMk="];
+  nix.binaryCachePublicKeys = ["nixiosk.cachix.org-1:pyzRzjCUhw0r+moXnSklZwwI/gFk+Z+A2ofmEhOf7Sc="];
+  nix.binaryCaches = ["https://nixiosk.cachix.org"];
 
   services.openssh = {
     enable = true;
@@ -198,7 +198,6 @@
   };
 
   boot.plymouth.enable = true;
-  boot.consoleLogLevel = 3;
   boot.kernelParams = [ "rd.udev.log_priority=3" "vt.global_cursor_default=0" ];
 
   networking.dhcpcd.extraConfig = ''

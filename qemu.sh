@@ -65,11 +65,12 @@ else
     qemuFlags+=" -device virtio-blk-pci,werror=report,drive=drive0"
 fi
 
-qemu-kvm -cpu max -name $hostName -m 384 \
+qemu-kvm -cpu max -name "$hostName" -m 384 \
   -vga virtio \
-  -device virtio-net,netdev=vmnic -netdev user,id=vmnic \
+  -nic user \
   -device virtio-rng-pci \
-  -usb -device usb-tablet \
+  -device virtio-tablet-pci \
+  -device virtio-keyboard-pci \
   -kernel $system/kernel -initrd $system/initrd \
-  -append "$(cat $system/kernel-params) init=$system/init ttyS0,115200n8 tty0" \
+  -append "$(cat $system/kernel-params) init=$system/init" \
   $qemuFlags "$@"
