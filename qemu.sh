@@ -81,6 +81,7 @@ qemu-kvm -name "$hostName" -m 384 \
   -device virtio-rng-pci \
   -device virtio-tablet-pci \
   -device virtio-keyboard-pci \
+  -soundhw all \
   -kernel $system/kernel -initrd $system/initrd \
   -append "$(cat $system/kernel-params) init=$system/init" \
   $qemuFlags "$@"
