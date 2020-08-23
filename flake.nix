@@ -13,12 +13,10 @@
       retroPi0 = {
         hardware = "raspberryPi0";
         program = { package = "retroarch"; executable = "/bin/retroarch"; };
-        locale.timeZone = "America/New_York";
       };
       retroPi4 = {
         hardware = "raspberryPi4";
         program = { package = "retroarch"; executable = "/bin/retroarch"; };
-        locale.timeZone = "America/New_York";
       };
       retroIso = {
         hardware = "iso";
@@ -31,57 +29,46 @@
       epiphanyPi0 = {
         hardware = "raspberryPi0";
         program = { package = "epiphany"; executable = "/bin/epiphany"; };
-        locale.timeZone = "America/New_York";
       };
       epiphanyPi4 = {
         hardware = "raspberryPi4";
         program = { package = "epiphany"; executable = "/bin/epiphany"; };
-        locale.timeZone = "America/New_York";
       };
       epiphanyQemu = {
         hardware = "qemu";
         program = { package = "epiphany"; executable = "/bin/epiphany"; };
-        locale.timeZone = "America/New_York";
       };
       demoPi0 = {
         hardware = "raspberryPi0";
         program = { package = "gtk3"; executable = "/bin/gtk3-demo"; };
-        locale.timeZone = "America/New_York";
       };
       demoPi1 = {
         hardware = "raspberryPi1";
         program = { package = "gtk3"; executable = "/bin/gtk3-demo"; };
-        locale.timeZone = "America/New_York";
       };
       demoPi2 = {
         hardware = "raspberryPi2";
         program = { package = "gtk3"; executable = "/bin/gtk3-demo"; };
-        locale.timeZone = "America/New_York";
       };
       demoPi3 = {
         hardware = "raspberryPi3";
         program = { package = "gtk3"; executable = "/bin/gtk3-demo"; };
-        locale.timeZone = "America/New_York";
       };
       demoPi4 = {
         hardware = "raspberryPi4";
         program = { package = "gtk3"; executable = "/bin/gtk3-demo"; };
-        locale.timeZone = "America/New_York";
       };
       kodiPi2 = {
         hardware = "raspberryPi2";
         program = { package = "kodi"; executable = "/bin/kodi"; };
-        locale.timeZone = "America/New_York";
       };
       kodiPi3 = {
         hardware = "raspberryPi3";
         program = { package = "kodi"; executable = "/bin/kodi"; };
-        locale.timeZone = "America/New_York";
       };
       kodiPi4 = {
         hardware = "raspberryPi4";
         program = { package = "kodi"; executable = "/bin/kodi"; };
-        locale.timeZone = "America/New_York";
       };
       kodiPxe = {
         hardware = "pxe";
