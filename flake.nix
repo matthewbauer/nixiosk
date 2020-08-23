@@ -154,6 +154,13 @@
         hardware = "pxe";
         program = { package = "kodi"; executable = "/bin/kodi"; };
       }).config.system.build.kernel;
+
+      exampleQemu = (self.lib.makeBootableSystem {
+        pkgs = nixpkgsFor.${system};
+        custom = builtins.fromJSON (builtins.readFile ./nixiosk.json.sample);
+        inherit system;
+      }).config.system.build.qcow2;
+
     });
 
   };
