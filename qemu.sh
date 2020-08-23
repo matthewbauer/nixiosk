@@ -65,7 +65,17 @@ else
     qemuFlags+=" -device virtio-blk-pci,werror=report,drive=drive0"
 fi
 
-qemu-kvm -cpu max -name "$hostName" -m 384 \
+if [ "$(uname)" = Darwin ]; then
+    qemuFlags+=" -accel hvf"
+else
+    qemuFlags+=" -cpu max"
+fi
+
+if [ "$(uname)" = Linux ] && ! [ -e /dev/kvm ]; then
+    echo "Warning: qemu will be very slow without Linux KVM support"
+fi
+
+qemu-kvm -name "$hostName" -m 384 \
   -vga virtio \
   -nic user \
   -device virtio-rng-pci \
