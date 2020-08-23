@@ -159,6 +159,8 @@
       };
 
     }) (self: super: {
+      grub2 = super.grub2.override { zfsSupport = false; };
+
       busybox-sandbox-shell = super.busybox-sandbox-shell.override { inherit (super) busybox; };
 
       retroarchBare = (super.retroarchBare.override {
