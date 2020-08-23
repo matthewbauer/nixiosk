@@ -175,12 +175,12 @@
       # provide some here that are known to work well. Feel free to
       # include more that are known to work here. To add more cores,
       # or update existing core, contribute them upstream in Nixpkgs
-      retroarch = super.retroarch.override {
+      retroarch = if (builtins.elem super.stdenv.hostPlatform.parsed.cpu.name ["armv6l" "aarch64"]) then super.retroarch.override {
         cores = {
           armv6l = with super.libretro; [ snes9x stella fbalpha2012 fceumm vba-next vecx handy prboom bluemsx ];
           aarch64 = with super.libretro; [ atari800 beetle-gba beetle-lynx beetle-ngp beetle-pce-fast beetle-pcfx beetle-psx beetle-psx-hw beetle-saturn beetle-saturn-hw beetle-snes beetle-supergrafx beetle-vb beetle-wswan bluemsx bsnes-mercury citra desmume desmume2015 dosbox eightyone fbalpha2012 fbneo fceumm fmsx freeintv gambatte genesis-plus-gx gpsp gw handy hatari mame2000 mame2003 mame2003-plus mesen meteor mgba mupen64plus neocd nestopia o2em opera parallel-n64 pcsx_rearmed ppsspp prboom prosystem quicknes sameboy smsplus-gx snes9x snes9x2002 snes9x2005 snes9x2010 stella stella2014 tgbdual vba-m vba-next vecx virtualjaguar yabause ];
         }.${super.stdenv.hostPlatform.parsed.cpu.name} or [];
-      };
+      } else super.retroarchBare;
 
       kodiPlain = super.kodiPlain.override {
         useWayland = true;
