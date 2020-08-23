@@ -24,6 +24,10 @@
         hardware = "iso";
         program = { package = "retroarch"; executable = "/bin/retroarch"; };
       };
+      retroQemu = {
+        hardware = "qemu";
+        program = { package = "retroarch"; executable = "/bin/retroarch"; };
+      };
       epiphanyPi0 = {
         hardware = "raspberryPi0";
         program = { package = "epiphany"; executable = "/bin/epiphany"; };
@@ -31,6 +35,11 @@
       };
       epiphanyPi4 = {
         hardware = "raspberryPi4";
+        program = { package = "epiphany"; executable = "/bin/epiphany"; };
+        locale.timeZone = "America/New_York";
+      };
+      epiphanyQemu = {
+        hardware = "qemu";
         program = { package = "epiphany"; executable = "/bin/epiphany"; };
         locale.timeZone = "America/New_York";
       };
