@@ -56,6 +56,14 @@ else
     fi
 fi
 
+cleanup() {
+    if [ "$hardware" = qemu-no-virtfs ]; then
+        rm -f $NIX_DISK_IMAGE
+    fi
+}
+
+trap cleanup EXIT
+
 qemuFlags=
 if [ "$hardware" = qemu-no-virtfs ]; then
     qemuFlags+=" -drive if=virtio,file=$NIX_DISK_IMAGE,werror=report"
@@ -75,13 +83,15 @@ if [ "$(uname)" = Linux ] && ! [ -e /dev/kvm ]; then
     echo "Warning: qemu will be very slow without Linux KVM support"
 fi
 
-qemu-kvm -name "$hostName" -m 384 \
+qemu-kvm -name "$hostName" -m 1024 \
   -vga virtio \
   -nic user \
   -device virtio-rng-pci \
   -device virtio-tablet-pci \
   -device virtio-keyboard-pci \
+  -device virtio-balloon \
   -soundhw all \
+  -show-cursor \
   -kernel $system/kernel -initrd $system/initrd \
   -append "$(cat $system/kernel-params) init=$system/init" \
   $qemuFlags "$@"

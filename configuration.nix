@@ -52,6 +52,7 @@
       XDG_DATA_DIRS = "/nix/var/nix/profiles/default/share:/run/current-system/sw/share";
       XDG_CONFIG_DIRS = "/nix/var/nix/profiles/default/etc/xdg:/run/current-system/sw/etc/xdg";
       WEBKIT_DISABLE_COMPOSITING_MODE = "1";
+      NO_AT_BRIDGE = "1";
     } // lib.optionalAttrs (config.environment.variables ? GDK_PIXBUF_MODULE_FILE) {
       GDK_PIXBUF_MODULE_FILE = config.environment.variables.GDK_PIXBUF_MODULE_FILE;
     };
@@ -186,6 +187,10 @@
         useWayland = true;
         x11Support = false;
       };
+
+      cog = super.cog.overrideAttrs (o: {
+        cmakeFlags = (o.cmakeFlags or []) ++ ["-DCOG_DBUS_SYSTEM_BUS=ON" "-DCOG_DBUS_OWN_USER=kiosk"];
+      });
     }) ];
 
     # We use remote builders for things like 32-bit arm where there is

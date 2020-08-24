@@ -30,6 +30,8 @@
 
     powerManagement.enable = false;
 
+    hardware.firmware = [ pkgs.wireless-regdb ];
+
   };
 
 }

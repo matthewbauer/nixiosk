@@ -2,8 +2,8 @@
     "hostName": "nixiosk",
     "hardware": "qemu-no-virtfs",
     "program": {
-        "package": "epiphany",
-        "executable": "/bin/epiphany",
+        "package": "cog",
+        "executable": "/bin/cog",
         "args": ["https://en.wikipedia.org/"]
     }
 }

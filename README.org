@@ -1,3 +1,17 @@
+* Quick start
+
+You can try out a QEMU kiosk, quickly. Just run:
+
+#+BEGIN_SRC sh
+$ nix-env -iA cachix -f https://cachix.org/api/v1/install
+$ cachix use nixiosk
+$ ./qemu.sh nixiosk.json.sample
+#+END_SRC
+
+This sets up the Nixiosk cachix and then downloads QEMU as well as the
+image defined in nixiosk.json.sample. It then runs that image which
+boots up NixOS and a web browser window.
+
 * How it works
   :PROPERTIES:
   :CUSTOM_ID: how-it-works
@@ -20,8 +34,8 @@ this:
     "hardware": "raspberryPi4",
     "authorizedKeys": [],
     "program": {
-        "package": "epiphany",
-        "executable": "/bin/epiphany",
+        "package": "cog",
+        "executable": "/bin/cog",
         "args": ["https://en.wikipedia.org/"]
     },
     "networks": {
@@ -207,7 +221,7 @@ a binary cache setup. Stay tuned so that this part hopefully gets
 easier. It will also take a few minutes to write to your SD card.
 
 You can now eject your SD card and insert it into your Raspberry Pi.
-It will boot immediately to an Epiphany browser, loading
+It will boot immediately to a Cog browser, loading
 en.wikipedia.org.
 
 ** Redeployment
@@ -280,6 +294,7 @@ Here are some of the pieces that make the Kiosk system possible:
   remote administration.
 - [[http://www.avahi.org/][Avahi]]: Configures mDNS registration for the system, allowing you to
   remember host names instead of IP addresses.
+- Cog: A minimalist browser based on WebKitGTK.
 
 I would also like to include some more tools to make administration
 easier:
