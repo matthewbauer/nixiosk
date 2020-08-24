@@ -28,19 +28,19 @@
         hardware = "qemu";
         program = { package = "retroarch"; executable = "/bin/retroarch"; };
       };
-      epiphanyPi0 = {
+      cogPi0 = {
         hardware = "raspberryPi0";
-        program = { package = "epiphany"; executable = "/bin/epiphany"; };
+        program = { package = "cog"; executable = "/bin/cog"; };
         locale.timeZone = "America/New_York";
       };
-      epiphanyPi4 = {
+      cogPi4 = {
         hardware = "raspberryPi4";
-        program = { package = "epiphany"; executable = "/bin/epiphany"; };
+        program = { package = "cog"; executable = "/bin/cog"; };
         locale.timeZone = "America/New_York";
       };
-      epiphanyQemu = {
+      cogQemu = {
         hardware = "qemu";
-        program = { package = "epiphany"; executable = "/bin/epiphany"; };
+        program = { package = "cog"; executable = "/bin/cog"; };
       };
       demoPi0 = {
         hardware = "raspberryPi0";
