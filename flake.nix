@@ -131,18 +131,6 @@
     in (builtins.mapAttrs (name: value: (boot (value // { inherit name; })).config.system.build.toplevel) exampleConfigs) // {
       inherit (self.packages.${system}) nixiosk;
 
-      examplePxeRamDisk = (self.lib.makeBootableSystem {
-        pkgs = nixpkgsFor.${system};
-        custom = (builtins.fromJSON (builtins.readFile ./nixiosk.json.sample)) // { hardware = "pxe"; };
-        inherit system;
-      }).config.system.build.netbootRamdisk;
-
-      examplePxeScript = (self.lib.makeBootableSystem {
-        pkgs = nixpkgsFor.${system};
-        custom = (builtins.fromJSON (builtins.readFile ./nixiosk.json.sample)) // { hardware = "pxe"; };
-        inherit system;
-      }).config.system.build.netbootIpxeScript;
-
       exampleQemu = (self.lib.makeBootableSystem {
         pkgs = nixpkgsFor.${system};
         custom = (builtins.fromJSON (builtins.readFile ./nixiosk.json.sample)) // { hardware = "qemu-no-virtfs"; };
