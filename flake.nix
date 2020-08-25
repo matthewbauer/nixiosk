@@ -133,19 +133,19 @@
 
       examplePxeRamDisk = (self.lib.makeBootableSystem {
         pkgs = nixpkgsFor.${system};
-        custom = builtins.fromJSON (builtins.readFile ./nixiosk.json.sample);
+        custom = (builtins.fromJSON (builtins.readFile ./nixiosk.json.sample)) // { hardware = "pxe"; };
         inherit system;
       }).config.system.build.netbootRamdisk;
 
       examplePxeScript = (self.lib.makeBootableSystem {
         pkgs = nixpkgsFor.${system};
-        custom = builtins.fromJSON (builtins.readFile ./nixiosk.json.sample);
+        custom = (builtins.fromJSON (builtins.readFile ./nixiosk.json.sample)) // { hardware = "pxe"; };
         inherit system;
       }).config.system.build.netbootIpxeScript;
 
       exampleQemu = (self.lib.makeBootableSystem {
         pkgs = nixpkgsFor.${system};
-        custom = builtins.fromJSON (builtins.readFile ./nixiosk.json.sample);
+        custom = (builtins.fromJSON (builtins.readFile ./nixiosk.json.sample)) // { hardware = "qemu-no-virtfs"; };
         inherit system;
       }).config.system.build.qcow2;
 
