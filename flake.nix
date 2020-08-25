@@ -20,16 +20,27 @@
         program = { package = "retroarch"; executable = "/bin/retroarch"; };
         locale.timeZone = "America/New_York";
       };
-      retroIso = {
-        hardware = "iso";
-        program = { package = "retroarch"; executable = "/bin/retroarch"; };
-      };
       retroQemu = {
         hardware = "qemu";
         program = { package = "retroarch"; executable = "/bin/retroarch"; };
       };
       cogPi0 = {
         hardware = "raspberryPi0";
+        program = { package = "cog"; executable = "/bin/cog"; };
+        locale.timeZone = "America/New_York";
+      };
+      cogPi1 = {
+        hardware = "raspberryPi1";
+        program = { package = "cog"; executable = "/bin/cog"; };
+        locale.timeZone = "America/New_York";
+      };
+      cogPi2 = {
+        hardware = "raspberryPi2";
+        program = { package = "cog"; executable = "/bin/cog"; };
+        locale.timeZone = "America/New_York";
+      };
+      cogPi3 = {
+        hardware = "raspberryPi3";
         program = { package = "cog"; executable = "/bin/cog"; };
         locale.timeZone = "America/New_York";
       };
@@ -42,30 +53,17 @@
         hardware = "qemu";
         program = { package = "cog"; executable = "/bin/cog"; };
       };
-      demoPi0 = {
-        hardware = "raspberryPi0";
-        program = { package = "gtk3"; executable = "/bin/gtk3-demo"; };
-        locale.timeZone = "America/New_York";
+      cogIso = {
+        hardware = "iso";
+        program = { package = "cog"; executable = "/bin/cog"; };
       };
-      demoPi1 = {
-        hardware = "raspberryPi1";
-        program = { package = "gtk3"; executable = "/bin/gtk3-demo"; };
-        locale.timeZone = "America/New_York";
+      cogPxe = {
+        hardware = "pxe";
+        program = { package = "cog"; executable = "/bin/cog"; };
       };
-      demoPi2 = {
-        hardware = "raspberryPi2";
-        program = { package = "gtk3"; executable = "/bin/gtk3-demo"; };
-        locale.timeZone = "America/New_York";
-      };
-      demoPi3 = {
-        hardware = "raspberryPi3";
-        program = { package = "gtk3"; executable = "/bin/gtk3-demo"; };
-        locale.timeZone = "America/New_York";
-      };
-      demoPi4 = {
-        hardware = "raspberryPi4";
-        program = { package = "gtk3"; executable = "/bin/gtk3-demo"; };
-        locale.timeZone = "America/New_York";
+      cogOva = {
+        hardware = "ova";
+        program = { package = "cog"; executable = "/bin/cog"; };
       };
       kodiPi2 = {
         hardware = "raspberryPi2";
@@ -81,10 +79,6 @@
         hardware = "raspberryPi4";
         program = { package = "kodi"; executable = "/bin/kodi"; };
         locale.timeZone = "America/New_York";
-      };
-      kodiPxe = {
-        hardware = "pxe";
-        program = { package = "kodi"; executable = "/bin/kodi"; };
       };
       kodiQemu = {
         hardware = "qemu";
@@ -137,23 +131,17 @@
     in (builtins.mapAttrs (name: value: (boot (value // { inherit name; })).config.system.build.toplevel) exampleConfigs) // {
       inherit (self.packages.${system}) nixiosk;
 
-      kodiPxeRamDisk = (boot {
-        name = "kodiPxe";
-        hardware = "pxe";
-        program = { package = "kodi"; executable = "/bin/kodi"; };
+      examplePxeRamDisk = (self.lib.makeBootableSystem {
+        pkgs = nixpkgsFor.${system};
+        custom = builtins.fromJSON (builtins.readFile ./nixiosk.json.sample);
+        inherit system;
       }).config.system.build.netbootRamdisk;
 
-      kodiPxeScript = (boot {
-        name = "kodiPxe";
-        hardware = "pxe";
-        program = { package = "kodi"; executable = "/bin/kodi"; };
+      examplePxeScript = (self.lib.makeBootableSystem {
+        pkgs = nixpkgsFor.${system};
+        custom = builtins.fromJSON (builtins.readFile ./nixiosk.json.sample);
+        inherit system;
       }).config.system.build.netbootIpxeScript;
-
-      kodiPxe = (boot {
-        name = "kodiPxe";
-        hardware = "pxe";
-        program = { package = "kodi"; executable = "/bin/kodi"; };
-      }).config.system.build.toplevel;
 
       exampleQemu = (self.lib.makeBootableSystem {
         pkgs = nixpkgsFor.${system};
