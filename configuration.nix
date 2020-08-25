@@ -4,8 +4,8 @@
     ./custom.nix
     ./hardware/raspberrypi.nix
     ./hardware/ova.nix
-    ./hardware/pxe.nix
     ./hardware/qemu.nix
+    ./hardware/all.nix # used for iso and pxe
   ];
 
   hardware.opengl.enable = true;

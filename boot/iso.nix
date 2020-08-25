@@ -3,7 +3,6 @@
 {
   imports = [
     (modulesPath + "/installer/cd-dvd/iso-image.nix")
-    (modulesPath + "/profiles/all-hardware.nix")
   ];
 
   isoImage = {

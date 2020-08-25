@@ -18,4 +18,38 @@
       ];
   };
 
+  boot.loader.grub.enable = false;
+
+  fileSystems."/" =
+    { fsType = "tmpfs";
+      options = [ "mode=0755" ];
+    };
+
+  fileSystems."/nix/.ro-store" =
+    { fsType = "squashfs";
+      device = "../nix-store.squashfs";
+      options = [ "loop" ];
+      neededForBoot = true;
+    };
+
+  fileSystems."/nix/.rw-store" =
+    { fsType = "tmpfs";
+      options = [ "mode=0755" ];
+      neededForBoot = true;
+    };
+
+  fileSystems."/nix/store" =
+    { fsType = "overlay";
+      device = "overlay";
+      options = [
+        "lowerdir=/nix/.ro-store"
+        "upperdir=/nix/.rw-store/store"
+        "workdir=/nix/.rw-store/work"
+      ];
+    };
+
+  boot.initrd.availableKernelModules = [ "squashfs" "overlay" ];
+
+  boot.initrd.kernelModules = [ "loop" "overlay" ];
+
 }

@@ -60,7 +60,9 @@
 
   config = {
     time = { timeZone = config.nixiosk.locale.timeZone; };
-    services.localtime.enable = config.nixiosk.locale.timeZone == null && !(builtins.elem config.nixiosk.hardware ["ova" "qemu" "qemu-no-virtfs"]);
+    services.localtime.enable =
+     config.nixiosk.locale.timeZone == null &&
+     !(builtins.elem config.nixiosk.hardware ["ova" "qemu" "qemu-no-virtfs"]);
 
     i18n.defaultLocale = config.nixiosk.locale.lang;
     i18n.supportedLocales = [ "${config.nixiosk.locale.lang}/UTF-8" ];
