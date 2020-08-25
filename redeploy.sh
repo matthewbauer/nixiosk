@@ -39,12 +39,12 @@ if ! ssh "root@$host" true; then
     exit 1
 fi
 
-sd_drv=$(nix-instantiate --no-gc-warning --show-trace \
+system=$(nix-instantiate --no-gc-warning \
           --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
           "$NIXIOSK/redeploy.nix" -A config.system.build.toplevel)
 
-# nix build --keep-going "$sd_drv"
-out=$(nix-build --keep-going --no-out-link "$sd_drv" "$@")
+# nix build --keep-going "$system"
+out=$(nix-build --keep-going --no-out-link "$system" "$@")
 
 nix copy "$out" --to "ssh://root@$host"
 

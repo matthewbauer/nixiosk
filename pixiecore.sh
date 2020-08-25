@@ -29,18 +29,18 @@ if [ "$(jq -r .hardware $custom)" != "pxe" ]; then
     exit 1
 fi
 
-pxe_ramdisk=$(nix-build --no-gc-warning --no-out-link --show-trace \
+sudo -v
+
+pxe_ramdisk=$(nix-build --no-gc-warning --no-out-link \
               --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
               "$NIXIOSK/boot" -A config.system.build.netbootRamdisk)
 
-pxe_kernel=$(nix-build --no-gc-warning --no-out-link --show-trace \
+pxe_kernel=$(nix-build --no-gc-warning --no-out-link \
               --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
               "$NIXIOSK/boot" -A config.system.build.kernel)
 
-pxe_script=$(nix-build --no-gc-warning --no-out-link --show-trace \
+system=$(nix-build --no-gc-warning --no-out-link \
               --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
-              "$NIXIOSK/boot" -A config.system.build.netbootIpxeScript)
+              "$NIXIOSK/boot" -A config.system.build.toplevel)
 
-sudo pixiecore boot $pxe_kernel/bzImage $pxe_ramdisk/initrd \
-  --cmdline "$(grep -ohP 'init=\S+' $pxe_script/netboot.ipxe) loglevel=4" \
-  --debug --dhcp-no-bind --port 64172 --status-port 64172
+sudo pixiecore boot $pxe_kernel/bzImage $pxe_ramdisk/initrd --cmdline "init=$system/init"

@@ -37,14 +37,14 @@ fi
 
 hostName="$(jq -r .hostName "$custom")"
 
-system=$(nix-build --no-gc-warning --no-out-link --show-trace \
+system=$(nix-build --no-gc-warning --no-out-link \
               --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
               "$NIXIOSK/boot" -A config.system.build.toplevel)
 
 NIX_DISK_IMAGE=
 if [ "$hardware" = qemu-no-virtfs ]; then
     NIX_DISK_IMAGE=${NIX_DISK_IMAGE:-$(mktemp $TMPDIR/XXXXXXXXX.qcow2)}
-    qcow2=$(nix-build --no-gc-warning --no-out-link --show-trace \
+    qcow2=$(nix-build --no-gc-warning --no-out-link \
                       --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
                       "$NIXIOSK/boot" -A config.system.build.qcow2)/nixos.qcow2
     cp -f $qcow2 $NIX_DISK_IMAGE

@@ -76,7 +76,7 @@ if ! [ -w "$block" ]; then
     sudo -v
 fi
 
-sd_drv=$(nix-instantiate --no-gc-warning --show-trace \
+sd_drv=$(nix-instantiate --no-gc-warning \
           --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
           "$NIXIOSK/boot" -A config.system.build.sdImage)
 

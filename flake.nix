@@ -149,11 +149,11 @@
         program = { package = "kodi"; executable = "/bin/kodi"; };
       }).config.system.build.netbootIpxeScript;
 
-      kodiPxeKernel = (boot {
+      kodiPxe = (boot {
         name = "kodiPxe";
         hardware = "pxe";
         program = { package = "kodi"; executable = "/bin/kodi"; };
-      }).config.system.build.kernel;
+      }).config.system.build.toplevel;
 
       exampleQemu = (self.lib.makeBootableSystem {
         pkgs = nixpkgsFor.${system};
