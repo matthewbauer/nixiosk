@@ -43,4 +43,4 @@ system=$(nix-build --no-gc-warning --no-out-link \
               --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
               "$NIXIOSK/boot" -A config.system.build.toplevel)
 
-sudo pixiecore boot $pxe_kernel/bzImage $pxe_ramdisk/initrd --cmdline "init=$system/init"
+sudo pixiecore boot $pxe_kernel/bzImage $pxe_ramdisk/initrd --cmdline "init=$system/init $(cat $system/kernel-params)"
