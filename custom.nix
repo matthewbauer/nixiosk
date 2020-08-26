@@ -24,6 +24,12 @@
       type = lib.types.attrsOf lib.types.str;
       default = {};
     };
+    # This should only be used when you’re in a closed NAT since
+    # anyone can mess with the kiosk user.
+    nixiosk.allowKioskLogin = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+    };
     nixiosk.locale.lang = lib.mkOption {
       type = lib.types.str;
       default = "en_US.UTF-8";
@@ -81,6 +87,8 @@
     environment.systemPackages = [ pkgs.${config.nixiosk.program.package} ];
     networking.hostName = config.nixiosk.hostName;
     networking.wireless.networks = builtins.mapAttrs (_: value: { pskRaw = value; }) (config.nixiosk.networks or {});
+
+    users.users.kiosk.initialHashedPassword = if config.nixiosk.allowKioskLogin then "" else null;
 
     # services.ddclient = {
     #   enable = config.nixiosk.custom.ddclient.enable;
