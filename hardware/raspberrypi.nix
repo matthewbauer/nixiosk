@@ -15,6 +15,33 @@ in {
 
   config = lib.mkIf (builtins.elem config.nixiosk.hardware ["raspberryPi0" "raspberryPi1" "raspberryPi2" "raspberryPi3" "raspberryPi4"]) {
 
+
+  # TODO: maybe include https://github.com/bramp/libcec-daemon too, so
+  # we get menu control with tv remote
+
+  systemd.services.cec-active-source = {
+    description = "Set this device to the CEC Active Source";
+    after = [ "cage@tty1.service" ];
+    requires = [ "cage@tty1.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStartPre = "${pkgs.runtimeShell} -c '${pkgs.coreutils}/bin/echo on 0 | ${lib.getBin pkgs.libcec}/bin/cec-client -s'";
+      ExecStart = "${pkgs.runtimeShell} -c '${pkgs.coreutils}/bin/echo as | ${lib.getBin pkgs.libcec}/bin/cec-client -s'";
+    };
+  };
+
+  systemd.services.cec-poweroff-tv = {
+    description = "Use CEC to power off TV";
+    wantedBy = [ "poweroff.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.runtimeShell}  -c '${pkgs.coreutils}/bin/echo standby 0 | ${lib.getBin pkgs.libcec}/bin/cec-client -s'";
+      ExecStop = "${pkgs.runtimeShell}  -c '${pkgs.coreutils}/bin/echo standby 0 | ${lib.getBin pkgs.libcec}/bin/cec-client -s'";
+    };
+  };
+
+  environment.systemPackages = [ pkgs.libcec ];
+
   hardware = {
     # hardware.deviceTree overlaps with raspberry pi config.txt, but
     # only hardware.deviceTree works with U-Boot
