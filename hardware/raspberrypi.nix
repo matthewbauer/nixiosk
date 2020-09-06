@@ -16,9 +16,6 @@ in {
   config = lib.mkIf (builtins.elem config.nixiosk.hardware ["raspberryPi0" "raspberryPi1" "raspberryPi2" "raspberryPi3" "raspberryPi4"]) {
 
 
-  # TODO: maybe include https://github.com/bramp/libcec-daemon too, so
-  # we get menu control with tv remote
-
   systemd.services.cec-active-source = {
     description = "Set this device to the CEC Active Source";
     after = [ "cage@tty1.service" ];
@@ -27,6 +24,16 @@ in {
       Type = "oneshot";
       ExecStartPre = "${pkgs.runtimeShell} -c '${pkgs.coreutils}/bin/echo on 0 | ${lib.getBin pkgs.libcec}/bin/cec-client -s'";
       ExecStart = "${pkgs.runtimeShell} -c '${pkgs.coreutils}/bin/echo as | ${lib.getBin pkgs.libcec}/bin/cec-client -s'";
+    };
+  };
+
+  systemd.services.libcec-daemon = {
+    description = "Set this device to the CEC Active Source";
+    wantedBy = ["graphical.target"];
+    serviceConfig = {
+      ExecStart = "${lib.getBin pkgs.libcec-daemon}/bin/libcec-daemon";
+      Type = "simple";
+      Restart = "always";
     };
   };
 
@@ -127,6 +134,8 @@ in {
       libva = null;
       raspberryPiSupport = true;
     });
+
+    libcec-daemon = self.callPackage ../pkgs/libcec-daemon {};
 
   })];
 
