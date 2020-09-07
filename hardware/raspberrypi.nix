@@ -37,6 +37,11 @@ in {
     };
   };
 
+  # Ignore cec power key
+  services.logind.extraConfig = ''
+    HandlePowerKey = ignore
+  '';
+
   systemd.services.cec-poweroff-tv = {
     description = "Use CEC to power off TV";
     wantedBy = [ "poweroff.target" ];
