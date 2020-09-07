@@ -18,8 +18,8 @@ in {
 
   systemd.services.cec-active-source = {
     description = "Set this device to the CEC Active Source";
-    after = [ "cage@tty1.service" ];
-    requires = [ "cage@tty1.service" ];
+    wantedBy = ["graphical.target"];
+    after = ["cage@tty1.service"];
     serviceConfig = {
       Type = "oneshot";
       ExecStartPre = "${pkgs.runtimeShell} -c '${pkgs.coreutils}/bin/echo on 0 | ${lib.getBin pkgs.libcec}/bin/cec-client -s'";
