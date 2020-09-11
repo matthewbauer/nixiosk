@@ -117,7 +117,7 @@ in {
     initrd.kernelModules = [ "vc4" "bcm2835_dma" "i2c_bcm2835" "bcm2835_rng" ];
   };
 
-  nixpkgs.overlays = [(self: super: {
+  nixpkgs.overlays = [(self: super: lib.optionalAttrs (super.stdenv.hostPlatform != super.stdenv.buildPlatform) {
     # Restrict drivers built by mesa to just the ones we need This
     # reduces the install size a bit.
     mesa = (super.mesa.override {
