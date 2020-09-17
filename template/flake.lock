@@ -5,11 +5,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1600314440,
-        "narHash": "sha256-7ScsCZsgq/zECr2iUF16YEKDfjAeUguFjgLS3XOSjtc=",
+        "lastModified": 1600319520,
+        "narHash": "sha256-TYBUX9+26lRPySopK+qvVxuxUy/KW7XFj7vcpK/pQ04=",
         "owner": "matthewbauer",
         "repo": "nixiosk",
-        "rev": "b1992176e80358c92e1f71d4906b84b031b6734a",
+        "rev": "509e65a1c4c95c9892025a1025e79bc60f73e956",
         "type": "github"
       },
       "original": {
