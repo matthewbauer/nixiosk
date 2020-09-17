@@ -1,9 +1,8 @@
 {
   description = "Nix-based Kiosk systems";
+  inputs.nixpkgs.url = "github:matthewbauer/nixpkgs?ref=kiosk6";
 
-  outputs = { self }: let
-    nixpkgs = ./nixpkgs;
-
+  outputs = { self, nixpkgs }: let
     systems = [ "x86_64-linux" ];
     forAllSystems = f: builtins.listToAttrs (map (name: { inherit name; value = f name; }) systems);
 
@@ -132,13 +131,21 @@
     in (builtins.mapAttrs (name: value: (boot (value // { inherit name; })).config.system.build.toplevel) exampleConfigs) // {
       inherit (self.packages.${system}) nixiosk;
 
-      exampleQemu = (self.lib.makeBootableSystem {
-        pkgs = nixpkgsFor.${system};
-        custom = (builtins.fromJSON (builtins.readFile ./nixiosk.json.sample)) // { hardware = "qemu-no-virtfs"; };
-        inherit system;
+      exampleQemu = (nixpkgs.lib.nixosSystem {
+        modules = [
+          ./boot/qemu-no-virtfs.nix
+          ./configuration.nix
+          ({lib, ...}: {
+            nixiosk = lib.mkForce ((builtins.fromJSON (builtins.readFile ./nixiosk.json.sample)) // { hardware = "qemu-no-virtfs"; });
+            nixpkgs.localSystem = { inherit system; };
+          })
+        ];
       }).config.system.build.qcow2;
-
     });
+
+    templates.kodiPi3.description = "Kodi on Raspberry Pi 3";
+    templates.kodiPi3.path = ./template;
+    defaultTemplate = self.templates.kodiPi3;
 
   };
 }

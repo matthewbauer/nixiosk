@@ -1,0 +1,27 @@
+{
+  "nodes": {
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1598379552,
+        "narHash": "sha256-wzMYN3FB3Z+FFi/ydYqmD8h7sVk47AR33/uky8fq3Ag=",
+        "owner": "matthewbauer",
+        "repo": "nixpkgs",
+        "rev": "27961cfb2f11b5ec80f12e682448d6d653953cb1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "matthewbauer",
+        "ref": "kiosk6",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "nixpkgs": "nixpkgs"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

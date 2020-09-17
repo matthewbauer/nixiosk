@@ -1,6 +1,5 @@
 { pkgs ? import ./nixpkgs {}
 , custom ? builtins.fromJSON (builtins.readFile ./custom.json)
-, extraModules ? []
 }: import (pkgs.path + /nixos/lib/eval-config.nix) {
   modules = [
     ./configuration.nix
@@ -12,5 +11,5 @@
                  else builtins.currentSystem;
       };
     })
-  ] ++ extraModules;
+  ];
 }

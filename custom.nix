@@ -84,7 +84,9 @@
     };
     users.users.root.openssh.authorizedKeys.keys = config.nixiosk.authorizedKeys;
     services.cage.program = "${lib.getBin (if builtins.isAttrs config.nixiosk.program.package then config.nixiosk.program.package else pkgs.${config.nixiosk.program.package})}${config.nixiosk.program.executable} ${toString (config.nixiosk.program.args)}";
-    environment.systemPackages = [ pkgs.${config.nixiosk.program.package} ];
+    environment.systemPackages = [
+      (if builtins.isAttrs config.nixiosk.program.package then config.nixiosk.program.package else pkgs.${config.nixiosk.program.package})
+    ];
     networking.hostName = config.nixiosk.hostName;
     networking.wireless.networks = builtins.mapAttrs (_: value: { pskRaw = value; }) (config.nixiosk.networks or {});
 
