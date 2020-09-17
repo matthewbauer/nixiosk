@@ -5,10 +5,12 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1600313717,
-        "narHash": "sha256-z7AUTrdtTW4x26+fOfBjSFKimUf73O0QB9umUEfFtN0=",
-        "type": "git",
-        "url": "file:///Users/mbauer/Code/nixiosk"
+        "lastModified": 1600314440,
+        "narHash": "sha256-7ScsCZsgq/zECr2iUF16YEKDfjAeUguFjgLS3XOSjtc=",
+        "owner": "matthewbauer",
+        "repo": "nixiosk",
+        "rev": "b1992176e80358c92e1f71d4906b84b031b6734a",
+        "type": "github"
       },
       "original": {
         "owner": "matthewbauer",
