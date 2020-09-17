@@ -115,7 +115,8 @@
 
     defaultPackage = forAllSystems (system: self.packages.${system}.nixiosk);
 
-    lib.makeBootableSystem = { pkgs, custom, system }: import ./boot { inherit pkgs custom system; };
+    lib.makeBootableSystem = { pkgs, custom ? null, system, extraModules ? [] }:
+      import ./boot { inherit pkgs custom extraModules system; };
 
     nixosModule = import ./configuration.nix;
 
