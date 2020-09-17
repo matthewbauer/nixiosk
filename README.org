@@ -193,7 +193,7 @@ which will give you a line for “authorizedKeys” like:
 and you can get a PSK value for your WiFi network with:
 
 #+BEGIN_SRC sh
-$ nix run nixpkgs.wpa_supplicant -c wpa_passphrase my-network
+$ nix-shell -p wpa_supplicant --run 'wpa_passphrase my-network'
 network={
 	ssid="my-network"
 	#psk="abcdefgh"
@@ -277,6 +277,39 @@ $ ./build.sh kodipi2.json
 
 Additional arguments are passed to =nix-build=.
 
+* NixOS module / Flake configuration
+
+For more advanced usage, we can setup. This requires experimental Nix
+3.0.
+
+To setup a new project:
+
+#+BEGIN_SRC sh
+$ nix --option experimental-features 'nix-command flakes' flake new -t github:matthewbauer/nixiosk myproject
+#+END_SRC
+
+You can look at myproject/flake.nix to get an idea of what you can
+configure. Most of the settings in ‘nixosModule’ correspond to what is
+available in the custom .json files. One advantage over .json is your
+package does not need to be in Nixpkgs. In addition, you can override
+other NixOS settings as needed.
+
+To build an SD image you can run:
+
+#+BEGIN_SRC sh
+$ cd myproject/
+$ nix-build -A packages.x86_64-linux.sdImage
+#+END_SRC
+
+By default, this is for Raspberry Pi 4. Targets for ISO
+(packages.x86_64-linux.isoImage), VirtualBox .ova
+(packages.x86_64-linux.virtualBoxOVA), and QEMU .qcow2
+(packages.x86_64-linux.qcow2) are also available. All of these are
+cached on x86_64-linux.
+
+"redeploy" is currently unsupported, unfortunately. How to rebuild a
+running Flakes system need to be figured out.
+
 * Technology
 
 Here are some of the pieces that make the Kiosk system possible:
@@ -320,5 +353,5 @@ You need to reformat the partition table to ensure we aren’t losing
 data. You can do this with wipefs:
 
 #+BEGIN_SRC sh
-$ nix run nixpkgs.utillinux -c wipefs /dev/mmcblk0
+$ nix-shell -p utillinux -run 'wipefs /dev/mmcblk0'
 #+END_SRC

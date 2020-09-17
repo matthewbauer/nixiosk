@@ -14,12 +14,36 @@
     packages = forAllSystems (system: {
       sdImage = (nixpkgs.lib.nixosSystem {
         modules = [
-          ({...}: { nixiosk.hardware = "raspberryPi3"; })
+          ({...}: { nixiosk.hardware = "raspberryPi4"; })
           ({...}: { nixpkgs.localSystem = { inherit system; }; })
           self.nixosModule
           (nixiosk + /boot/raspberrypi.nix)
         ];
       }).config.system.build.sdImage;
+      qcow2 = (nixpkgs.lib.nixosSystem {
+        modules = [
+          ({...}: { nixiosk.hardware = "qemu-no-virtfs"; })
+          ({...}: { nixpkgs.localSystem = { inherit system; }; })
+          self.nixosModule
+          (nixiosk + /boot/qemu-no-virtfs.nix)
+        ];
+      }).config.system.build.qcow2;
+      isoImage = (nixpkgs.lib.nixosSystem {
+        modules = [
+          ({...}: { nixiosk.hardware = "iso"; })
+          ({...}: { nixpkgs.localSystem = { inherit system; }; })
+          self.nixosModule
+          (nixiosk + /boot/iso.nix)
+        ];
+      }).config.system.build.isoImage;
+      virtualBoxOVA = (nixpkgs.lib.nixosSystem {
+        modules = [
+          ({...}: { nixiosk.hardware = "ova"; })
+          ({...}: { nixpkgs.localSystem = { inherit system; }; })
+          self.nixosModule
+          (nixiosk + /boot/ova.nix)
+        ];
+      }).config.system.build.virtualBoxOVA;
     });
 
     nixosModule = { pkgs, ... }: {
