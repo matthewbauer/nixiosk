@@ -9,44 +9,48 @@
     forAllSystems = f: builtins.listToAttrs (map (name: { inherit name; value = f name; }) systems);
     nixpkgsFor = forAllSystems (system: import nixpkgs { inherit system; } );
   in {
-    defaultPackage = forAllSystems (system: self.packages.${system}.sdImage);
-
-    packages = forAllSystems (system: {
+    packages = forAllSystems (system: let
+      commonModule = ({...}: {
+        nixpkgs.localSystem = { inherit system; };
+        nixiosk.flake = self;
+        imports = [ (nixiosk + /boot/flake.nix) ];
+      });
+    in {
       sdImage = (nixpkgs.lib.nixosSystem {
         modules = [
           ({...}: { nixiosk.hardware = "raspberryPi4"; })
-          ({...}: { nixpkgs.localSystem = { inherit system; }; })
-          self.nixosModule
+          commonModule
+          self.nixosConfigurations.example
           (nixiosk + /boot/raspberrypi.nix)
         ];
       }).config.system.build.sdImage;
       qcow2 = (nixpkgs.lib.nixosSystem {
         modules = [
           ({...}: { nixiosk.hardware = "qemu-no-virtfs"; })
-          ({...}: { nixpkgs.localSystem = { inherit system; }; })
-          self.nixosModule
+          commonModule
+          self.nixosConfigurations.example
           (nixiosk + /boot/qemu-no-virtfs.nix)
         ];
       }).config.system.build.qcow2;
       isoImage = (nixpkgs.lib.nixosSystem {
         modules = [
           ({...}: { nixiosk.hardware = "iso"; })
-          ({...}: { nixpkgs.localSystem = { inherit system; }; })
-          self.nixosModule
+          commonModule
+          self.nixosConfigurations.example
           (nixiosk + /boot/iso.nix)
         ];
       }).config.system.build.isoImage;
       virtualBoxOVA = (nixpkgs.lib.nixosSystem {
         modules = [
           ({...}: { nixiosk.hardware = "ova"; })
-          ({...}: { nixpkgs.localSystem = { inherit system; }; })
-          self.nixosModule
+          commonModule
+          self.nixosConfigurations.example
           (nixiosk + /boot/ova.nix)
         ];
       }).config.system.build.virtualBoxOVA;
     });
 
-    nixosModule = { pkgs, ... }: {
+    nixosConfigurations.example = { pkgs, ... }: {
       imports = [ nixiosk.nixosModule ];
       nixiosk.hostName = "example";
       nixiosk.locale = {

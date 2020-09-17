@@ -62,6 +62,10 @@
       type = lib.types.bool;
       default = builtins.elem config.nixiosk.hardware ["raspberryPi0" "raspberryPi1" "raspberryPi2"];
     };
+    nixiosk.flake = lib.mkOption {
+      type = lib.types.nullOr lib.types.path;
+      default = null;
+    };
   };
 
   config = {
