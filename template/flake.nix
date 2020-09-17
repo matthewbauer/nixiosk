@@ -23,9 +23,7 @@
     });
 
     nixosModule = { pkgs, ... }: {
-      imports = [
-        (nixiosk + /configuration.nix)
-      ];
+      imports = [ nixiosk.nixosModule ];
       nixiosk.hostName = "example";
       nixiosk.locale = {
         lang = "en_US.UTF-8";
