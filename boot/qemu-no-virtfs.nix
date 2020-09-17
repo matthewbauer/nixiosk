@@ -4,6 +4,7 @@
     inherit lib config pkgs;
     format = "qcow2";
     diskSize = 8192;
+    name = "${config.nixiosk.hostName}-${pkgs.stdenv.hostPlatform.system}";
   };
 
 }

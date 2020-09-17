@@ -20,7 +20,7 @@ in {
     firmwareSize = 128;
     populateFirmwareCommands = "${raspberrypi-conf-builder} -c ${config.system.build.toplevel} -d firmware";
     populateRootCommands = "";
-    imageBaseName = "nixiosk";
+    imageBaseName = "${config.nixiosk.hostName}-${config.nixiosk.hardware}";
   };
 
 }

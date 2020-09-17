@@ -3,7 +3,7 @@
 {
 
   boot.postBootCommands = lib.optionalString (config.nixiosk.flake != null) ''
-    mkdir /etc/nixos
+    mkdir -p /etc
     cp -R ${config.nixiosk.flake} /etc/nixos
     chmod -R u+w /etc/nixos
   '';
