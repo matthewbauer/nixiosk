@@ -297,8 +297,7 @@ other NixOS settings as needed.
 To build an SD image you can run:
 
 #+BEGIN_SRC sh
-$ cd myproject/
-$ nix-build -A packages.x86_64-linux.sdImage
+$ nix-build mypackage/ -A packages.x86_64-linux.sdImage
 #+END_SRC
 
 By default, this is for Raspberry Pi 4. Targets for ISO
