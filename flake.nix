@@ -114,12 +114,13 @@
 
     defaultPackage = forAllSystems (system: self.packages.${system}.nixiosk);
 
-    lib.makeBootableSystem = { pkgs, custom ? null, system, extraModules ? [] }:
-      import ./boot { inherit pkgs custom extraModules system; };
+    lib.makeBootableSystem = { pkgs, custom ? null, system }:
+      import ./boot { inherit pkgs custom system; };
 
     nixosModule = import ./configuration.nix;
 
-    checks = forAllSystems (system: let
+    nixosConfigurations = let
+      system = "x86_64-linux";
       boot = { hardware ? null, program, name, locale ? {} }: self.lib.makeBootableSystem {
         pkgs = nixpkgsFor.${system};
         inherit system;
@@ -128,7 +129,9 @@
           hostName = name;
         };
       };
-    in (builtins.mapAttrs (name: value: (boot (value // { inherit name; })).config.system.build.toplevel) exampleConfigs) // {
+    in (builtins.mapAttrs (name: value: boot (value // { inherit name; })) exampleConfigs);
+
+    checks = forAllSystems (system: {
       inherit (self.packages.${system}) nixiosk;
 
       exampleQemu = (nixpkgs.lib.nixosSystem {
