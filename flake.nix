@@ -1,9 +1,9 @@
 {
   description = "Nix-based Kiosk systems";
 
-  outputs = { self }: let
-    nixpkgs = ./nixpkgs;
+  inputs.nixpkgs.url = "github:matthewbauer/nixpkgs?ref=kiosk7";
 
+  outputs = { self, nixpkgs }: let
     systems = [ "x86_64-linux" ];
     forAllSystems = f: builtins.listToAttrs (map (name: { inherit name; value = f name; }) systems);
 
