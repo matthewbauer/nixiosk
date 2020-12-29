@@ -139,5 +139,7 @@
 
     });
 
+    nixConfig.substituters = [ "https://nixiosk.cachix.org" ];
+
   };
 }
