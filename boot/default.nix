@@ -16,7 +16,6 @@
       qemu-no-virtfs = ./qemu-no-virtfs.nix;
     }.${custom.hardware} or (throw "No known booter for ${custom.hardware}."))
     # ./basalt.nix
-    ./flake.nix
     ../configuration.nix
     ({lib, ...}: {
       nixiosk = lib.mkForce custom;

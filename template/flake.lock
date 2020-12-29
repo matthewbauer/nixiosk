@@ -1,0 +1,62 @@
+{
+  "nodes": {
+    "nixiosk": {
+      "inputs": {
+        "nixpkgs": "nixpkgs"
+      },
+      "locked": {
+        "lastModified": 1600319520,
+        "narHash": "sha256-TYBUX9+26lRPySopK+qvVxuxUy/KW7XFj7vcpK/pQ04=",
+        "owner": "matthewbauer",
+        "repo": "nixiosk",
+        "rev": "509e65a1c4c95c9892025a1025e79bc60f73e956",
+        "type": "github"
+      },
+      "original": {
+        "owner": "matthewbauer",
+        "repo": "nixiosk",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1598379552,
+        "narHash": "sha256-wzMYN3FB3Z+FFi/ydYqmD8h7sVk47AR33/uky8fq3Ag=",
+        "owner": "matthewbauer",
+        "repo": "nixpkgs",
+        "rev": "27961cfb2f11b5ec80f12e682448d6d653953cb1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "matthewbauer",
+        "ref": "kiosk6",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1598379552,
+        "narHash": "sha256-wzMYN3FB3Z+FFi/ydYqmD8h7sVk47AR33/uky8fq3Ag=",
+        "owner": "matthewbauer",
+        "repo": "nixpkgs",
+        "rev": "27961cfb2f11b5ec80f12e682448d6d653953cb1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "matthewbauer",
+        "ref": "kiosk6",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "nixiosk": "nixiosk",
+        "nixpkgs": "nixpkgs_2"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

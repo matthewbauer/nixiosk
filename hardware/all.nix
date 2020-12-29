@@ -6,7 +6,7 @@
 
 {
 
-  config = lib.mkIf (builtins.elem config.nixiosk.hardware ["iso" "pxe"]) {
+  config = lib.mkIf (builtins.elem config.nixiosk.hardware ["iso" "pxe" "any"]) {
 
     hardware.enableRedistributableFirmware = true;
 

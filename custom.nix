@@ -11,7 +11,7 @@
       default = [];
     };
     nixiosk.program.package = lib.mkOption {
-      type = lib.types.str;
+      type = lib.types.oneOf [ lib.types.package lib.types.str ];
     };
     nixiosk.program.executable = lib.mkOption {
       type = lib.types.str;
@@ -62,6 +62,10 @@
       type = lib.types.bool;
       default = builtins.elem config.nixiosk.hardware ["raspberryPi0" "raspberryPi1" "raspberryPi2"];
     };
+    nixiosk.flake = lib.mkOption {
+      type = lib.types.nullOr lib.types.path;
+      default = null;
+    };
   };
 
   config = {
@@ -83,8 +87,10 @@
       sshKey = "/etc/ssh/ssh_host_rsa_key";
     };
     users.users.root.openssh.authorizedKeys.keys = config.nixiosk.authorizedKeys;
-    services.cage.program = "${lib.getBin pkgs.${config.nixiosk.program.package}}${config.nixiosk.program.executable} ${toString (config.nixiosk.program.args)}";
-    environment.systemPackages = [ pkgs.${config.nixiosk.program.package} ];
+    services.cage.program = "${lib.getBin (if builtins.isAttrs config.nixiosk.program.package then config.nixiosk.program.package else pkgs.${config.nixiosk.program.package})}${config.nixiosk.program.executable} ${toString (config.nixiosk.program.args)}";
+    environment.systemPackages = [
+      (if builtins.isAttrs config.nixiosk.program.package then config.nixiosk.program.package else pkgs.${config.nixiosk.program.package})
+    ];
     networking.hostName = config.nixiosk.hostName;
     networking.wireless.networks = builtins.mapAttrs (_: value: { pskRaw = value; }) (config.nixiosk.networks or {});
 

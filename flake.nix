@@ -115,11 +115,13 @@
 
     defaultPackage = forAllSystems (system: self.packages.${system}.nixiosk);
 
-    lib.makeBootableSystem = { pkgs, custom, system }: import ./boot { inherit pkgs custom system; };
+    lib.makeBootableSystem = { pkgs, custom ? null, system }:
+      import ./boot { inherit pkgs custom system; };
 
     nixosModule = import ./configuration.nix;
 
-    checks = forAllSystems (system: let
+    nixosConfigurations = let
+      system = "x86_64-linux";
       boot = { hardware ? null, program, name, locale ? {} }: self.lib.makeBootableSystem {
         pkgs = nixpkgsFor.${system};
         inherit system;
@@ -128,18 +130,28 @@
           hostName = name;
         };
       };
-    in (builtins.mapAttrs (name: value: (boot (value // { inherit name; })).config.system.build.toplevel) exampleConfigs) // {
+    in (builtins.mapAttrs (name: value: boot (value // { inherit name; })) exampleConfigs);
+
+    checks = forAllSystems (system: {
       inherit (self.packages.${system}) nixiosk;
 
-      exampleQemu = (self.lib.makeBootableSystem {
-        pkgs = nixpkgsFor.${system};
-        custom = (builtins.fromJSON (builtins.readFile ./nixiosk.json.sample)) // { hardware = "qemu-no-virtfs"; };
-        inherit system;
+      exampleQemu = (nixpkgs.lib.nixosSystem {
+        modules = [
+          ./boot/qemu-no-virtfs.nix
+          ./configuration.nix
+          ({lib, ...}: {
+            nixiosk = lib.mkForce ((builtins.fromJSON (builtins.readFile ./nixiosk.json.sample)) // { hardware = "qemu-no-virtfs"; });
+            nixpkgs.localSystem = { inherit system; };
+          })
+        ];
       }).config.system.build.qcow2;
-
     });
 
     nixConfig.substituters = [ "https://nixiosk.cachix.org" ];
+
+    templates.kodiPi3.description = "Kodi on Raspberry Pi 3";
+    templates.kodiPi3.path = ./template;
+    defaultTemplate = self.templates.kodiPi3;
 
   };
 }

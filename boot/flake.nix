@@ -1,11 +1,11 @@
 { pkgs, lib, config, ... }:
 
-# TODO: construct a real flake from nixiosk.json
-
 {
 
-  boot.postBootCommands = ''
-    ln -sf ${builtins.toFile "nixiosk.json" (builtins.toJSON config.nixiosk)} /etc/nixiosk.json
+  boot.postBootCommands = lib.optionalString (config.nixiosk.flake != null) ''
+    mkdir -p /etc
+    cp -R ${config.nixiosk.flake} /etc/nixos
+    chmod -R u+w /etc/nixos
   '';
 
 }
