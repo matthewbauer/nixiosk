@@ -1,5 +1,5 @@
 #!/usr/bin/env nix-shell
-#!nix-shell -i bash -p jq openssh nix
+#!nix-shell -i bash -p jq openssh nixUnstable
 
 set -eu -o pipefail
 
@@ -8,6 +8,15 @@ NIXIOSK="$PWD"
 if [ "$#" -gt 0 ] && [ "$1" = --help ]; then
     echo Usage: "$0" retropi1.json retropi1.local
     exit 1
+fi
+
+flake=
+if [ "$1" = "--flake" ]; then
+    shift
+    flake="${1-.#nixosConfiguration}"
+    if [ "$#" -gt 0 ]; then
+        shift
+    fi
 fi
 
 custom=./nixiosk.json
@@ -30,7 +39,12 @@ if [ "$#" -gt 0 ]; then
 fi
 
 if [ -z "$host" ]; then
-    host="$(jq -r .hostName "$custom").local"
+    host=
+    if [ -n "$flake" ]; then
+        host="$(nix eval --raw "$flake.config.nixiosk.hostName")"a
+    else
+        host="$(jq -r .hostName "$custom").local"
+    fi
     echo "No host provided, assuming $host"
 fi
 
@@ -39,13 +53,25 @@ if ! ssh "root@$host" true; then
     exit 1
 fi
 
-system=$(nix-instantiate --no-gc-warning \
-          --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
-          "$NIXIOSK/redeploy.nix" -A config.system.build.toplevel)
+system=
+if [ -n "$flake" ]; then
+    tmpdir="$(mktemp -d)"
+    cleanup() {
+        rm -rf "$tmpdir"
+    }
+    trap cleanup EXIT
 
-# nix build --keep-going "$system"
-out=$(nix-build --keep-going --no-out-link "$system" "$@")
+    nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.toplevel" --out-link "$tmpdir/system"
+    system=$(readlink $tmpdir/system)
+else
+    drv=$(nix-instantiate --no-gc-warning \
+                             --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
+                             "$NIXIOSK/redeploy.nix" -A config.system.build.toplevel)
 
-nix copy "$out" --to "ssh://root@$host"
+    # nix build --keep-going "$system"
+    system=$(nix-build --keep-going --no-out-link "$system" "$@")
+fi
+
+nix copy "$system" --to "ssh://root@$host"
 
 ssh "root@$host" "nix-env -p /nix/var/nix/profiles/system --set $out && $out/bin/switch-to-configuration switch"

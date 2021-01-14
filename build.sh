@@ -1,5 +1,5 @@
 #!/usr/bin/env nix-shell
-#!nix-shell -i bash -p coreutils nix jq
+#!nix-shell -i bash -p coreutils nixUnstable jq
 
 set -eu -o pipefail
 
@@ -10,19 +10,32 @@ if [ "$#" -gt 0 ] && [ "$1" = --help ]; then
     exit 1
 fi
 
-custom=./nixiosk.json
-if [ "$#" -gt 0 ]; then
-    custom="$1"
+flake=
+if [ "$1" = "--flake" ]; then
     shift
+    flake="${1-.#nixosConfiguration}"
+    if [ "$#" -gt 0 ]; then
+        shift
+    fi
 fi
 
-if ! [ -f "$custom" ]; then
-    echo "No custom file provided, $custom does not exist."
-    echo "Consult README.org for a template to use."
-    exit 1
+hardware=
+if [ -n "$flake" ]; then
+    hardware="$(nix eval --raw "$flake.config.nixiosk.hardware")"
+else
+    custom=./nixiosk.json
+    if [ "$#" -gt 0 ]; then
+        custom="$1"
+        shift
+    fi
+    if ! [ -f "$custom" ]; then
+        echo "No custom file provided, $custom does not exist."
+        echo "Consult README.org for a template to use."
+        exit 1
+    fi
+    hardware="$(jq -r .hardware $custom)"
 fi
 
-hardware="$(jq -r .hardware $custom)"
 target=
 case "$hardware" in
     qemu-no-virtfs) target=config.system.build.qcow2 ;;
@@ -35,6 +48,10 @@ case "$hardware" in
        exit 1 ;;
 esac
 
-nix-build "$NIXIOSK/boot" --keep-going \
-          --arg custom "builtins.fromJSON (builtins.readFile $(realpath $custom))" \
-          -A $target "$@"
+if [ -n "$flake" ]; then
+    nix --experimental-features 'nix-command flakes' build "$flake.$target"
+else
+    nix-build "$NIXIOSK/boot" \
+              --arg custom "builtins.fromJSON (builtins.readFile $(realpath $custom))" \
+              -A $target "$@"
+fi

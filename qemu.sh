@@ -1,5 +1,5 @@
 #!/usr/bin/env nix-shell
-#!nix-shell -i bash -p nix qemu jq
+#!nix-shell -i bash -p nixUnstable qemu jq
 
 set -eu -o pipefail
 
@@ -10,21 +10,57 @@ if [ "$#" -gt 0 ] && [ "$1" = --help ]; then
     exit 1
 fi
 
-custom=./nixiosk.json
-if [ "$#" -gt 0 ]; then
-    if [ "${1:0:1}" != "-" ]; then
-        custom="$1"
+vnc=
+if [ "$1" = "--vnc" ]; then
+    vnc=1
+    shift
+fi
+
+flake=
+if [ "$1" = "--flake" ]; then
+    shift
+    flake="${1-.#nixosConfiguration}"
+    if [ "$#" -gt 0 ]; then
         shift
     fi
 fi
 
-if ! [ -f "$custom" ]; then
-    echo "No custom file provided, $custom does not exist."
-    echo "Consult README.org for a template to use."
-    exit 1
+tmpdir="$(mktemp -d)"
+hardware=
+hostName=
+NIX_DISK_IMAGE=
+
+cleanup() {
+    rm -rf "$tmpdir"
+    if [ "$hardware" = qemu-no-virtfs ] && [ -n "$NIX_DISK_IMAGE"]; then
+        rm -f "$NIX_DISK_IMAGE"
+    fi
+}
+trap cleanup EXIT
+
+custom=./nixiosk.json
+
+if [ -n "$flake" ]; then
+    hardware="$(nix eval --raw "$flake.config.nixiosk.hardware")"
+    hostName="$(nix eval --raw "$flake.config.nixiosk.hostName")"
+else
+    if [ "$#" -gt 0 ]; then
+        if [ "${1:0:1}" != "-" ]; then
+            custom="$1"
+            shift
+        fi
+    fi
+
+    if ! [ -f "$custom" ]; then
+        echo "No custom file provided, $custom does not exist."
+        echo "Consult README.org for a template to use."
+        exit 1
+    fi
+
+    hardware="$(jq -r .hardware $custom)"
+    hostName="$(jq -r .hostName "$custom")"
 fi
 
-hardware="$(jq -r .hardware $custom)"
 if ! [[ "$hardware" = qemu* ]]; then
     echo "Config $custom must set hardware to qemu"
     exit 1
@@ -35,18 +71,28 @@ if [ "$hardware" = qemu ] && ! [ "$(uname)" = Linux ]; then
     exit 1
 fi
 
-hostName="$(jq -r .hostName "$custom")"
+system=
+if [ -n "$flake" ]; then
+    nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.toplevel" --out-link "$tmpdir/system"
+    system=$(readlink $tmpdir/system)
+else
+    system=$(nix-build --no-gc-warning --no-out-link \
+                       --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
+                       "$NIXIOSK/boot" -A config.system.build.toplevel)
+fi
 
-system=$(nix-build --no-gc-warning --no-out-link \
-              --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
-              "$NIXIOSK/boot" -A config.system.build.toplevel)
-
-NIX_DISK_IMAGE=
 if [ "$hardware" = qemu-no-virtfs ]; then
     NIX_DISK_IMAGE=${NIX_DISK_IMAGE:-$(mktemp $TMPDIR/XXXXXXXXX.qcow2)}
-    qcow2=$(nix-build --no-gc-warning --no-out-link \
-                      --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
-                      "$NIXIOSK/boot" -A config.system.build.qcow2)/nixos.qcow2
+    qcow2=
+    if [ -n "$flake" ]; then
+        nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.qcow2" --out-link "$tmpdir/qcow2"
+        qcow2=$(readlink $tmpdir/system)/nixos.qcow2
+    else
+        qcow2=$(nix-build --no-gc-warning --no-out-link \
+                          --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
+                          "$NIXIOSK/boot" -A config.system.build.qcow2)/nixos.qcow2
+    fi
+
     cp -f $qcow2 $NIX_DISK_IMAGE
     chmod +w $NIX_DISK_IMAGE
 else
@@ -55,14 +101,6 @@ else
         qemu-img create -f qcow2 "$NIX_DISK_IMAGE" 512M
     fi
 fi
-
-cleanup() {
-    if [ "$hardware" = qemu-no-virtfs ]; then
-        rm -f $NIX_DISK_IMAGE
-    fi
-}
-
-trap cleanup EXIT
 
 qemuFlags=
 if [ "$hardware" = qemu-no-virtfs ]; then
@@ -77,6 +115,11 @@ if [ "$(uname)" = Darwin ]; then
     qemuFlags+=" -accel hvf"
 else
     qemuFlags+=" -cpu max"
+fi
+
+if [ -n "$vnc" ]; then
+    qemuFlags+=" -vnc :1,password"
+    qemuFlags+=" -monitor stdio"
 fi
 
 if [ "$(uname)" = Linux ] && ! [ -e /dev/kvm ]; then
