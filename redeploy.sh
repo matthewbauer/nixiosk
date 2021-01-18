@@ -20,14 +20,16 @@ if [ "$1" = "--flake" ]; then
 fi
 
 custom=./nixiosk.json
-if [ "$#" -gt 0 ]; then
-    custom="$1"
-    shift
-fi
+if [ -z "$flake" ]; then
+    if [ "$#" -gt 0 ]; then
+        custom="$1"
+        shift
+    fi
 
-if ! [ -f "$custom" ]; then
-    echo No "$custom" provided. Consult README.org for a template to use.
-    exit 1
+    if ! [ -f "$custom" ]; then
+        echo No "$custom" provided. Consult README.org for a template to use.
+        exit 1
+    fi
 fi
 
 host=
