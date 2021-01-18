@@ -188,6 +188,11 @@
       cog = super.cog.overrideAttrs (o: {
         cmakeFlags = (o.cmakeFlags or []) ++ ["-DCOG_DBUS_SYSTEM_BUS=ON" "-DCOG_DBUS_OWN_USER=kiosk"];
       });
+
+      libinput = super.libinput.override (o: {
+        documentationSupport = false;
+        python3 = null;
+      });
     }) ];
 
     # We use remote builders for things like 32-bit arm where there is

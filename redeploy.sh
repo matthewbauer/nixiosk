@@ -1,5 +1,5 @@
 #!/usr/bin/env nix-shell
-#!nix-shell -i bash -p jq openssh nix
+#!nix-shell -i bash -p jq openssh nixUnstable
 
 set -eu -o pipefail
 
@@ -10,15 +10,26 @@ if [ "$#" -gt 0 ] && [ "$1" = --help ]; then
     exit 1
 fi
 
-custom=./nixiosk.json
-if [ "$#" -gt 0 ]; then
-    custom="$1"
+flake=
+if [ "$1" = "--flake" ]; then
     shift
+    flake="${1-.#nixosConfiguration}"
+    if [ "$#" -gt 0 ]; then
+        shift
+    fi
 fi
 
-if ! [ -f "$custom" ]; then
-    echo No "$custom" provided. Consult README.org for a template to use.
-    exit 1
+custom=./nixiosk.json
+if [ -z "$flake" ]; then
+    if [ "$#" -gt 0 ]; then
+        custom="$1"
+        shift
+    fi
+
+    if ! [ -f "$custom" ]; then
+        echo No "$custom" provided. Consult README.org for a template to use.
+        exit 1
+    fi
 fi
 
 host=
@@ -30,7 +41,12 @@ if [ "$#" -gt 0 ]; then
 fi
 
 if [ -z "$host" ]; then
-    host="$(jq -r .hostName "$custom").local"
+    host=
+    if [ -n "$flake" ]; then
+        host="$(nix eval --raw "$flake.config.nixiosk.hostName").local"
+    else
+        host="$(jq -r .hostName "$custom").local"
+    fi
     echo "No host provided, assuming $host"
 fi
 
@@ -39,13 +55,24 @@ if ! ssh "root@$host" true; then
     exit 1
 fi
 
-system=$(nix-instantiate --no-gc-warning \
-          --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
-          "$NIXIOSK/redeploy.nix" -A config.system.build.toplevel)
+system=
+if [ -n "$flake" ]; then
+    tmpdir="$(mktemp -d)"
+    cleanup() {
+        rm -rf "$tmpdir"
+    }
+    trap cleanup EXIT
 
-# nix build --keep-going "$system"
-out=$(nix-build --keep-going --no-out-link "$system" "$@")
+    nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.toplevel" --out-link "$tmpdir/system"
+    system=$(readlink -f $tmpdir/system)
+else
+    drv=$(nix-instantiate --no-gc-warning \
+                             --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
+                             "$NIXIOSK/redeploy.nix" -A config.system.build.toplevel)
 
-nix copy "$out" --to "ssh://root@$host"
+    # nix build --keep-going "$system"
+    system=$(nix-build --keep-going --no-out-link "$system" "$@")
+fi
 
-ssh "root@$host" "nix-env -p /nix/var/nix/profiles/system --set $out && $out/bin/switch-to-configuration switch"
+nix copy "$system" --to "ssh://root@$host"
+ssh "root@$host" "nix-env -p /nix/var/nix/profiles/system --set $system && $system/bin/switch-to-configuration switch"

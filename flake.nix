@@ -1,6 +1,7 @@
 {
   description = "Nix-based Kiosk systems";
-  inputs.nixpkgs.url = "github:matthewbauer/nixpkgs?ref=kiosk6";
+
+  inputs.nixpkgs.url = "github:matthewbauer/nixpkgs?ref=kiosk7";
 
   outputs = { self, nixpkgs }: let
     systems = [ "x86_64-linux" ];
@@ -145,6 +146,8 @@
         ];
       }).config.system.build.qcow2;
     });
+
+    nixConfig.substituters = [ "https://nixiosk.cachix.org" ];
 
     templates.kodiPi3.description = "Kodi on Raspberry Pi 3";
     templates.kodiPi3.path = ./template;
