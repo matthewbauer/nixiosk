@@ -43,7 +43,7 @@ fi
 if [ -z "$host" ]; then
     host=
     if [ -n "$flake" ]; then
-        host="$(nix eval --raw "$flake.config.nixiosk.hostName")"a
+        host="$(nix eval --raw "$flake.config.nixiosk.hostName").local"
     else
         host="$(jq -r .hostName "$custom").local"
     fi
