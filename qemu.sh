@@ -74,7 +74,7 @@ fi
 system=
 if [ -n "$flake" ]; then
     nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.toplevel" --out-link "$tmpdir/system"
-    system=$(readlink $tmpdir/system)
+    system=$(readlink -f $tmpdir/system)
 else
     system=$(nix-build --no-gc-warning --no-out-link \
                        --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \

@@ -64,7 +64,7 @@ if [ -n "$flake" ]; then
     trap cleanup EXIT
 
     nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.toplevel" --out-link "$tmpdir/system"
-    system=$(readlink $tmpdir/system)
+    system=$(readlink -f $tmpdir/system)
 else
     drv=$(nix-instantiate --no-gc-warning \
                              --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
@@ -75,5 +75,4 @@ else
 fi
 
 nix copy "$system" --to "ssh://root@$host"
-
-ssh "root@$host" "nix-env -p /nix/var/nix/profiles/system --set $out && $out/bin/switch-to-configuration switch"
+ssh "root@$host" "nix-env -p /nix/var/nix/profiles/system --set $system && $system/bin/switch-to-configuration switch"

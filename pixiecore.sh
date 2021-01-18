@@ -57,11 +57,11 @@ if [ -n "$flake" ]; then
     trap cleanup EXIT
 
     nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.netbootRamdisk" --out-link $tmpdir/netboot
-    pxe_ramdisk=$(readlink $tmpdir/netboot)
+    pxe_ramdisk=$(readlink -f $tmpdir/netboot)
     nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.kernel" --out-link $tmpdir/kernel
-    pxe_kernel=$(readlink $tmpdir/kernel)
+    pxe_kernel=$(readlink -f $tmpdir/kernel)
     nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.toplevel" --out-link $tmpdir/system
-    system=$(readlink $tmpdir/system)
+    system=$(readlink -f $tmpdir/system)
 else
     pxe_ramdisk=$(nix-build --no-gc-warning --no-out-link \
                             --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
