@@ -153,5 +153,8 @@
     templates.kodiPi3.path = ./template;
     defaultTemplate = self.templates.kodiPi3;
 
+    hydraJobs = self.checks.x86_64-linux
+      // builtins.mapAttrs (name: value: value.config.system.build.toplevel) self.nixosConfigurations;
+
   };
 }
