@@ -32,7 +32,7 @@ NIX_DISK_IMAGE=
 
 cleanup() {
     rm -rf "$tmpdir"
-    if [ "$hardware" = qemu-no-virtfs ] && [ -n "$NIX_DISK_IMAGE"]; then
+    if [ "$hardware" = qemu-no-virtfs ] && [ -n "$NIX_DISK_IMAGE" ]; then
         rm -f "$NIX_DISK_IMAGE"
     fi
 }
@@ -82,11 +82,11 @@ else
 fi
 
 if [ "$hardware" = qemu-no-virtfs ]; then
-    NIX_DISK_IMAGE=${NIX_DISK_IMAGE:-$(mktemp $TMPDIR/XXXXXXXXX.qcow2)}
+    NIX_DISK_IMAGE=${NIX_DISK_IMAGE:-$tmpdir/nixos.qcow2}
     qcow2=
     if [ -n "$flake" ]; then
         nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.qcow2" --out-link "$tmpdir/qcow2"
-        qcow2=$(readlink $tmpdir/system)/nixos.qcow2
+        qcow2=$(readlink -f $tmpdir/qcow2)/nixos.qcow2
     else
         qcow2=$(nix-build --no-gc-warning --no-out-link \
                           --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
@@ -118,7 +118,7 @@ else
 fi
 
 if [ -n "$vnc" ]; then
-    qemuFlags+=" -vnc :1,password"
+    qemuFlags+=" -vnc :0,password"
     qemuFlags+=" -monitor stdio"
 fi
 
@@ -134,7 +134,7 @@ qemu-kvm -name "$hostName" -m 1024 \
   -device virtio-keyboard-pci \
   -device virtio-balloon \
   -soundhw all \
-  -show-cursor \
+  -display default,show-cursor=on \
   -kernel $system/kernel -initrd $system/initrd \
   -append "$(cat $system/kernel-params) init=$system/init" \
   $qemuFlags "$@"
