@@ -149,9 +149,9 @@
 
     nixConfig.substituters = [ "https://nixiosk.cachix.org" ];
 
-    templates.kodiPi3.description = "Kodi on Raspberry Pi 3";
-    templates.kodiPi3.path = ./template;
-    defaultTemplate = self.templates.kodiPi3;
+    templates.kodiKiosk.description = "Kodi Kiosk on multiple platforms";
+    templates.kodiKiosk.path = ./template;
+    defaultTemplate = self.templates.kodiKiosk;
 
     hydraJobs = self.checks.x86_64-linux
       // builtins.mapAttrs (name: value: value.config.system.build.toplevel) self.nixosConfigurations;
