@@ -5,11 +5,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1600319520,
-        "narHash": "sha256-TYBUX9+26lRPySopK+qvVxuxUy/KW7XFj7vcpK/pQ04=",
+        "lastModified": 1611090349,
+        "narHash": "sha256-1pVoq7EdQ4g87qKvw+FXXNvp0mZeGeN+flj0xEEpkYE=",
         "owner": "matthewbauer",
         "repo": "nixiosk",
-        "rev": "509e65a1c4c95c9892025a1025e79bc60f73e956",
+        "rev": "5705faea0335dfde4d9fc4fc74b414839381a5b4",
         "type": "github"
       },
       "original": {
@@ -20,32 +20,32 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1598379552,
-        "narHash": "sha256-wzMYN3FB3Z+FFi/ydYqmD8h7sVk47AR33/uky8fq3Ag=",
+        "lastModified": 1609203020,
+        "narHash": "sha256-q1TxlXPBmk73rw50GpmbjBAj8+YUQGOoGa3sYw3fKGM=",
         "owner": "matthewbauer",
         "repo": "nixpkgs",
-        "rev": "27961cfb2f11b5ec80f12e682448d6d653953cb1",
+        "rev": "e74fbeaac651aaf9a2af37d69588e444ca5307ea",
         "type": "github"
       },
       "original": {
         "owner": "matthewbauer",
-        "ref": "kiosk6",
+        "ref": "kiosk7",
         "repo": "nixpkgs",
         "type": "github"
       }
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1598379552,
-        "narHash": "sha256-wzMYN3FB3Z+FFi/ydYqmD8h7sVk47AR33/uky8fq3Ag=",
+        "lastModified": 1609203020,
+        "narHash": "sha256-q1TxlXPBmk73rw50GpmbjBAj8+YUQGOoGa3sYw3fKGM=",
         "owner": "matthewbauer",
         "repo": "nixpkgs",
-        "rev": "27961cfb2f11b5ec80f12e682448d6d653953cb1",
+        "rev": "e74fbeaac651aaf9a2af37d69588e444ca5307ea",
         "type": "github"
       },
       "original": {
         "owner": "matthewbauer",
-        "ref": "kiosk6",
+        "ref": "kiosk7",
         "repo": "nixpkgs",
         "type": "github"
       }

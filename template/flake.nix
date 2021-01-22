@@ -2,7 +2,7 @@
   description = "Example Nixiosk System";
 
   inputs.nixiosk.url = "github:matthewbauer/nixiosk"; # this repo
-  inputs.nixpkgs.url = "github:matthewbauer/nixpkgs?ref=kiosk6"; # this is cached in nixiosk.cachix.org
+  inputs.nixpkgs.url = "github:matthewbauer/nixpkgs?ref=kiosk7"; # this is cached in nixiosk.cachix.org
 
   outputs = { self, nixiosk, nixpkgs }: let
 
