@@ -34,21 +34,21 @@
         program = { package = "cog"; executable = "/bin/cog"; };
         locale.timeZone = "America/New_York";
       };
-      cogPi2 = {
-        hardware = "raspberryPi2";
-        program = { package = "cog"; executable = "/bin/cog"; };
-        locale.timeZone = "America/New_York";
-      };
-      cogPi3 = {
-        hardware = "raspberryPi3";
-        program = { package = "cog"; executable = "/bin/cog"; };
-        locale.timeZone = "America/New_York";
-      };
-      cogPi4 = {
-        hardware = "raspberryPi4";
-        program = { package = "cog"; executable = "/bin/cog"; };
-        locale.timeZone = "America/New_York";
-      };
+      # cogPi2 = {
+      #   hardware = "raspberryPi2";
+      #   program = { package = "cog"; executable = "/bin/cog"; };
+      #   locale.timeZone = "America/New_York";
+      # };
+      # cogPi3 = {
+      #   hardware = "raspberryPi3";
+      #   program = { package = "cog"; executable = "/bin/cog"; };
+      #   locale.timeZone = "America/New_York";
+      # };
+      # cogPi4 = {
+      #   hardware = "raspberryPi4";
+      #   program = { package = "cog"; executable = "/bin/cog"; };
+      #   locale.timeZone = "America/New_York";
+      # };
       cogQemu = {
         hardware = "qemu";
         program = { package = "cog"; executable = "/bin/cog"; };
