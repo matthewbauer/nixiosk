@@ -17,7 +17,7 @@ dev=$(readlink -f "$dev")
 block="/dev/$(basename "$dev")"
 
 flake=
-if [ "$1" == "--flake" ]; then
+if [ "$#" -gt 0 ] && [ "$1" == "--flake" ]; then
     shift
     flake="${1-.#nixosConfiguration}"
     if [ "$#" -gt 0 ]; then

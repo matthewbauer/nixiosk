@@ -11,7 +11,7 @@ if [ "$#" -gt 0 ] && [ "$1" = --help ]; then
 fi
 
 flake=
-if [ "$1" = "--flake" ]; then
+if [ "$#" -gt 0 ] && [ "$1" = "--flake" ]; then
     shift
     flake="${1-.#nixosConfiguration}"
     if [ "$#" -gt 0 ]; then
