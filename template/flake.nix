@@ -1,8 +1,15 @@
+###
+### THIS IS AN EXAMPLE NIXIOSK CONFIG
+###
+### You can use it as is, but most likely you will want to add your own customizations.
+### Make sure to use with nixiosk cachix (https://app.cachix.org/cache/nixiosk).
+###
+
 {
   description = "Example Nixiosk System";
 
-  inputs.nixiosk.url = "github:matthewbauer/nixiosk"; # this repo
-  inputs.nixpkgs.url = "github:matthewbauer/nixpkgs?ref=kiosk7"; # this is cached in nixiosk.cachix.org
+  inputs.nixiosk.url = "github:matthewbauer/nixiosk";
+  inputs.nixpkgs.url = "github:matthewbauer/nixpkgs?ref=kiosk7";
 
   outputs = { self, nixiosk, nixpkgs }: let
 
@@ -10,15 +17,40 @@
     baseConfig = { pkgs, ... }: {
       imports = [ (nixiosk + /boot/flake.nix) nixiosk.nixosModule ];
       nixiosk.flake = self;
-      nixiosk.locale = {
-        lang = "en_US.UTF-8";
-        regDom = "US";
-        timeZone = "America/Chicago";
-      };
+
+      ###
+      ### Provide your own executablef here!
+      ###
       nixiosk.program = {
-        executable = "/bin/kodi";
         package = pkgs.kodi;
+        executable = "/bin/kodi";
       };
+
+      authorizedKeys = [
+        "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC56m+QOu+6NERnopje0TJHVv7NSJna1pFNQjqAimRte4zXtYhiVMCPPtlSM1M4LCTDe409Q0Y0zuZc+kNEZSjyQfy9Bd6QXGtYTq+5U+oJZWn5yfvVXOcaMgAiTxUOtRvWdEFJc8ZTt19Tr3GXJp7S2h7rHSW7lpLL/QfucAwqo4A3G19v9dGqcuDYjWjRDyRp5AlqvxmU9IJ8NmCICRRZvmnBSA8N3pt7p4BLCz6YX9JeW4YCgsV8J/ydtijWtaJbGOjj7783+qq8+57chjtgeJtJi5vZijLL2nZmzjc/UU7uud9/wGrL+vdRwieWhg3S4d/EeLnKW9/dYRzuC9mxwzXbuvmgNPo3PDNXmZal8xolVm9vDEjAK6tcXg6J9j7IytkmirrHEuCHCmvTvUW7LIZwUijFeTL0SDpxUClrtbZ9UQTm15fJhHFlRvuD9+avI+hBUwVYVRJWOYxdzVTvW8WZVBuXfP4EtPD6+pZGqeJvdeHcaSFV0wW8ZDIMxgE= matthewbauer@matthews-mbp.lan"
+
+        ###
+        ### Insert you ssh public keys here!
+        ###
+      ];
+
+      networks = {
+        example = "6c2734024bbc1a349e31e627c536a4d04ca5632e1ee45f33240d2c23a44f7331";
+
+        ###
+        ### Insert you network passwords here!
+        ###
+      };
+
+      ###
+      ### You can also change locale here for your own region and language
+      ###
+      nixiosk.locale = {
+        lang = "en_US.UTF-8"; # localization, format is [language[_territory][.codeset][@modifier]].
+        regDom = "US"; # regulatory domain; two character country code (ISO 3166-1 alpha-2)
+        timeZone = "America/Chicago"; # tz database time zone
+      };
+
     };
 
     system = "x86_64-linux";
@@ -58,7 +90,7 @@
         baseConfig
         (nixiosk + /boot/qemu-no-virtfs.nix)
         ({ ... }: {
-          nixiosk.hostName = "example-qemu";
+          nixiosk.hostName = "example-qemu-no-virtfs";
           nixiosk.hardware = "qemu-no-virtfs";
         })
       ];
@@ -68,7 +100,7 @@
       inherit system;
       modules = [
         baseConfig
-        (nixiosk + /boot/qemu-no-virtfs.nix)
+        (nixiosk + /boot/qemu.nix)
         ({ ... }: {
           nixiosk.hostName = "example-qemu";
           nixiosk.hardware = "qemu";

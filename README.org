@@ -162,6 +162,8 @@ Then, use the nixiosk cache:
 $ cachix use nixiosk
 #+END_SRC
 
+For more information refer to https://app.cachix.org/cache/nixiosk.
+
 ** Initial deployment
 
 The deployment is pretty easy provided you have [[https://nixos.org/nix/][Nix installed]]. Here
@@ -277,15 +279,16 @@ $ ./build.sh kodipi2.json
 
 Additional arguments are passed to =nix-build=.
 
-* NixOS module / Flake configuration
+* ADVANCED: NixOS module / Flake configuration
 
-For more advanced usage, we can setup. This requires experimental Nix
-3.0.
+For more advanced usage, we can utilize a full NixOS module
+configuration. This requires experimental Nix 2.4 features to work.
+First, we start with a template from nixiosk template directoy.
 
 To setup a new project:
 
 #+BEGIN_SRC sh
-$ nix --option experimental-features 'nix-command flakes' flake new -t github:matthewbauer/nixiosk myproject
+$ nix --experimental-features 'nix-command flakes' flake new -t github:matthewbauer/nixiosk myproject
 #+END_SRC
 
 You can look at myproject/flake.nix to get an idea of what you can
@@ -294,10 +297,12 @@ available in the custom .json files. One advantage over .json is your
 package does not need to be in Nixpkgs. In addition, you can override
 other NixOS settings as needed.
 
-To build an SD image you can run:
+The script commands work with flake if you provide a =--flake=
+argument. For instance, to build your new configuration:
 
 #+BEGIN_SRC sh
-$ nix-build mypackage/ -A packages.x86_64-linux.rpi4-sdImage
+  $ nix --experimental-features 'nix-command flakes' shell github:matthewbauer/nixiosk -c \
+      nixiosk-build --flake ./myproject#nixosConfigurations.example-rpi4
 #+END_SRC
 
 This is the SD image for a Raspberry Pi 4 system. Targets for ISO
@@ -306,8 +311,56 @@ This is the SD image for a Raspberry Pi 4 system. Targets for ISO
 (packages.x86_64-linux.qcow2) are also available. All of these are
 cached on x86_64-linux.
 
-"redeploy" is currently unsupported, unfortunately. How to rebuild a
-running Flakes system need to be figured out.
+You will most likely want to provide your own "nixiosk.program",
+"authorizedKeys", and "networks" in the template baseConfig. Make sure
+to also use nixiosk cachix to speed up building.
+
+If you have your Raspberry Pi SD card inserted at /dev/sdb, you can
+write to it directly with:
+
+#+BEGIN_SRC sh
+  $ nix --experimental-features 'nix-command flakes' shell github:matthewbauer/nixiosk -c \
+      nixiosk-deploy /dev/sdb --flake ./myproject#nixosConfigurations.example-rpi4
+#+END_SRC
+
+You can insert the SD card directly into the Raspberry Pi and boot it up.
+
+If the Raspberry Pi connects to your local network, you can deploy
+changes with:
+
+#+BEGIN_SRC sh
+  $ nix --experimental-features 'nix-command flakes' shell github:matthewbauer/nixiosk -c \
+      nixiosk-redeploy --flake ./myproject#nixosConfigurations.example-rpi4
+#+END_SRC
+
+If you don’t have a Raspberry Pi, you can run the QEMU emulator to
+test out your configuration locally. This requires hardware
+virtualization support to work well. On a graphical session, you can
+run:
+
+#+BEGIN_SRC sh
+  $ nix --experimental-features 'nix-command flakes' shell github:matthewbauer/nixiosk -c \
+      nixiosk-qemu --flake ./myproject#nixosConfigurations.example-qemu
+#+END_SRC
+
+On a non-graphical session, you can run:
+
+#+BEGIN_SRC sh
+  $ nix --experimental-features 'nix-command flakes' shell github:matthewbauer/nixiosk -c \
+      nixiosk-qemu --vnc --flake ./myproject#nixosConfigurations.example-qemu
+#+END_SRC
+
+You must set the vnc password in the qemu console with =change vnc
+password abcdef=. Connect to it in your VNC client with
+vnc://localhost (replacing localhost with your local network
+hostname).
+
+You can also create a PXE server with:
+
+#+BEGIN_SRC sh
+  $ nix --experimental-features 'nix-command flakes' shell github:matthewbauer/nixiosk -c \
+      nixiosk-pixiecore --flake ./myproject#nixosConfigurations.example-pxe
+#+END_SRC
 
 * Technology
 
