@@ -63,7 +63,7 @@ if [ -n "$flake" ]; then
     }
     trap cleanup EXIT
 
-    nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.toplevel" --out-link "$tmpdir/system"
+    nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.toplevel" --out-link "$tmpdir/system" "$@"
     system=$(readlink -f $tmpdir/system)
 else
     drv=$(nix-instantiate --no-gc-warning \
