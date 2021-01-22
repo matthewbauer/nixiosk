@@ -49,7 +49,7 @@ case "$hardware" in
 esac
 
 if [ -n "$flake" ]; then
-    nix --experimental-features 'nix-command flakes' build "$flake.$target"
+    nix --experimental-features 'nix-command flakes' build "$flake.$target" "$@"
 else
     nix-build "$NIXIOSK/boot" \
               --arg custom "builtins.fromJSON (builtins.readFile $(realpath $custom))" \

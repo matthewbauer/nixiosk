@@ -56,22 +56,22 @@ if [ -n "$flake" ]; then
     }
     trap cleanup EXIT
 
-    nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.netbootRamdisk" --out-link $tmpdir/netboot
+    nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.netbootRamdisk" --out-link $tmpdir/netboot "$@"
     pxe_ramdisk=$(readlink -f $tmpdir/netboot)
-    nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.kernel" --out-link $tmpdir/kernel
+    nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.kernel" --out-link $tmpdir/kernel "$@"
     pxe_kernel=$(readlink -f $tmpdir/kernel)
-    nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.toplevel" --out-link $tmpdir/system
+    nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.toplevel" --out-link $tmpdir/system "$@"
     system=$(readlink -f $tmpdir/system)
 else
     pxe_ramdisk=$(nix-build --no-gc-warning --no-out-link \
                             --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
-                            "$NIXIOSK/boot" -A config.system.build.netbootRamdisk)
+                            "$NIXIOSK/boot" -A config.system.build.netbootRamdisk "$@")
     pxe_kernel=$(nix-build --no-gc-warning --no-out-link \
                            --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
-                           "$NIXIOSK/boot" -A config.system.build.kernel)
+                           "$NIXIOSK/boot" -A config.system.build.kernel "$@")
     system=$(nix-build --no-gc-warning --no-out-link \
                        --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
-                       "$NIXIOSK/boot" -A config.system.build.toplevel)
+                       "$NIXIOSK/boot" -A config.system.build.toplevel "$@")
 fi
 
 sudo pixiecore boot $pxe_kernel/bzImage $pxe_ramdisk/initrd --cmdline "init=$system/init $(cat $system/kernel-params)"

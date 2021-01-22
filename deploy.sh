@@ -101,12 +101,12 @@ fi
 
 sd_image=
 if [ -n "$flake" ]; then
-    nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.sdImage" --out-link "$tmpdir/sdImage"
+    nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.sdImage" --out-link "$tmpdir/sdImage" "$@"
     sd_image="$(readlink -f $tmpdir/sdImage)"/sd-image/*.img
 else
     sd_drv=$(nix-instantiate --no-gc-warning \
                              --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
-                             "$NIXIOSK/boot" -A config.system.build.sdImage)
+                             "$NIXIOSK/boot" -A config.system.build.sdImage "$@")
 
     out=$(nix-build --keep-going --no-out-link "$sd_drv" "$@")
     sd_image=$(echo "$out"/sd-image/*.img)
