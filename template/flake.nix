@@ -101,6 +101,19 @@
       ];
     };
 
+    # pxe image
+    nixosConfigurations.example-pxe = nixpkgs.lib.nixosSystem {
+      inherit system;
+      modules = [
+        baseConfig
+        (nixiosk + /boot/pxe.nix)
+        ({ ... }: {
+          nixiosk.hostName = "example-pxe";
+          nixiosk.hardware = "pxe";
+        })
+      ];
+    };
+
     # Raspberry Pi 0
     nixosConfigurations.example-rpi0 = nixpkgs.lib.nixosSystem {
       inherit system;
