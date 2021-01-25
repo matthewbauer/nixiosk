@@ -5,13 +5,13 @@ set -eu -o pipefail
 
 NIXIOSK="$PWD"
 
-if [ "$#" -gt 0 ] && [ "$1" = --help ]; then
+if [ "$#" -gt 0 ] && { [ "$1" = --help ] || [ "$1" = -h ] }; then
     echo Usage: "$0" nixiosk.json.sample
     exit 1
 fi
 
 flake=
-if [ "$#" -gt 0 ] && [ "$1" = "--flake" ]; then
+if [ "$#" -gt 0 ] && [ "$1" = --flake ]; then
     shift
     flake="${1-.#nixosConfiguration}"
     if [ "$#" -gt 0 ]; then

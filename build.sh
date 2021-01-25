@@ -5,7 +5,7 @@ set -eu -o pipefail
 
 NIXIOSK="$PWD"
 
-if [ "$#" -gt 0 ] && [ "$1" = --help ]; then
+if [ "$#" -gt 0 ] && { [ "$1" = --help ] || [ "$1" = -h ] }; then
     echo Usage: "$0" nixiosk.json.sample
     exit 1
 fi

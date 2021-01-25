@@ -5,7 +5,7 @@ set -eu -o pipefail
 
 NIXIOSK="$PWD"
 
-if [ "$#" -eq 0 ] || [ "$1" = --help ]; then
+if [ "$#" -eq 0 ] || [ "$1" = --help ] || [ "$1" = -h ]; then
     echo Usage: "$0" sdcard nixiosk.json.sample
     exit 1
 fi
