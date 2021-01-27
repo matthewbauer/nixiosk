@@ -88,8 +88,8 @@ else
     hardware="$(jq -r .hardware $custom)"
 fi
 
-if ! [[ "$hardware" =~ "raspberryPi*" ]]; then
-    echo "Config $custom must generate an sd image, change hardware value"
+if ! [[ "$hardware" =~ raspberryPi* ]]; then
+    echo "Config must generate an sd image, change hardware value"
     echo "Currently only raspberryPi systems can generate bootable sd images"
     exit 1
 fi
