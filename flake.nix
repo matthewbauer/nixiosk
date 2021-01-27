@@ -2,12 +2,11 @@
   description = "Nix-based Kiosk systems";
 
   inputs.nixpkgs.url = "github:matthewbauer/nixpkgs?ref=kiosk7";
+  inputs.nixpkgs-unstable.url = "github:nixos/nixpkgs?ref=nixos-unstable";
 
-  outputs = { self, nixpkgs }: let
-    systems = [ "x86_64-linux" ];
+  outputs = { self, nixpkgs, nixpkgs-unstable }: let
+    systems = [ "x86_64-linux" "x86_64-darwin" ];
     forAllSystems = f: builtins.listToAttrs (map (name: { inherit name; value = f name; }) systems);
-
-    nixpkgsFor = forAllSystems (system: import nixpkgs { inherit system; } );
 
     exampleConfigs = {
       retroPi0 = {
@@ -88,8 +87,11 @@
 
   in {
 
-    packages = forAllSystems (system: {
-      nixiosk = with nixpkgsFor.${system}; runCommand "nixiosk" {} ''
+    packages = forAllSystems (system: let
+        nixpkgsFor = forAllSystems (system: import nixpkgs-unstable { inherit system; } );
+
+      in {
+      nixiosk = with nixpkgsFor.${system}; runCommand "nixiosk" {} (''
         install -m755 -D ${self}/build.sh $out/bin/nixiosk-build
         install -m755 -D ${self}/qemu.sh $out/bin/nixiosk-qemu
         install -m755 -D ${self}/deploy.sh $out/bin/nixiosk-deploy
@@ -106,11 +108,12 @@
             $script
         done
         sed -i -e 's,^#!nix-shell -i bash -p coreutils nixUnstable jq$,PATH="${lib.makeBinPath [ coreutils nixUnstable jq ]}''${PATH:+:}$PATH",' $out/bin/nixiosk-build
-        sed -i -e 's,^#!nix-shell -i bash -p nixUnstable qemu jq$,PATH="${lib.makeBinPath [ nixUnstable qemu jq ]}''${PATH:+:}$PATH",' $out/bin/nixiosk-qemu
         sed -i -e 's,^#!nix-shell -i bash -p coreutils nixUnstable jq$,PATH="${lib.makeBinPath [ coreutils nixUnstable jq ]}''${PATH:+:}$PATH",' $out/bin/nixiosk-deploy
-        sed -i -e 's,^#!nix-shell -i bash -p nixUnstable pixiecore jq$,PATH="${lib.makeBinPath [ nixUnstable pixiecore jq ]}''${PATH:+:}$PATH",' $out/bin/nixiosk-pixiecore
         sed -i -e 's,^#!nix-shell -i bash -p jq openssh nixUnstable$,PATH="${lib.makeBinPath [ jq openssh nixUnstable ]}''${PATH:+:}$PATH",' $out/bin/nixiosk-redeploy
-      '';
+      '' + lib.optionalString (!stdenv.hostPlatform.isDarwin) ''
+        sed -i -e 's,^#!nix-shell -i bash -p nixUnstable pixiecore jq$,PATH="${lib.makeBinPath [ nixUnstable pixiecore jq ]}''${PATH:+:}$PATH",' $out/bin/nixiosk-pixiecore
+        sed -i -e 's,^#!nix-shell -i bash -p nixUnstable qemu jq$,PATH="${lib.makeBinPath [ nixUnstable qemu jq ]}''${PATH:+:}$PATH",' $out/bin/nixiosk-qemu
+      '');
     });
 
     defaultPackage = forAllSystems (system: self.packages.${system}.nixiosk);
@@ -122,6 +125,8 @@
 
     nixosConfigurations = let
       system = "x86_64-linux";
+      nixpkgsFor = forAllSystems (system: import nixpkgs { inherit system; } );
+
       boot = { hardware ? null, program, name, locale ? {} }: self.lib.makeBootableSystem {
         pkgs = nixpkgsFor.${system};
         inherit system;
@@ -132,20 +137,22 @@
       };
     in (builtins.mapAttrs (name: value: boot (value // { inherit name; })) exampleConfigs);
 
-    checks = forAllSystems (system: {
-      inherit (self.packages.${system}) nixiosk;
+    checks = {
+      x86_64-linux = {
+        inherit (self.packages.x86_64-linux) nixiosk;
 
-      exampleQemu = (nixpkgs.lib.nixosSystem {
-        modules = [
-          ./boot/qemu-no-virtfs.nix
-          ./configuration.nix
-          ({lib, ...}: {
-            nixiosk = lib.mkForce ((builtins.fromJSON (builtins.readFile ./nixiosk.json.sample)) // { hardware = "qemu-no-virtfs"; });
-            nixpkgs.localSystem = { inherit system; };
-          })
-        ];
-      }).config.system.build.qcow2;
-    });
+        exampleQemu = (nixpkgs.lib.nixosSystem {
+          modules = [
+            ./boot/qemu-no-virtfs.nix
+            ./configuration.nix
+            ({lib, ...}: {
+              nixiosk = lib.mkForce ((builtins.fromJSON (builtins.readFile ./nixiosk.json.sample)) // { hardware = "qemu-no-virtfs"; });
+              nixpkgs.localSystem = { system = "x86_64-linux"; };
+            })
+          ];
+        }).config.system.build.qcow2;
+      };
+    };
 
     nixConfig.substituters = [ "https://nixiosk.cachix.org" ];
 
