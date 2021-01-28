@@ -5,7 +5,7 @@ set -eu -o pipefail
 
 NIXIOSK="$PWD"
 
-if [ "$#" -gt 0 ] && { [ "$1" = --help ] || [ "$1" = -h ] }; then
+if [ "$#" -gt 0 ] && { [ "$1" = "--help" ] || [ "$1" = "-h" ] }; then
     echo Usage: "$0" retropi1.json retropi1.local
     exit 1
 fi
