@@ -31,7 +31,7 @@
   # input
   services.udev.packages = [ pkgs.libinput.out ];
 
-  # nix.package = pkgs.nixUnstable;
+  nix.package = pkgs.nixUnstable;
   nix.binaryCachePublicKeys = ["nixiosk.cachix.org-1:A4kH9p+y9NjDWj0rhaOnv3OLIOPTbjRIsXRPEeTtiS4="];
   nix.binaryCaches = ["https://nixiosk.cachix.org"];
 
