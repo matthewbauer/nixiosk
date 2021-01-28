@@ -57,6 +57,11 @@ fi
 
 system=
 if [ -n "$flake" ]; then
+    if [ -z "$(nix eval --raw "$flake.config.system.build.installBootLoader" 2>/dev/null)" ]; then
+        echo "$flake is does not have a boot loader. Suggestion: remove /boot/raspberrypi.nix from modules."
+        exit 1
+    fi
+
     tmpdir="$(mktemp -d)"
     cleanup() {
         rm -rf "$tmpdir"
