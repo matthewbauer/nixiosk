@@ -28,7 +28,7 @@ in {
   };
 
   systemd.services.libcec-daemon = {
-    description = "Set this device to the CEC Active Source";
+    description = "Listen for CEC commands";
     wantedBy = ["graphical.target"];
     serviceConfig = {
       ExecStart = "${lib.getBin pkgs.libcec-daemon}/bin/libcec-daemon";
