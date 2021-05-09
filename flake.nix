@@ -80,9 +80,9 @@
   in {
 
     packages = forAllSystems (system: let
-        nixpkgsFor = forAllSystems (system: import nixpkgs-unstable { inherit system; } );
+      nixpkgsFor = forAllSystems (system: import nixpkgs-unstable { inherit system; } );
 
-      in {
+    in {
       nixiosk = with nixpkgsFor.${system}; runCommand "nixiosk" {} (''
         install -m755 -D ${self}/build.sh $out/bin/nixiosk-build
         install -m755 -D ${self}/qemu.sh $out/bin/nixiosk-qemu
