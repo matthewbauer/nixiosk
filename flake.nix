@@ -150,5 +150,18 @@
     hydraJobs = self.checks.x86_64-linux
       // builtins.mapAttrs (name: value: value.config.system.build.toplevel) self.nixosConfigurations;
 
+    devShell = forAllSystems (system: let
+      nixpkgsFor = forAllSystems (system: import nixpkgs-unstable { inherit system; } );
+    in with nixpkgsFor.${system}; stdenv.mkDerivation {
+      name = "nix";
+
+      nativeBuildInputs = [
+        (writeShellScriptBin "update-cache" ''
+          PATH=$PATH''${PATH:+:}${lib.makeBinPath [ cachix nixUnstable findutils ]}
+          nix-instantiate -E '(import ./.).hydraJobs' | xargs nix-store -qR --include-outputs | grep -v '\.drv$' | cachix push nixiosk
+        '')
+      ];
+    });
+
   };
 }
