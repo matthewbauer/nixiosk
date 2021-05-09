@@ -126,21 +126,19 @@
       };
     in (builtins.mapAttrs (name: value: boot (value // { inherit name; })) exampleConfigs);
 
-    checks = {
-      x86_64-linux = {
-        inherit (self.packages.x86_64-linux) nixiosk;
+    checks.x86_64-linux = {
+      inherit (self.packages.x86_64-linux) nixiosk;
 
-        exampleQemu = (nixpkgs.lib.nixosSystem {
-          modules = [
-            ./boot/qemu-no-virtfs.nix
-            ./configuration.nix
-            ({lib, ...}: {
-              nixiosk = lib.mkForce ((builtins.fromJSON (builtins.readFile ./nixiosk.json.sample)) // { hardware = "qemu-no-virtfs"; });
-              nixpkgs.localSystem = { system = "x86_64-linux"; };
-            })
-          ];
-        }).config.system.build.qcow2;
-      };
+      exampleQemu = (nixpkgs.lib.nixosSystem {
+        modules = [
+          ./boot/qemu-no-virtfs.nix
+          ./configuration.nix
+          ({lib, ...}: {
+            nixiosk = lib.mkForce ((builtins.fromJSON (builtins.readFile ./nixiosk.json.sample)) // { hardware = "qemu-no-virtfs"; });
+            nixpkgs.localSystem = { system = "x86_64-linux"; };
+          })
+        ];
+      }).config.system.build.qcow2;
     };
 
     templates.kodiKiosk.description = "Kodi Kiosk on multiple platforms";
@@ -158,7 +156,9 @@
       nativeBuildInputs = [
         (writeShellScriptBin "update-cache" ''
           PATH=$PATH''${PATH:+:}${lib.makeBinPath [ cachix nixUnstable findutils ]}
-          nix-instantiate -E '(import ./.).hydraJobs' | xargs nix-store -qR --include-outputs | grep -v '\.drv$' | cachix push nixiosk
+          ( nix-build -E '(import ./.).hydraJobs' ;
+            nix-instantiate -E '(import ./.).hydraJobs' | xargs nix-store -qR --include-outputs | grep -v '\.drv$' ;
+            ) | cachix push nixiosk
         '')
       ];
     });
