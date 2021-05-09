@@ -4,6 +4,8 @@
   inputs.nixpkgs.url = "github:matthewbauer/nixpkgs?ref=kiosk7";
   inputs.nixpkgs-unstable.url = "github:nixos/nixpkgs?ref=nixos-unstable";
 
+  nixConfig.substituters = [ "https://nixiosk.cachix.org" ];
+
   outputs = { self, nixpkgs, nixpkgs-unstable }: let
     systems = [ "x86_64-linux" "x86_64-darwin" ];
     forAllSystems = f: builtins.listToAttrs (map (name: { inherit name; value = f name; }) systems);
@@ -12,12 +14,10 @@
       retroPi0 = {
         hardware = "raspberryPi0";
         program = { package = "retroarch"; executable = "/bin/retroarch"; };
-        locale.timeZone = "America/New_York";
       };
       retroPi4 = {
         hardware = "raspberryPi4";
         program = { package = "retroarch"; executable = "/bin/retroarch"; };
-        locale.timeZone = "America/New_York";
       };
       retroQemu = {
         hardware = "qemu";
@@ -26,28 +26,23 @@
       cogPi0 = {
         hardware = "raspberryPi0";
         program = { package = "cog"; executable = "/bin/cog"; };
-        locale.timeZone = "America/New_York";
       };
       cogPi1 = {
         hardware = "raspberryPi1";
         program = { package = "cog"; executable = "/bin/cog"; };
-        locale.timeZone = "America/New_York";
       };
-      # cogPi2 = {
-      #   hardware = "raspberryPi2";
-      #   program = { package = "cog"; executable = "/bin/cog"; };
-      #   locale.timeZone = "America/New_York";
-      # };
-      # cogPi3 = {
-      #   hardware = "raspberryPi3";
-      #   program = { package = "cog"; executable = "/bin/cog"; };
-      #   locale.timeZone = "America/New_York";
-      # };
-      # cogPi4 = {
-      #   hardware = "raspberryPi4";
-      #   program = { package = "cog"; executable = "/bin/cog"; };
-      #   locale.timeZone = "America/New_York";
-      # };
+      cogPi2 = {
+        hardware = "raspberryPi2";
+        program = { package = "cog"; executable = "/bin/cog"; };
+      };
+      cogPi3 = {
+        hardware = "raspberryPi3";
+        program = { package = "cog"; executable = "/bin/cog"; };
+      };
+      cogPi4 = {
+        hardware = "raspberryPi4";
+        program = { package = "cog"; executable = "/bin/cog"; };
+      };
       cogQemu = {
         hardware = "qemu";
         program = { package = "cog"; executable = "/bin/cog"; };
@@ -67,17 +62,14 @@
       kodiPi2 = {
         hardware = "raspberryPi2";
         program = { package = "kodi"; executable = "/bin/kodi"; };
-        locale.timeZone = "America/New_York";
       };
       kodiPi3 = {
         hardware = "raspberryPi3";
         program = { package = "kodi"; executable = "/bin/kodi"; };
-        locale.timeZone = "America/New_York";
       };
       kodiPi4 = {
         hardware = "raspberryPi4";
         program = { package = "kodi"; executable = "/bin/kodi"; };
-        locale.timeZone = "America/New_York";
       };
       kodiQemu = {
         hardware = "qemu";
@@ -118,16 +110,13 @@
 
     defaultPackage = forAllSystems (system: self.packages.${system}.nixiosk);
 
-    lib.makeBootableSystem = { pkgs, custom ? null, system }:
-      import ./boot { inherit pkgs custom system; };
-
     nixosModule = import ./configuration.nix;
 
     nixosConfigurations = let
       system = "x86_64-linux";
       nixpkgsFor = forAllSystems (system: import nixpkgs { inherit system; } );
 
-      boot = { hardware ? null, program, name, locale ? {} }: self.lib.makeBootableSystem {
+      boot = { hardware ? null, program, name, locale ? {} }: import ./boot {
         pkgs = nixpkgsFor.${system};
         inherit system;
         custom = {
@@ -153,8 +142,6 @@
         }).config.system.build.qcow2;
       };
     };
-
-    nixConfig.substituters = [ "https://nixiosk.cachix.org" ];
 
     templates.kodiKiosk.description = "Kodi Kiosk on multiple platforms";
     templates.kodiKiosk.path = ./template;
