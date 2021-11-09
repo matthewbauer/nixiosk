@@ -85,6 +85,9 @@
       };
     };
 
+    makeBootableSystem = { pkgs, custom ? null, system }:
+      import ./boot { inherit pkgs custom system; };
+
   in {
 
     packages = forAllSystems (system: let
@@ -118,16 +121,13 @@
 
     defaultPackage = forAllSystems (system: self.packages.${system}.nixiosk);
 
-    lib.makeBootableSystem = { pkgs, custom ? null, system }:
-      import ./boot { inherit pkgs custom system; };
-
     nixosModule = import ./configuration.nix;
 
     nixosConfigurations = let
       system = "x86_64-linux";
       nixpkgsFor = forAllSystems (system: import nixpkgs { inherit system; } );
 
-      boot = { hardware ? null, program, name, locale ? {} }: self.lib.makeBootableSystem {
+      boot = { hardware ? null, program, name, locale ? {} }: makeBootableSystem {
         pkgs = nixpkgsFor.${system};
         inherit system;
         custom = {
@@ -154,8 +154,6 @@
       };
     };
 
-    nixConfig.substituters = [ "https://nixiosk.cachix.org" ];
-
     templates.kodiKiosk.description = "Kodi Kiosk on multiple platforms";
     templates.kodiKiosk.path = ./template;
     defaultTemplate = self.templates.kodiKiosk;
@@ -164,4 +162,7 @@
       // builtins.mapAttrs (name: value: value.config.system.build.toplevel) self.nixosConfigurations;
 
   };
+
+  nixConfig.substituters = [ "https://nixiosk.cachix.org" ];
+
 }
