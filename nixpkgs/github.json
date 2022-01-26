@@ -1,8 +1,8 @@
 {
   "owner": "matthewbauer",
   "repo": "nixpkgs",
-  "branch": "kiosk7",
+  "branch": "nixos-21.05",
   "private": false,
-  "rev": "4423116175c3a2b207a36e6131bdc90a6cd17bbf",
-  "sha256": "04r2pg6dq426ggfadwxiv4l1g0xv6xq9kgv46v10gbdhlyp5r12z"
+  "rev": "03ade91e90409626581e6e665a76f29534cd86a8",
+  "sha256": "0bhvkch2f99aydak58xvbp0y5q9h4sm0fbkfc50i2cyc3qyxzm84"
 }

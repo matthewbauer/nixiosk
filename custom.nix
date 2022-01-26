@@ -11,7 +11,7 @@
       default = [];
     };
     nixiosk.program.package = lib.mkOption {
-      type = lib.types.oneOf [ lib.types.package lib.types.str ];
+      type = lib.types.oneOf [ lib.types.package lib.types.str (lib.types.functionTo lib.types.package) ];
     };
     nixiosk.program.executable = lib.mkOption {
       type = lib.types.str;
@@ -62,13 +62,22 @@
       type = lib.types.bool;
       default = builtins.elem config.nixiosk.hardware ["raspberryPi0" "raspberryPi1" "raspberryPi2"];
     };
+    nixiosk.raspberryPi.cecSupport = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+    };
     nixiosk.flake = lib.mkOption {
       type = lib.types.nullOr lib.types.path;
       default = null;
     };
   };
 
-  config = {
+  config = let
+    package = if builtins.isAttrs config.nixiosk.program.package then config.nixiosk.program.package
+              else if builtins.isFunction config.nixiosk.program.package then config.nixiosk.program.package pkgs
+              else if builtins.isString config.nixiosk.program.package then pkgs.${config.nixiosk.program.package}
+              else throw "Invalid nixiosk.program.package value.";
+  in {
     time = { timeZone = config.nixiosk.locale.timeZone; };
     services.localtime.enable =
      config.nixiosk.locale.timeZone == null &&
@@ -87,10 +96,10 @@
       sshKey = "/etc/ssh/ssh_host_rsa_key";
     };
     users.users.root.openssh.authorizedKeys.keys = config.nixiosk.authorizedKeys;
-    services.cage.program = "${lib.getBin (if builtins.isAttrs config.nixiosk.program.package then config.nixiosk.program.package else pkgs.${config.nixiosk.program.package})}${config.nixiosk.program.executable} ${toString (config.nixiosk.program.args)}";
-    environment.systemPackages = [
-      (if builtins.isAttrs config.nixiosk.program.package then config.nixiosk.program.package else pkgs.${config.nixiosk.program.package})
-    ];
+    services.cage.program = "${lib.getBin package}${config.nixiosk.program.executable} ${toString (config.nixiosk.program.args)}";
+    environment.systemPackages = [ package ];
+    systemd.packages = [ package ];
+    services.dbus.packages = [ package ];
     networking.hostName = config.nixiosk.hostName;
     networking.wireless.networks = builtins.mapAttrs (_: value: { pskRaw = value; }) (config.nixiosk.networks or {});
 

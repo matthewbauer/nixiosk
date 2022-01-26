@@ -73,24 +73,24 @@ fi
 
 system=
 if [ -n "$flake" ]; then
-    nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.toplevel" --out-link "$tmpdir/system"
+    nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.toplevel" --out-link "$tmpdir/system" ${NIX_OPTIONS:-}
     system=$(readlink -f $tmpdir/system)
 else
     system=$(nix-build --no-gc-warning --no-out-link \
                        --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
-                       "$NIXIOSK/boot" -A config.system.build.toplevel)
+                       "$NIXIOSK/boot" -A config.system.build.toplevel ${NIX_OPTIONS:-})
 fi
 
 if [ "$hardware" = qemu-no-virtfs ]; then
     NIX_DISK_IMAGE=${NIX_DISK_IMAGE:-$tmpdir/nixos.qcow2}
     qcow2=
     if [ -n "$flake" ]; then
-        nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.qcow2" --out-link "$tmpdir/qcow2"
+        nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.qcow2" --out-link "$tmpdir/qcow2" ${NIX_OPTIONS:-}
         qcow2=$(readlink -f $tmpdir/qcow2)/nixos.qcow2
     else
         qcow2=$(nix-build --no-gc-warning --no-out-link \
                           --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
-                          "$NIXIOSK/boot" -A config.system.build.qcow2)/nixos.qcow2
+                          "$NIXIOSK/boot" -A config.system.build.qcow2 ${NIX_OPTIONS:-})/nixos.qcow2
     fi
 
     cp -f $qcow2 $NIX_DISK_IMAGE

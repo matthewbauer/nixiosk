@@ -56,22 +56,22 @@ if [ -n "$flake" ]; then
     }
     trap cleanup EXIT
 
-    nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.netbootRamdisk" --out-link $tmpdir/netboot "$@"
+    nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.netbootRamdisk" --out-link $tmpdir/netboot "$@" ${NIX_OPTIONS:-}
     pxe_ramdisk=$(readlink -f $tmpdir/netboot)
-    nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.kernel" --out-link $tmpdir/kernel "$@"
+    nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.kernel" --out-link $tmpdir/kernel "$@" ${NIX_OPTIONS:-}
     pxe_kernel=$(readlink -f $tmpdir/kernel)
-    nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.toplevel" --out-link $tmpdir/system "$@"
+    nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.toplevel" --out-link $tmpdir/system "$@" ${NIX_OPTIONS:-}
     system=$(readlink -f $tmpdir/system)
 else
     pxe_ramdisk=$(nix-build --no-gc-warning --no-out-link \
                             --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
-                            "$NIXIOSK/boot" -A config.system.build.netbootRamdisk "$@")
+                            "$NIXIOSK/boot" -A config.system.build.netbootRamdisk "$@" ${NIX_OPTIONS:-})
     pxe_kernel=$(nix-build --no-gc-warning --no-out-link \
                            --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
-                           "$NIXIOSK/boot" -A config.system.build.kernel "$@")
+                           "$NIXIOSK/boot" -A config.system.build.kernel "$@" ${NIX_OPTIONS:-})
     system=$(nix-build --no-gc-warning --no-out-link \
                        --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
-                       "$NIXIOSK/boot" -A config.system.build.toplevel "$@")
+                       "$NIXIOSK/boot" -A config.system.build.toplevel "$@" ${NIX_OPTIONS:-})
 fi
 
 sudo pixiecore boot $pxe_kernel/bzImage $pxe_ramdisk/initrd --cmdline "init=$system/init $(cat $system/kernel-params)"

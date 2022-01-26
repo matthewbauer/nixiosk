@@ -5,11 +5,13 @@ let
   # looks unstable
   ubootEnabled = !(builtins.elem config.nixiosk.hardware [ "raspberryPi3" "raspberryPi4" ]);
 
-  # vc4-kms and vc4-fkms-v3d seem to work better on different hardware
-  # unclear why that is. Manually tested each on my rpi0 and rpi4.
-  gpu-overlay = if builtins.elem config.nixiosk.hardware ["raspberryPi0" "raspberryPi1" "raspberryPi2"]
-                then "vc4-kms-v3d"
-                else "vc4-fkms-v3d";
+  cma = {
+    raspberryPi0 = 256;
+    raspberryPi1 = 256;
+    raspberryPi2 = 256;
+    raspberryPi3 = 256;
+    raspberryPi4 = 512;
+  }.${config.nixiosk.hardware} or (throw "unknown raspberry pi system (${config.nixiosk.hardware})");
 
 in {
 
@@ -17,6 +19,7 @@ in {
 
 
   systemd.services.cec-active-source = {
+    enable = config.nixiosk.raspberryPi.cecSupport;
     description = "Set this device to the CEC Active Source";
     wantedBy = ["graphical.target"];
     after = ["cage@tty1.service"];
@@ -28,6 +31,7 @@ in {
   };
 
   systemd.services.libcec-daemon = {
+    enable = config.nixiosk.raspberryPi.cecSupport;
     description = "Set this device to the CEC Active Source";
     wantedBy = ["graphical.target"];
     serviceConfig = {
@@ -38,29 +42,201 @@ in {
   };
 
   # Ignore cec power key
-  services.logind.extraConfig = ''
+  services.logind.extraConfig = lib.optionalString config.nixiosk.raspberryPi.cecSupport ''
     HandlePowerKey = ignore
   '';
 
   systemd.services.cec-poweroff-tv = {
+    enable = config.nixiosk.raspberryPi.cecSupport;
     description = "Use CEC to power off TV";
     wantedBy = [ "poweroff.target" ];
     serviceConfig = {
       Type = "oneshot";
-      ExecStart = "${pkgs.runtimeShell}  -c '${pkgs.coreutils}/bin/echo standby 0 | ${lib.getBin pkgs.libcec}/bin/cec-client -s'";
-      ExecStop = "${pkgs.runtimeShell}  -c '${pkgs.coreutils}/bin/echo standby 0 | ${lib.getBin pkgs.libcec}/bin/cec-client -s'";
+      ExecStart = "${pkgs.runtimeShell} -c '${pkgs.coreutils}/bin/echo standby 0 | ${lib.getBin pkgs.libcec}/bin/cec-client -s'";
+      ExecStop = "${pkgs.runtimeShell} -c '${pkgs.coreutils}/bin/echo standby 0 | ${lib.getBin pkgs.libcec}/bin/cec-client -s'";
     };
   };
 
-  environment.systemPackages = [ pkgs.libcec ];
+  environment.systemPackages = lib.optional config.nixiosk.raspberryPi.cecSupport pkgs.libcec;
 
   hardware = {
-    # hardware.deviceTree overlaps with raspberry pi config.txt, but
-    # only hardware.deviceTree works with U-Boot
+    # set tsched=0 in pulseaudio config to avoid audio glitches
+    # see https://wiki.archlinux.org/title/PulseAudio/Troubleshooting#Glitches,_skips_or_crackling
+    pulseaudio.configFile = lib.mkOverride 990 (pkgs.runCommand "default.pa" {} ''
+      sed 's/module-udev-detect$/module-udev-detect tsched=0/' ${config.hardware.pulseaudio.package}/etc/pulse/default.pa > $out
+    '');
+
     deviceTree = {
-      base = "${pkgs.device-tree_rpi}/broadcom";
+      filter = "*rpi*.dtb";
       overlays = [
-        "${pkgs.raspberrypifw}/share/raspberrypi/boot/overlays/${gpu-overlay}.dtbo"
+        {
+          name = "cma";
+          dtsText = ''
+            /dts-v1/;
+            /plugin/;
+            / {
+              compatible = "brcm,bcm";
+              fragment@0 {
+                target = <&cma>;
+                __overlay__ {
+                  size = <(${toString cma} * 1024 * 1024)>;
+                };
+              };
+            };
+          '';
+        }
+        {
+          name = "audio-on-overlay";
+          dtsText = ''
+            /dts-v1/;
+            /plugin/;
+            / {
+              compatible = "brcm,bcm2711";
+              fragment@0 {
+                target = <&audio>;
+                __overlay__ {
+                  status = "okay";
+                };
+              };
+            };
+          '';
+        }
+        {
+          name = "bcm2708";
+          dtsText = ''
+            /dts-v1/;
+            /plugin/;
+            / {
+              compatible = "brcm,bcm2708";
+              fragment@1 {
+                target = <&fb>;
+                __overlay__ {
+                  status = "disabled";
+                };
+              };
+              fragment@2 {
+                target = <&firmwarekms>;
+                __overlay__ {
+                  status = "okay";
+                };
+              };
+              fragment@3 {
+                target = <&v3d>;
+                __overlay__ {
+                  status = "okay";
+                };
+              };
+              fragment@4 {
+                target = <&vc4>;
+                __overlay__ {
+                  status = "okay";
+                };
+              };
+            };
+          '';
+        }
+        {
+          name = "bcm2709";
+          dtsText = ''
+            /dts-v1/;
+            /plugin/;
+            / {
+              compatible = "brcm,2709";
+              fragment@1 {
+                target = <&fb>;
+                __overlay__ {
+                  status = "disabled";
+                };
+              };
+              fragment@2 {
+                target = <&firmwarekms>;
+                __overlay__ {
+                  status = "okay";
+                };
+              };
+              fragment@3 {
+                target = <&v3d>;
+                __overlay__ {
+                  status = "okay";
+                };
+              };
+              fragment@4 {
+                target = <&vc4>;
+                __overlay__ {
+                  status = "okay";
+                };
+              };
+            };
+          '';
+        }
+        {
+          name = "bcm2710";
+          dtsText = ''
+            /dts-v1/;
+            /plugin/;
+            / {
+              compatible = "brcm,bcm2710";
+              fragment@1 {
+                target = <&fb>;
+                __overlay__ {
+                  status = "disabled";
+                };
+              };
+              fragment@2 {
+                target = <&firmwarekms>;
+                __overlay__ {
+                  status = "okay";
+                };
+              };
+              fragment@3 {
+                target = <&v3d>;
+                __overlay__ {
+                  status = "okay";
+                };
+              };
+              fragment@4 {
+                target = <&vc4>;
+                __overlay__ {
+                  status = "okay";
+                };
+              };
+            };
+          '';
+        }
+        {
+          name = "bcm2711";
+          dtsText = ''
+            /dts-v1/;
+            /plugin/;
+            / {
+              compatible = "brcm,bcm2711";
+              fragment@1 {
+                target = <&fb>;
+                __overlay__ {
+                  status = "disabled";
+                };
+              };
+              fragment@2 {
+                target = <&firmwarekms>;
+                __overlay__ {
+                  status = "okay";
+                };
+              };
+              fragment@3 {
+                target = <&v3d>;
+                __overlay__ {
+                  status = "okay";
+                };
+              };
+              fragment@4 {
+                target = <&vc4>;
+                __overlay__ {
+                  status = "okay";
+                };
+              };
+            };
+          '';
+        }
       ];
     };
 
@@ -98,21 +274,9 @@ in {
       "dwc_otg.lpm_enable=0"
 
       "plymouth.ignore-serial-consoles"
-    ]
-
-      ++ lib.optionals ubootEnabled [
+    ] ++ lib.optionals ubootEnabled [
         # avoids https://github.com/raspberrypi/linux/issues/3331
         "initcall_blacklist=bcm2708_fb_init"
-
-        # avoids https://github.com/raspberrypi/firmware/issues/1247
-        "cma=${{
-          raspberryPi0 = "256M";
-          raspberryPi1 = "256M";
-          raspberryPi2 = "256M@512M";
-          raspberryPi3 = "256M@512M";
-          raspberryPi4 = "512M";
-        }.${config.nixiosk.hardware} or (throw "unknown raspberry pi system (${config.nixiosk.hardware})")}"
-
       ];
     initrd.kernelModules = [ "vc4" "bcm2835_dma" "i2c_bcm2835" "bcm2835_rng" ];
   };
@@ -123,8 +287,7 @@ in {
     mesa = (super.mesa.override {
       vulkanDrivers = [];
       driDrivers = [];
-      galliumDrivers = ["vc4" "swrast"];
-      enableRadv = false;
+      galliumDrivers = ["v3d" "vc4"];
       withValgrind = false;
       enableOSMesa = false;
       enableGalliumNine = false;
@@ -134,7 +297,7 @@ in {
 
     libcec = super.libcec.override { inherit (super) libraspberrypi; };
 
-    kodiPlain = (super.kodiPlain.override {
+    kodi = (super.kodi.override {
       vdpauSupport = false;
       libva = null;
       raspberryPiSupport = true;
@@ -170,11 +333,9 @@ in {
 
     uboot.enable = ubootEnabled;
 
-    firmwareConfig = ''
-      dtoverlay=${gpu-overlay}
-    '' + pkgs.stdenv.lib.optionalString pkgs.stdenv.hostPlatform.isAarch64 ''
+    firmwareConfig = lib.optionalString pkgs.stdenv.hostPlatform.isAarch64 ''
       arm_64bit=1
-    '' + pkgs.stdenv.lib.optionalString (config.nixiosk.raspberryPi.firmwareConfig != null) config.nixiosk.raspberryPi.firmwareConfig;
+    '' + lib.optionalString (config.nixiosk.raspberryPi.firmwareConfig != null) config.nixiosk.raspberryPi.firmwareConfig;
   };
 
   fileSystems = lib.mkForce (if ubootEnabled then {

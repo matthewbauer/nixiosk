@@ -9,7 +9,7 @@
   description = "Example Nixiosk System";
 
   inputs.nixiosk.url = "github:matthewbauer/nixiosk";
-  inputs.nixpkgs.url = "github:matthewbauer/nixpkgs?ref=kiosk7";
+  inputs.nixpkgs.url = "github:matthewbauer/nixpkgs?ref=kiosk-21.05";
 
   outputs = { self, nixiosk, nixpkgs }: let
 

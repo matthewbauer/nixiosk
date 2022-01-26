@@ -4,14 +4,14 @@ let
   raspberrypi-conf-builder =
     import (modulesPath + "/system/boot/loader/raspberrypi/raspberrypi-builder.nix") {
       pkgs = pkgs.buildPackages;
-      raspberrypifw = pkgs.raspberrypifw;
+      firmware = pkgs.raspberrypifw;
       configTxt = pkgs.writeText "config.txt" (''
         kernel=kernel.img
         initramfs initrd followkernel
       '' + config.boot.loader.raspberryPi.firmwareConfig);
     };
 in {
-  imports = [ (modulesPath + "/installer/cd-dvd/sd-image.nix") ];
+  imports = [ (modulesPath + "/installer/sd-card/sd-image.nix") ];
 
   boot.loader.raspberryPi.enable = lib.mkForce false;
 

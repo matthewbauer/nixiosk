@@ -24,7 +24,7 @@ let
     [all]
   '' + config.boot.loader.raspberryPi.firmwareConfig);
 in {
-  imports = [ (modulesPath + "/installer/cd-dvd/sd-image.nix") ];
+  imports = [ (modulesPath + "/installer/sd-card/sd-image.nix") ];
 
   boot.loader.raspberryPi.enable = lib.mkForce false;
 
