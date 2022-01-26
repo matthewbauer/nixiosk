@@ -5,7 +5,7 @@
   inputs.nixpkgs-unstable.url = "github:nixos/nixpkgs?ref=nixos-unstable";
 
   outputs = { self, nixpkgs, nixpkgs-unstable }: let
-    systems = [ "x86_64-linux" "x86_64-darwin" ];
+    systems = [ "x86_64-linux" "x86_64-darwin" "aarch64-darwin" ];
     forAllSystems = f: builtins.listToAttrs (map (name: { inherit name; value = f name; }) systems);
 
     exampleConfigs = {
@@ -149,10 +149,8 @@
       };
     in (builtins.mapAttrs (name: value: boot (value // { inherit name; })) exampleConfigs);
 
-    checks = {
-      x86_64-linux = {
-        inherit (self.packages.x86_64-linux) nixiosk;
-
+    checks = self.packages // {
+      x86_64-linux = self.packages.x86_64-linux // {
         exampleQemu = (nixpkgs.lib.nixosSystem {
           modules = [
             ./boot/qemu-no-virtfs.nix
