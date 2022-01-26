@@ -175,6 +175,9 @@
 
   };
 
-  nixConfig.substituters = [ "https://nixiosk.cachix.org" ];
+  nixConfig = {
+    substituters = [ "https://nixiosk.cachix.org" ];
+    trusted-public-keys = [ "nixiosk.cachix.org-1:A4kH9p+y9NjDWj0rhaOnv3OLIOPTbjRIsXRPEeTtiS4=" ];
+  };
 
 }
