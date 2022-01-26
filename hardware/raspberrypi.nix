@@ -275,10 +275,14 @@ in {
 
       "plymouth.ignore-serial-consoles"
     ] ++ lib.optionals ubootEnabled [
-        # avoids https://github.com/raspberrypi/linux/issues/3331
-        "initcall_blacklist=bcm2708_fb_init"
-      ];
-    initrd.kernelModules = [ "vc4" "bcm2835_dma" "i2c_bcm2835" "bcm2835_rng" ];
+      # avoids https://github.com/raspberrypi/linux/issues/3331
+      "initcall_blacklist=bcm2708_fb_init"
+    ];
+    initrd = {
+      includeDefaultModules = false;
+      kernelModules = [ "vc4" ];
+      availableKernelModules = [ "usbhid" "usb_storage" "vc4" "bcm2835_dma" "i2c_bcm2835" ];
+    };
   };
 
   nixpkgs.overlays = [(self: super: lib.optionalAttrs (super.stdenv.hostPlatform != super.stdenv.buildPlatform) {
