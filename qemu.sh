@@ -111,11 +111,19 @@ else
     qemuFlags+=" -device virtio-blk-pci,werror=report,drive=drive0"
 fi
 
-if [ "$(uname)" = Darwin ]; then
+if [ "$(uname -s)" = Darwin ]; then
     qemuFlags+=" -accel hvf"
 else
     qemuFlags+=" -cpu max"
 fi
+
+if [ "$(uname -m)" = arm64 ]; then
+    qemuFlags+=" -machine virt"
+    qemuFlags+=" -device virtio-gpu-pci"
+else
+    qemuFlags+=" -vga virtio"
+fi
+
 
 if [ -n "$vnc" ]; then
     qemuFlags+=" -vnc :0,password"
@@ -127,7 +135,6 @@ if [ "$(uname)" = Linux ] && ! [ -e /dev/kvm ]; then
 fi
 
 qemu-kvm -name "$hostName" -m 1024 \
-  -vga virtio \
   -nic user \
   -device virtio-rng-pci \
   -device virtio-tablet-pci \
