@@ -21,7 +21,7 @@
       nixiosk = lib.mkForce custom;
       nixpkgs.localSystem = lib.mkForce {
         system = if system != null then system
-                 else if builtins.currentSystem == "x86_64-darwin" then "x86_64-linux"
+                 else if builtins.currentSystem == "x86_64-darwin" || builtins.currentSystem == "aarch64-darwin" then "x86_64-linux"
                  else builtins.currentSystem;
       };
     })
