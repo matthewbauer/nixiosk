@@ -1,5 +1,5 @@
 #!/usr/bin/env nix-shell
-#!nix-shell -i bash -p coreutils nixUnstable jq pv
+#!nix-shell -i bash -p coreutils nix jq pv
 
 set -eu -o pipefail
 

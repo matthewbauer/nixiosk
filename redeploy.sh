@@ -1,5 +1,5 @@
 #!/usr/bin/env nix-shell
-#!nix-shell -i bash -p jq openssh nixUnstable
+#!nix-shell -i bash -p jq openssh nix
 
 set -eu -o pipefail
 

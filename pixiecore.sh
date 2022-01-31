@@ -1,5 +1,5 @@
 #!/usr/bin/env nix-shell
-#!nix-shell -i bash -p nixUnstable pixiecore jq
+#!nix-shell -i bash -p nix pixiecore jq
 
 set -eu -o pipefail
 

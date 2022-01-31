@@ -1,5 +1,5 @@
 #!/usr/bin/env nix-shell
-#!nix-shell -i bash -p nixUnstable jq gnused qemu
+#!nix-shell -i bash -p nix jq gnused qemu
 
 set -eu -o pipefail
 

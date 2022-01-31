@@ -105,12 +105,12 @@
             -e s,^NIXIOSK=\"$PWD\"$,NIXIOSK=\"$out/share/nixiosk\", \
             $script
         done
-        sed -i -e 's,^#!nix-shell -i bash -p coreutils nixUnstable jq$,PATH="${lib.makeBinPath [ coreutils nixUnstable jq ]}''${PATH:+:}$PATH",' $out/bin/nixiosk-build
-        sed -i -e 's,^#!nix-shell -i bash -p coreutils nixUnstable jq$,PATH="${lib.makeBinPath [ coreutils nixUnstable jq ]}''${PATH:+:}$PATH",' $out/bin/nixiosk-deploy
-        sed -i -e 's,^#!nix-shell -i bash -p jq openssh nixUnstable$,PATH="${lib.makeBinPath [ jq openssh nixUnstable ]}''${PATH:+:}$PATH",' $out/bin/nixiosk-redeploy
+        sed -i -e 's,^#!nix-shell -i bash -p coreutils nix jq$,PATH="${lib.makeBinPath [ coreutils nix jq ]}''${PATH:+:}$PATH",' $out/bin/nixiosk-build
+        sed -i -e 's,^#!nix-shell -i bash -p coreutils nix jq$,PATH="${lib.makeBinPath [ coreutils nix jq ]}''${PATH:+:}$PATH",' $out/bin/nixiosk-deploy
+        sed -i -e 's,^#!nix-shell -i bash -p jq openssh nix,PATH="${lib.makeBinPath [ jq openssh nix ]}''${PATH:+:}$PATH",' $out/bin/nixiosk-redeploy
       '' + lib.optionalString (!stdenv.hostPlatform.isDarwin) ''
-        sed -i -e 's,^#!nix-shell -i bash -p nixUnstable pixiecore jq$,PATH="${lib.makeBinPath [ nixUnstable pixiecore jq ]}''${PATH:+:}$PATH",' $out/bin/nixiosk-pixiecore
-        sed -i -e 's,^#!nix-shell -i bash -p nixUnstable qemu jq$,PATH="${lib.makeBinPath [ nixUnstable qemu jq ]}''${PATH:+:}$PATH",' $out/bin/nixiosk-qemu
+        sed -i -e 's,^#!nix-shell -i bash -p nix pixiecore jq$,PATH="${lib.makeBinPath [ nix pixiecore jq ]}''${PATH:+:}$PATH",' $out/bin/nixiosk-pixiecore
+        sed -i -e 's,^#!nix-shell -i bash -p nix qemu jq$,PATH="${lib.makeBinPath [ nix qemu jq ]}''${PATH:+:}$PATH",' $out/bin/nixiosk-qemu
       '');
     });
 
@@ -163,7 +163,7 @@
 
       nativeBuildInputs = [
         (writeShellScriptBin "update-cache" ''
-          PATH=$PATH''${PATH:+:}${lib.makeBinPath [ cachix nixUnstable findutils ]}
+          PATH=$PATH''${PATH:+:}${lib.makeBinPath [ cachix nix findutils ]}
           ( nix-build -E '(import ./.).hydraJobs' ;
             nix-instantiate -E '(import ./.).hydraJobs' | xargs nix-store -qR --include-outputs | grep -v '\.drv$' ;
             ) | cachix push nixiosk
