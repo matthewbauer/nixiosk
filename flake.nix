@@ -37,17 +37,14 @@
       cogPi2 = {
         hardware = "raspberryPi2";
         program = { package = "cog"; executable = "/bin/cog"; };
-        locale.timeZone = "America/New_York";
       };
       cogPi3 = {
         hardware = "raspberryPi3";
         program = { package = "cog"; executable = "/bin/cog"; };
-        locale.timeZone = "America/New_York";
       };
       cogPi4 = {
         hardware = "raspberryPi4";
         program = { package = "cog"; executable = "/bin/cog"; };
-        locale.timeZone = "America/New_York";
       };
       cogQemu = {
         hardware = "qemu";
@@ -85,19 +82,6 @@
 
     makeBootableSystem = { pkgs, custom ? null, system }:
       import ./boot { inherit pkgs custom system; };
-
-    build = system:
-      if system.config.nixiosk.hardware == "qemu-no-virtfs" then system.config.system.build.qcow2
-      else if system.config.nixiosk.hardware == "qemu" then system.config.system.build.toplevel
-      else if system.config.nixiosk.hardware == "raspberryPi0" then system.config.system.build.sdImage
-      else if system.config.nixiosk.hardware == "raspberryPi1" then system.config.system.build.sdImage
-      else if system.config.nixiosk.hardware == "raspberryPi2" then system.config.system.build.sdImage
-      else if system.config.nixiosk.hardware == "raspberryPi3" then system.config.system.build.sdImage
-      else if system.config.nixiosk.hardware == "raspberryPi4" then system.config.system.build.sdImage
-      else if system.config.nixiosk.hardware == "pxe" then system.config.system.build.netbootRamdisk
-      else if system.config.nixiosk.hardware == "iso" then system.config.system.build.isoImage
-      else if system.config.nixiosk.hardware == "ova" then system.config.system.build.virtualBoxOVA
-      else throw "unknown hardware ${system.config.nixiosk.hardware}";
 
   in {
 
@@ -168,7 +152,7 @@
     defaultTemplate = self.templates.kodiKiosk;
 
     hydraJobs = self.checks.x86_64-linux
-      // builtins.mapAttrs (_: build) self.nixosConfigurations;
+      // builtins.mapAttrs (_: system: system.config.system.build.toplevel) self.nixosConfigurations;
 
     devShell = forAllSystems (system: let
       nixpkgsFor = forAllSystems (system: import nixpkgs-unstable { inherit system; } );
