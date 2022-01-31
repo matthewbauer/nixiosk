@@ -157,7 +157,7 @@
     devShell = forAllSystems (system: let
       nixpkgsFor = forAllSystems (system: import nixpkgs-unstable { inherit system; } );
     in with nixpkgsFor.${system}; stdenv.mkDerivation {
-      name = "nix";
+      name = "nixiosk";
 
       nativeBuildInputs = [
         (writeShellScriptBin "update-cache" ''
