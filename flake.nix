@@ -145,6 +145,7 @@
         inherit system;
         custom = (builtins.removeAttrs args ["name"]) // {
           hostName = name;
+          flake = self;
         };
       };
     in (builtins.mapAttrs (name: value: boot (value // { inherit name; })) exampleConfigs);

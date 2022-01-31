@@ -122,6 +122,14 @@
     #   };
     # };
 
+    boot.postBootCommands = lib.optionalString (config.nixiosk.flake != null) ''
+      if ! [ -d /etc/nixos ] && ! [ "$(ls -A /etc/nixos)" ] ; then
+        mkdir -p /etc
+        cp -R ${config.nixiosk.flake} /etc/nixos
+        chmod -R u+w /etc/nixos
+      fi
+    '';
+
   } // lib.optionalAttrs (builtins.pathExists ./nixiosk.json) {
     nixiosk = builtins.fromJSON (builtins.readFile ./nixiosk.json);
   };

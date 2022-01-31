@@ -15,7 +15,7 @@
 
     # Base example configuration
     baseConfig = { pkgs, ... }: {
-      imports = [ (nixiosk + /boot/flake.nix) nixiosk.nixosModule ];
+      imports = [ nixiosk.nixosModule ];
       nixiosk.flake = self;
 
       ###
