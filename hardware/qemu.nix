@@ -26,10 +26,6 @@
       hwclock -s
     '';
 
-    security.rngd.enable = false;
-
-    powerManagement.enable = false;
-
     hardware.firmware = [ pkgs.wireless-regdb ];
 
   };

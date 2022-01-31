@@ -5,7 +5,7 @@ set -eu -o pipefail
 
 NIXIOSK="$PWD"
 
-if [ "$#" -gt 0 ] && { [ "$1" = "--help" ] || [ "$1" = "-h" ]; }; then
+if [ "$#" -gt 0 ] && { [ "$1" = "--help" ] || [ "$1" = "-h" ] ; }; then
     echo Usage: "$0" retropi1.json retropi1.local
     exit 1
 fi
@@ -68,15 +68,15 @@ if [ -n "$flake" ]; then
     }
     trap cleanup EXIT
 
-    nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.toplevel" --out-link "$tmpdir/system" "$@"
+    nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.redeploy" --out-link "$tmpdir/system" "$@" ${NIX_OPTIONS:-}
     system=$(readlink -f $tmpdir/system)
 else
     drv=$(nix-instantiate --no-gc-warning \
                              --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
-                             "$NIXIOSK/redeploy.nix" -A config.system.build.toplevel)
+                             "$NIXIOSK/redeploy.nix" -A config.system.build.toplevel ${NIX_OPTIONS:-})
 
     # nix build --keep-going "$system"
-    system=$(nix-build --keep-going --no-out-link "$system" "$@")
+    system=$(nix-build --keep-going --no-out-link "$system" "$@" ${NIX_OPTIONS:-})
 fi
 
 nix copy "$system" --to "ssh://root@$host"

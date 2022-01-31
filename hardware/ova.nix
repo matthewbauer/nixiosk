@@ -4,7 +4,6 @@
 
     boot.loader.grub.fsIdentifier = "provided";
     users.users.kiosk.extraGroups = [ "vboxsf" ];
-    powerManagement.enable = false;
 
     virtualisation.virtualbox.guest.enable = true;
 

@@ -407,3 +407,61 @@ data. You can do this with wipefs:
 #+BEGIN_SRC sh
 $ nix-shell -p utillinux -run 'wipefs /dev/mmcblk0'
 #+END_SRC
+
+** failed to open '/dev/disk2': Resource busy
+
+You may have to unmount your sd drive to continue. You can try
+running:
+
+#+BEGIN_SRC sh
+$ sudo diskutil unmountDisk /dev/disk2
+#+END_SRC
+
+** SSH into QEMU
+
+In order to SSH into a running QEMU Nixiosk system, you must follow
+the following steps:
+
+In the QEMU window, go to the top Menu bar and select "View" →
+"compat_monitor0". This will enter into a terminal view.
+
+Within the terminal, type the following followed by enter:
+
+#+BEGIN_SRC text
+hostfwd_add tcp::2222-:22
+#+END_SRC
+
+Now you can SSH under the 2222 port:
+
+#+BEGIN_SRC sh
+$ ssh -p 2222 root@localhost
+#+END_SRC
+
+You can switch back to the manu QEMU window by selecting "View" →
+"virtio-vga".
+
+If you have multiple QEMU windows open at once, you will need to use a
+different port for each one. Just follow the above steps substituting
+2222 with 2223.
+
+** SSH requires a password
+
+If you cannot SSH following any of the above instructions, and get something
+like:
+
+#+BEGIN_SRC sh
+$ ssh -p 2222 root@localhost
+(root@localhost) Password:
+(root@localhost) Password:
+(root@localhost) Password:
+root@localhost's password:
+Permission denied, please try again.
+root@localhost's password:
+Permission denied, please try again.
+root@localhost's password:
+Received disconnect from 127.0.0.1 port 2222:2: Too many authentication failures
+#+END_SRC
+
+You have not configured your public keys correctly. Make sure the
+contents on =$HOME/.ssh/id_rsa.pub= or similar are included in
+authorizedKeys for your system configuration.

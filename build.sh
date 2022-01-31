@@ -5,7 +5,7 @@ set -eu -o pipefail
 
 NIXIOSK="$PWD"
 
-if [ "$#" -gt 0 ] && { [ "$1" = "--help" ] || [ "$1" = "-h" ]; }; then
+if [ "$#" -gt 0 ] && { [ "$1" = "--help" ] || [ "$1" = "-h" ] ; }; then
     echo Usage: "$0" nixiosk.json.sample
     exit 1
 fi
@@ -21,7 +21,7 @@ fi
 
 hardware=
 if [ -n "$flake" ]; then
-    hardware="$(nix eval --raw "$flake.config.nixiosk.hardware")"
+    hardware="$(nix eval --raw "$flake.config.nixiosk.hardware" ${NIX_OPTIONS:-})"
 else
     custom=./nixiosk.json
     if [ "$#" -gt 0 ]; then
@@ -41,7 +41,7 @@ case "$hardware" in
     qemu-no-virtfs) target=config.system.build.qcow2 ;;
     qemu) target=config.system.build.toplevel ;;
     raspberryPi*) target=config.system.build.sdImage ;;
-    pxe) target=config.system.build.netbootIpxeScript ;;
+    pxe) target=config.system.build.netbootRamdisk ;;
     iso) target=config.system.build.isoImage ;;
     ova) target=config.system.build.virtualBoxOVA ;;
     *) echo "hardware $hardware is not recognized"
@@ -49,9 +49,9 @@ case "$hardware" in
 esac
 
 if [ -n "$flake" ]; then
-    nix --experimental-features 'nix-command flakes' build "$flake.$target" "$@"
+    nix --experimental-features 'nix-command flakes' build "$flake.$target" "$@" ${NIX_OPTIONS:-}
 else
     nix-build "$NIXIOSK/boot" \
               --arg custom "builtins.fromJSON (builtins.readFile $(realpath $custom))" \
-              -A $target "$@"
+              -A $target "$@" ${NIX_OPTIONS:-}
 fi

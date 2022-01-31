@@ -1,5 +1,5 @@
 #!/usr/bin/env nix-shell
-#!nix-shell -i bash -p coreutils nixUnstable jq
+#!nix-shell -i bash -p coreutils nixUnstable jq pv
 
 set -eu -o pipefail
 
@@ -101,14 +101,14 @@ fi
 
 sd_image=
 if [ -n "$flake" ]; then
-    nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.sdImage" --out-link "$tmpdir/sdImage" "$@"
-    sd_image="$(readlink -f $tmpdir/sdImage)"/sd-image/*.img
+    nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.sdImage" --out-link "$tmpdir/sdImage" "$@" ${NIX_OPTIONS:-}
+    sd_image=$(echo "$(readlink -f $tmpdir/sdImage)"/sd-image/*.img)
 else
     sd_drv=$(nix-instantiate --no-gc-warning \
                              --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
-                             "$NIXIOSK/boot" -A config.system.build.sdImage "$@")
+                             "$NIXIOSK/boot" -A config.system.build.sdImage "$@" ${NIX_OPTIONS:-})
 
-    out=$(nix-build --keep-going --no-out-link "$sd_drv" "$@")
+    out=$(nix-build --keep-going --no-out-link "$sd_drv" "$@" ${NIX_OPTIONS:-})
     sd_image=$(echo "$out"/sd-image/*.img)
 fi
 
@@ -116,4 +116,4 @@ echo "SD image is: $sd_image"
 
 echo "Writing to $dev, may require password."
 
-"$SUDO" dd bs=1M if="$sd_image" of="$block" status=progress conv=fsync
+"$SUDO" sh -c "pv \"$sd_image\" > \"$block\""

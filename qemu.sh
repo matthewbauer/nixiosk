@@ -1,11 +1,11 @@
 #!/usr/bin/env nix-shell
-#!nix-shell -i bash -p nixUnstable qemu jq
+#!nix-shell -i bash -p nixUnstable jq gnused qemu
 
 set -eu -o pipefail
 
 NIXIOSK="$PWD"
 
-if [ "$#" -gt 0 ] && { [ "$1" = "--help" ] || [ "$1" = "-h" ]; }; then
+if [ "$#" -gt 0 ] && { [ "$1" = "--help" ] || [ "$1" = "-h" ] ; }; then
     echo Usage: "$0" nixiosk.json.sample
     exit 1
 fi
@@ -28,6 +28,7 @@ fi
 tmpdir="$(mktemp -d)"
 hardware=
 hostName=
+qemuArch=
 NIX_DISK_IMAGE=
 
 cleanup() {
@@ -43,6 +44,7 @@ custom=./nixiosk.json
 if [ -n "$flake" ]; then
     hardware="$(nix eval --raw "$flake.config.nixiosk.hardware")"
     hostName="$(nix eval --raw "$flake.config.nixiosk.hostName")"
+    qemuArch="$(nix eval --raw "$flake._module.args.pkgs.hostPlatform.qemuArch")"
 else
     if [ "$#" -gt 0 ]; then
         if [ "${1:0:1}" != "-" ]; then
@@ -73,24 +75,27 @@ fi
 
 system=
 if [ -n "$flake" ]; then
-    nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.toplevel" --out-link "$tmpdir/system"
+    nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.toplevel" --out-link "$tmpdir/system" ${NIX_OPTIONS:-}
     system=$(readlink -f $tmpdir/system)
 else
+    qemuArch=$(nix-instantiate --no-gc-warning --no-out-link \
+                       --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
+                       "$NIXIOSK/boot" -A config.system.build.toplevel ${NIX_OPTIONS:-} | sed 's,^",,; s,"$,,')
     system=$(nix-build --no-gc-warning --no-out-link \
                        --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
-                       "$NIXIOSK/boot" -A config.system.build.toplevel)
+                       "$NIXIOSK/boot" -A config.system.build.toplevel ${NIX_OPTIONS:-})
 fi
 
 if [ "$hardware" = qemu-no-virtfs ]; then
     NIX_DISK_IMAGE=${NIX_DISK_IMAGE:-$tmpdir/nixos.qcow2}
     qcow2=
     if [ -n "$flake" ]; then
-        nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.qcow2" --out-link "$tmpdir/qcow2"
+        nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.qcow2" --out-link "$tmpdir/qcow2" ${NIX_OPTIONS:-}
         qcow2=$(readlink -f $tmpdir/qcow2)/nixos.qcow2
     else
         qcow2=$(nix-build --no-gc-warning --no-out-link \
                           --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
-                          "$NIXIOSK/boot" -A config.system.build.qcow2)/nixos.qcow2
+                          "$NIXIOSK/boot" -A config.system.build.qcow2 ${NIX_OPTIONS:-})/nixos.qcow2
     fi
 
     cp -f $qcow2 $NIX_DISK_IMAGE
@@ -111,7 +116,7 @@ else
     qemuFlags+=" -device virtio-blk-pci,werror=report,drive=drive0"
 fi
 
-if [ "$(uname)" = Darwin ]; then
+if [ "$(uname -s)" = Darwin ] && { [ "$(uname -s)" = arm64 ] && [ "$qemuArch" = aarch64 ] || [ "$(uname -s)" = "$qemuArch" ] ; }; then
     qemuFlags+=" -accel hvf"
 else
     qemuFlags+=" -cpu max"
@@ -122,12 +127,22 @@ if [ -n "$vnc" ]; then
     qemuFlags+=" -monitor stdio"
 fi
 
-if [ "$(uname)" = Linux ] && ! [ -e /dev/kvm ]; then
-    echo "Warning: qemu will be very slow without Linux KVM support"
+if [ "$(uname -s)" = Linux ]; then
+    if [ -e /dev/kvm ]; then
+        qemuFlags+=" -enable-kvm"
+    else
+        echo "Warning: qemu will be very slow without Linux KVM support"
+    fi
 fi
 
-qemu-kvm -name "$hostName" -m 1024 \
-  -vga virtio \
+if [ "$qemuArch" = aarch64 ]; then
+    qemuFlags+=" -machine virt"
+    qemuFlags+=" -device virtio-gpu-pci"
+else
+    qemuFlags+=" -vga virtio"
+fi
+
+"qemu-system-$qemuArch" -name "$hostName" -m 1024 \
   -nic user \
   -device virtio-rng-pci \
   -device virtio-tablet-pci \

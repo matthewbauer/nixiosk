@@ -9,13 +9,13 @@
   description = "Example Nixiosk System";
 
   inputs.nixiosk.url = "github:matthewbauer/nixiosk";
-  inputs.nixpkgs.url = "github:matthewbauer/nixpkgs?ref=kiosk7";
+  inputs.nixpkgs.url = "github:matthewbauer/nixpkgs?ref=kiosk-21.05";
 
   outputs = { self, nixiosk, nixpkgs }: let
 
     # Base example configuration
     baseConfig = { pkgs, ... }: {
-      imports = [ (nixiosk + /boot/flake.nix) nixiosk.nixosModule ];
+      imports = [ nixiosk.nixosModule ];
       nixiosk.flake = self;
 
       ###
