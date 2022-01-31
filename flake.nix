@@ -147,8 +147,10 @@
       };
     };
 
-    templates.kodiKiosk.description = "Kodi Kiosk on multiple platforms";
-    templates.kodiKiosk.path = ./template;
+    templates.kodiKiosk = {
+      description = "Kodi Kiosk on multiple platforms";
+      path = ./template;
+    };
     defaultTemplate = self.templates.kodiKiosk;
 
     hydraJobs = self.checks.x86_64-linux
