@@ -10,7 +10,7 @@
   };
 
   outputs = { self, nixpkgs, nixpkgs-unstable }: let
-    systems = [ "x86_64-linux" "x86_64-darwin" "aarch64-darwin" ];
+    systems = [ "x86_64-linux" "x86_64-darwin" "aarch64-darwin" "aarch64-linux" ];
     forAllSystems = f: builtins.listToAttrs (map (name: { inherit name; value = f name; }) systems);
 
     exampleConfigs = {
