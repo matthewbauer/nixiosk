@@ -78,9 +78,9 @@ if [ -n "$flake" ]; then
     nix --experimental-features 'nix-command flakes' build "$flake.config.system.build.toplevel" --out-link "$tmpdir/system" ${NIX_OPTIONS:-}
     system=$(readlink -f $tmpdir/system)
 else
-    qemuArch=$(nix-instantiate --no-gc-warning --no-out-link \
+    qemuArch=$(nix-instantiate --no-gc-warning \
                        --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
-                       "$NIXIOSK/boot" -A config.system.build.toplevel ${NIX_OPTIONS:-} | sed 's,^",,; s,"$,,')
+                       "$NIXIOSK/boot" --eval -A _module.args.pkgs.hostPlatform.qemuArch ${NIX_OPTIONS:-} | sed 's,^",,; s,"$,,')
     system=$(nix-build --no-gc-warning --no-out-link \
                        --arg custom "builtins.fromJSON (builtins.readFile $(realpath "$custom"))" \
                        "$NIXIOSK/boot" -A config.system.build.toplevel ${NIX_OPTIONS:-})
